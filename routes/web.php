@@ -24,6 +24,7 @@ Route::get('/', [ToolController::class, 'index'])->name('home');
 
 // Trang chi tiết từng công cụ tiện ích
 Route::get('/tool/{slug}', [ToolController::class, 'show'])->name('tool.show');
+Route::post('/tool/pdf-sang-word/server-convert', [ToolController::class, 'convertPdfToDocx'])->name('tool.pdf-to-word.server-convert');
 
 // Gói Pro & Thanh toán VietQR
 Route::get('/pricing', [PaymentController::class, 'pricing'])->name('pricing');

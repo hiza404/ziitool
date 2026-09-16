@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ToolOverride;
 use App\Services\SeoService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
@@ -66,8 +67,17 @@ class ToolController extends Controller
     /**
      * Display a specific micro-tool page.
      */
-    public function show(string $slug): View
+    public function show(string $slug): View|RedirectResponse
     {
+        $redirects = [
+            'tao-slide-thuyet-trinh' => 'bai-thuyet-trinh',
+            'chinh-anh-meitu' => 'bai-thuyet-trinh',
+        ];
+
+        if (isset($redirects[$slug])) {
+            return redirect()->route('tool.show', ['slug' => $redirects[$slug]], 301);
+        }
+
         $allTools = config('tools.list', []);
 
         if (! isset($allTools[$slug])) {
@@ -121,6 +131,14 @@ class ToolController extends Controller
             'tinh-lai-kep' => 'tools.compound-interest',
             'tao-mockup-thiet-bi' => 'tools.device-mockup',
             'trich-xuat-bang-mau' => 'tools.color-palette',
+            'pdf-sang-word' => 'tools.pdf-to-word',
+            'chuyen-sang-excel' => 'tools.format-to-excel',
+            'chuyen-sang-word' => 'tools.format-to-word',
+            'xoa-phong-anh' => 'tools.ai-background-remover',
+            'nang-chat-luong-anh' => 'tools.ai-image-enhancer',
+            'bai-thuyet-trinh' => 'tools.slide-presentation-maker',
+            'tao-slide-thuyet-trinh' => 'tools.slide-presentation-maker',
+            'chinh-anh-meitu' => 'tools.slide-presentation-maker',
         ];
 
         $viewName = $viewMap[$slug] ?? 'tools.generic';
@@ -193,5 +211,50 @@ class ToolController extends Controller
         return response($content, 200, [
             'Content-Type' => 'text/plain',
         ]);
+    }
+
+    /**
+     * High-Fidelity Server Engine for PDF to Word conversion.
+     */
+    public function convertPdfToDocx(Request $request)
+    {
+        $request->validate([
+            'pdf_file' => 'required|file|mimes:pdf|max:51200',
+        ]);
+
+        $file = $request->file('pdf_file');
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $tempId = uniqid('pdf_conv_', true);
+        $tempDir = storage_path('app/temp/'.$tempId);
+        @mkdir($tempDir.'/profile', 0777, true);
+
+        $pdfPath = $tempDir.'/input.pdf';
+        $file->move($tempDir, 'input.pdf');
+
+        $cmd = sprintf(
+            'HOME=%s soffice "-env:UserInstallation=file://%s/profile" --headless --infilter="writer_pdf_import" --convert-to docx %s --outdir %s 2>&1',
+            escapeshellarg($tempDir),
+            $tempDir,
+            escapeshellarg($pdfPath),
+            escapeshellarg($tempDir)
+        );
+
+        exec($cmd, $output, $exitCode);
+
+        $docxFiles = glob($tempDir.'/*.docx');
+        if ($exitCode === 0 && ! empty($docxFiles) && file_exists($docxFiles[0])) {
+            $docxPath = $docxFiles[0];
+            $downloadName = ($originalName ?: 'document').'_ziitool.docx';
+
+            return response()->download($docxPath, $downloadName)->deleteFileAfterSend(true);
+        }
+
+        // Cleanup if failed
+        @unlink($pdfPath);
+
+        return response()->json([
+            'error' => 'Không thể chuyển đổi tệp bằng engine máy chủ. Vui lòng chuyển sang sử dụng Engine Trình Duyệt để bóc tách thông minh.',
+            'details' => implode("\n", $output),
+        ], 422);
     }
 }
