@@ -10,6 +10,7 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'order_code',
         'plan',
         'amount',
@@ -18,6 +19,14 @@ class Order extends Model
         'customer_name',
         'customer_phone',
     ];
+
+    /**
+     * User who placed this order.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Format amount in VNĐ.

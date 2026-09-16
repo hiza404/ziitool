@@ -5,7 +5,7 @@
     $demoMode = \App\Models\Setting::get('ads_demo_mode', '1') === '1';
     $clientId = \App\Models\Setting::get('adsense_client_id', config('ads.client_id'));
     $slotId = \App\Models\Setting::get('ads_slot_' . $slot, config('ads.slots.' . $slot, '1234567890'));
-    $isPro = session('is_pro_member', false);
+    $isPro = session('is_pro_member', false) || (auth()->check() && auth()->user()->isPro());
 @endphp
 
 @if($adsEnabled && !$isPro)

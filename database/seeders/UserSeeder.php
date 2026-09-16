@@ -30,6 +30,20 @@ class UserSeeder extends Seeder
                 'name' => 'Người Dùng Tiêu Chuẩn',
                 'password' => Hash::make('user123'),
                 'is_admin' => false,
+                'is_pro' => false,
+            ]
+        );
+
+        // Pro Member User
+        User::updateOrCreate(
+            ['email' => 'pro@microtools.com'],
+            [
+                'name' => 'Thành Viên Pro VIP',
+                'password' => Hash::make('pro123'),
+                'is_admin' => false,
+                'is_pro' => true,
+                'pro_plan' => 'yearly',
+                'pro_expires_at' => now()->addYear(),
             ]
         );
     }

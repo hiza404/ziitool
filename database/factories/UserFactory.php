@@ -52,4 +52,16 @@ class UserFactory extends Factory
             'is_admin' => true,
         ]);
     }
+
+    /**
+     * Indicate that the user has a Pro subscription.
+     */
+    public function pro(string $plan = 'yearly'): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_pro' => true,
+            'pro_plan' => $plan,
+            'pro_expires_at' => now()->addYear(),
+        ]);
+    }
 }

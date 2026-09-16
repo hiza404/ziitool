@@ -147,16 +147,62 @@
                     <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-xs">Ctrl K</kbd>
                 </button>
 
-                <!-- Pro Status or Upgrade Button -->
-                @if(session('is_pro_member'))
-                    <span class="hidden sm:flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Pro Member
-                    </span>
+                <!-- Authentication Actions -->
+                @auth
+                    <div class="relative" id="userMenuWrapper">
+                        <button onclick="toggleUserDropdown()" type="button" class="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                            <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-bold text-xs flex items-center justify-center">
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            </div>
+                            <span class="hidden sm:inline text-xs font-semibold max-w-[100px] truncate text-slate-800 dark:text-slate-200">
+                                {{ auth()->user()->name }}
+                            </span>
+                            @if(auth()->user()->isPro())
+                                <span class="hidden sm:inline px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-400 text-slate-950">PRO</span>
+                            @endif
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div id="userMenuDropdown" class="hidden absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-2 z-50 text-xs">
+                            <div class="px-4 py-2 border-b border-slate-100 dark:border-slate-800">
+                                <p class="font-bold text-slate-900 dark:text-white truncate">{{ auth()->user()->name }}</p>
+                                <p class="text-[11px] text-slate-400 truncate">{{ auth()->user()->email }}</p>
+                            </div>
+
+                            <a href="{{ route('account') }}" class="flex items-center gap-2 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">
+                                <i data-lucide="user" class="w-4 h-4 text-indigo-500"></i>
+                                <span>Tài khoản của tôi</span>
+                            </a>
+
+                            @if(auth()->user()->is_admin)
+                                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-4 py-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 font-semibold">
+                                    <i data-lucide="shield" class="w-4 h-4"></i>
+                                    <span>Trang Quản Trị (Admin)</span>
+                                </a>
+                            @endif
+
+                            <div class="border-t border-slate-100 dark:border-slate-800 my-1"></div>
+
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                                    <span>Đăng xuất</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 @else
-                    <button onclick="openLicenseModal()" type="button" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-sm transition">
-                        <i data-lucide="key" class="w-3.5 h-3.5"></i> Nhập Key Pro
-                    </button>
-                @endif
+                    <div class="flex items-center gap-1.5">
+                        <a href="{{ route('login') }}" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                            Đăng nhập
+                        </a>
+                        <a href="{{ route('register') }}" class="hidden sm:inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition">
+                            Đăng ký
+                        </a>
+                    </div>
+                @endauth
 
                 <!-- Dark / Light Mode Toggle -->
                 <button onclick="toggleTheme()" type="button" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition" aria-label="Toggle theme">
@@ -210,9 +256,14 @@
                     <h3 class="font-semibold text-slate-900 dark:text-slate-200 text-xs uppercase tracking-wider mb-3">Hệ thống</h3>
                     <ul class="space-y-2 text-xs">
                         <li><a href="{{ route('pricing') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">Bảng giá Gói Pro (VietQR)</a></li>
+                        @auth
+                            <li><a href="{{ route('account') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold text-indigo-600 dark:text-indigo-400">Tài khoản & Bản quyền</a></li>
+                        @else
+                            <li><a href="{{ route('login') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">Đăng nhập tài khoản</a></li>
+                            <li><a href="{{ route('register') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">Đăng ký thành viên</a></li>
+                        @endauth
                         <li><a href="{{ route('api.docs') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">Tài liệu REST API</a></li>
                         <li><a href="{{ route('sitemap') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400" target="_blank">Sitemap.xml</a></li>
-                        <li><a href="{{ route('robots') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400" target="_blank">Robots.txt</a></li>
                         <li><a href="{{ route('admin.login') }}" class="hover:text-amber-500 flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400"><i data-lucide="shield" class="w-3 h-3"></i> Quản trị (Admin)</a></li>
                     </ul>
                 </div>
@@ -425,6 +476,22 @@
                 showToast('Không thể sao chép!', 'error');
             });
         }
+
+        // User Menu Dropdown Helper
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userMenuDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('userMenuWrapper');
+            const dropdown = document.getElementById('userMenuDropdown');
+            if (wrapper && dropdown && !wrapper.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
     </script>
     @stack('scripts')
 </body>

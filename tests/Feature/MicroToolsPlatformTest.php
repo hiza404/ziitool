@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -49,7 +50,9 @@ class MicroToolsPlatformTest extends TestCase
      */
     public function test_vietqr_endpoint_generates_valid_payload(): void
     {
-        $response = $this->postJson('/payment/vietqr', [
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson('/payment/vietqr', [
             'plan' => 'monthly',
         ]);
 

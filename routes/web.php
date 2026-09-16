@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdSenseController as AdminAdSenseController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -7,15 +8,16 @@ use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\ToolManageController as AdminToolManageController;
 use App\Http\Controllers\Admin\VietQrManageController as AdminVietQrManageController;
 use App\Http\Controllers\ApiController;
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\ToolController;
-use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | Public Web Routes
 |--------------------------------------------------------------------------
 */
+
+use App\Http\Controllers\ToolController;
+use Illuminate\Support\Facades\Route;
 
 // Homepage - Danh sách toàn bộ công cụ & tìm kiếm
 Route::get('/', [ToolController::class, 'index'])->name('home');
@@ -27,6 +29,20 @@ Route::get('/tool/{slug}', [ToolController::class, 'show'])->name('tool.show');
 Route::get('/pricing', [PaymentController::class, 'pricing'])->name('pricing');
 Route::post('/payment/vietqr', [PaymentController::class, 'generateVietQr'])->name('payment.vietqr');
 Route::post('/payment/verify-license', [PaymentController::class, 'verifyProCode'])->name('payment.verify_license');
+
+// Client Authentication
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// User Account & Pro Management (Require Login)
+Route::middleware('auth')->group(function () {
+    Route::get('/account', [AccountController::class, 'index'])->name('account');
+    Route::post('/account/redeem', [AccountController::class, 'redeemLicense'])->name('account.redeem');
+    Route::post('/payment/confirm', [PaymentController::class, 'confirmOrder'])->name('payment.confirm');
+});
 
 // Tài liệu API cho Developer
 Route::get('/api-docs', [ApiController::class, 'docs'])->name('api.docs');

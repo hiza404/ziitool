@@ -7,10 +7,11 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'is_admin'])]
+#[Fillable(['name', 'email', 'password', 'is_admin', 'is_pro', 'pro_plan', 'pro_expires_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -28,6 +29,44 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_pro' => 'boolean',
+            'pro_expires_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Orders placed by this user.
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Pro licenses owned by this user.
+     */
+    public function proLicenses(): HasMany
+    {
+        return $this->hasMany(ProLicense::class);
+    }
+
+    /**
+     * Check whether the user currently has an active Pro membership.
+     */
+    public function isPro(): bool
+    {
+        if ($this->is_admin) {
+            return true;
+        }
+
+        if (! $this->is_pro) {
+            return false;
+        }
+
+        if ($this->pro_expires_at === null) {
+            return true;
+        }
+
+        return $this->pro_expires_at->isFuture();
     }
 }

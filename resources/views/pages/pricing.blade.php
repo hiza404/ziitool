@@ -116,6 +116,38 @@
         </div>
     </div>
 
+    <!-- Auth Required Modal Dialog -->
+    <div id="authRequiredModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl p-6 sm:p-8 relative text-center">
+            <button onclick="closeAuthRequiredModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 flex items-center justify-center text-2xl shadow-sm mb-4">
+                ⚡
+            </div>
+
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                Đăng Nhập Để Mua Gói Pro
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-6">
+                Để đảm bảo bản quyền và hóa đơn thanh toán được lưu trữ an toàn vào tài khoản của bạn, vui lòng đăng nhập hoặc tạo tài khoản trước khi quét mã VietQR.
+            </p>
+
+            <div class="space-y-3">
+                <a href="{{ route('login', ['redirect' => '/pricing']) }}" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    <span>Đăng Nhập Ngay</span>
+                </a>
+
+                <a href="{{ route('register', ['redirect' => '/pricing']) }}" class="w-full py-3 px-4 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    <span>Đăng Ký Tài Khoản Mới (10 Giây)</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- VietQR Payment Modal Dialog -->
     <div id="vietQrModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-lg shadow-2xl p-6 sm:p-8 relative">
@@ -128,7 +160,7 @@
                     <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Cổng Thanh Toán Chuẩn VietQR (Napas247)
                 </div>
                 <h3 class="text-xl font-bold text-slate-900 dark:text-white">Quét Mã QR Để Kích Hoạt Pro</h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Mở ứng dụng ngân hàng bất kỳ (MBBank, Vietcombank, Techcombank, Momo, v.v.) và quét mã</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Gói Pro sẽ được gắn trực tiếp vào tài khoản: <strong class="text-indigo-600 dark:text-indigo-400">{{ auth()->user()?->email }}</strong></p>
             </div>
 
             <div class="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 mb-6">
@@ -170,12 +202,12 @@
 
             <!-- Confirmation & Activation -->
             <div class="space-y-3">
-                <button type="button" onclick="activateDemoPro()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2">
+                <button type="button" id="btnConfirmPayment" onclick="confirmPaymentAndActivate()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2">
                     <i data-lucide="check" class="w-4 h-4"></i>
                     <span>Tôi Đã Chuyển Khoản Thành Công (Kích Hoạt Ngay)</span>
                 </button>
                 <p class="text-[11px] text-center text-slate-400">
-                    Hệ thống sẽ tự động kích hoạt tài khoản Pro và gửi mã License Key qua thông báo tức thì.
+                    Hệ thống sẽ cập nhật trạng thái gói Pro và lưu trữ mã License vào tài khoản của bạn.
                 </p>
             </div>
         </div>
@@ -186,6 +218,8 @@
 @push('scripts')
 <script>
     let currentSelectedPlan = 'monthly';
+    let currentOrderCode = '';
+    const isUserLoggedIn = @json(auth()->check());
 
     function selectPlan(plan) {
         currentSelectedPlan = plan;
@@ -208,6 +242,11 @@
     }
 
     async function openVietQrPayment() {
+        if (!isUserLoggedIn) {
+            document.getElementById('authRequiredModal').classList.remove('hidden');
+            return;
+        }
+
         try {
             const res = await fetch('{{ route("payment.vietqr") }}', {
                 method: 'POST',
@@ -219,7 +258,13 @@
             });
 
             const data = await res.json();
+            if (data.require_auth) {
+                document.getElementById('authRequiredModal').classList.remove('hidden');
+                return;
+            }
+
             if (data.success) {
+                currentOrderCode = data.order_code;
                 document.getElementById('vietQrImg').src = data.qr_image_url;
                 document.getElementById('qrBankName').innerText = data.bank_code;
                 document.getElementById('qrAccountNo').innerText = data.account_number;
@@ -238,14 +283,49 @@
         document.getElementById('vietQrModal').classList.add('hidden');
     }
 
-    async function activateDemoPro() {
-        closeVietQrModal();
-        openLicenseModal();
-        fillDemoKey('PRO-SUPER-2026');
-        showToast('Đang tự động xác nhận đơn hàng của bạn...', 'info');
-        setTimeout(() => {
-            document.getElementById('btnSubmitLicense').click();
-        }, 500);
+    function closeAuthRequiredModal() {
+        document.getElementById('authRequiredModal').classList.add('hidden');
+    }
+
+    async function confirmPaymentAndActivate() {
+        if (!currentOrderCode) {
+            showToast('Không tìm thấy mã đơn hàng!', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('btnConfirmPayment');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="animate-spin inline-block mr-2">⏳</span> Đang xác thực chuyển khoản...';
+
+        try {
+            const res = await fetch('{{ route("payment.confirm") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ order_code: currentOrderCode })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                closeVietQrModal();
+                showToast(data.message, 'success');
+                setTimeout(() => {
+                    window.location.href = data.redirect_url || '{{ route("account") }}';
+                }, 1000);
+            } else {
+                showToast(data.message || 'Xác thực thất bại!', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i><span>Tôi Đã Chuyển Khoản Thành Công (Kích Hoạt Ngay)</span>';
+                lucide.createIcons();
+            }
+        } catch (e) {
+            showToast('Đã xảy ra lỗi khi gửi yêu cầu xác nhận.', 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i><span>Tôi Đã Chuyển Khoản Thành Công (Kích Hoạt Ngay)</span>';
+            lucide.createIcons();
+        }
     }
 </script>
 @endpush
