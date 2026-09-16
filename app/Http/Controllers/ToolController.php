@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ToolOverride;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -17,11 +18,34 @@ class ToolController extends Controller
         $categories = config('tools.categories', []);
         $tools = config('tools.list', []);
         $selectedCategory = $request->query('category');
+        $overrides = ToolOverride::all()->keyBy('slug');
+
+        // Apply overrides
+        foreach ($tools as $slug => &$t) {
+            if (isset($overrides[$slug])) {
+                $t['is_active'] = $overrides[$slug]->is_active;
+                if (! empty($overrides[$slug]->custom_title)) {
+                    $t['title'] = $overrides[$slug]->custom_title;
+                }
+                if (! empty($overrides[$slug]->custom_badge)) {
+                    $t['badge'] = $overrides[$slug]->custom_badge;
+                }
+                if (! empty($overrides[$slug]->custom_desc)) {
+                    $t['short_desc'] = $overrides[$slug]->custom_desc;
+                }
+            } else {
+                $t['is_active'] = true;
+            }
+        }
+        unset($t);
+
+        // Filter inactive tools from public display
+        $activeTools = array_filter($tools, fn ($t) => ($t['is_active'] ?? true) === true);
 
         if ($selectedCategory && isset($categories[$selectedCategory])) {
-            $filteredTools = array_filter($tools, fn ($t) => ($t['category'] ?? '') === $selectedCategory);
+            $filteredTools = array_filter($activeTools, fn ($t) => ($t['category'] ?? '') === $selectedCategory);
         } else {
-            $filteredTools = $tools;
+            $filteredTools = $activeTools;
         }
 
         $seo = SeoService::getMetadata([
@@ -33,7 +57,7 @@ class ToolController extends Controller
         return view('pages.home', [
             'categories' => $categories,
             'tools' => $filteredTools,
-            'allTools' => $tools,
+            'allTools' => $activeTools,
             'selectedCategory' => $selectedCategory,
             'seo' => $seo,
         ]);
@@ -51,6 +75,24 @@ class ToolController extends Controller
         }
 
         $tool = $allTools[$slug];
+        $override = ToolOverride::where('slug', $slug)->first();
+
+        if ($override && ! $override->is_active) {
+            abort(404, 'Công cụ này hiện đang được tạm khóa để nâng cấp bảo trì.');
+        }
+
+        if ($override) {
+            if (! empty($override->custom_title)) {
+                $tool['title'] = $override->custom_title;
+            }
+            if (! empty($override->custom_badge)) {
+                $tool['badge'] = $override->custom_badge;
+            }
+            if (! empty($override->custom_desc)) {
+                $tool['short_desc'] = $override->custom_desc;
+            }
+        }
+
         $categories = config('tools.categories', []);
         $categoryInfo = $categories[$tool['category']] ?? null;
 

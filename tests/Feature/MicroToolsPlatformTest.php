@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class MicroToolsPlatformTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * Test home page returns 200 and has title.
      */

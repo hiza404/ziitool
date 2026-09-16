@@ -92,6 +92,15 @@
 </head>
 <body class="h-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased flex flex-col selection:bg-indigo-500 selection:text-white">
 
+    @php
+        $announcement = \App\Models\Setting::get('announcement_banner');
+    @endphp
+    @if(!empty($announcement))
+        <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white text-xs font-semibold py-2 px-4 text-center tracking-wide flex items-center justify-center gap-2">
+            <span>{{ $announcement }}</span>
+        </div>
+    @endif
+
     <!-- Header Navigation -->
     <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
@@ -204,6 +213,7 @@
                         <li><a href="{{ route('api.docs') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">Tài liệu REST API</a></li>
                         <li><a href="{{ route('sitemap') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400" target="_blank">Sitemap.xml</a></li>
                         <li><a href="{{ route('robots') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400" target="_blank">Robots.txt</a></li>
+                        <li><a href="{{ route('admin.login') }}" class="hover:text-amber-500 flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400"><i data-lucide="shield" class="w-3 h-3"></i> Quản trị (Admin)</a></li>
                     </ul>
                 </div>
             </div>
@@ -419,3 +429,4 @@
     @stack('scripts')
 </body>
 </html>
+

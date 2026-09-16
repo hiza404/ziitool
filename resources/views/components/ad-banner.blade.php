@@ -1,10 +1,10 @@
 @props(['slot' => 'in_tool', 'class' => '', 'size' => 'auto'])
 
 @php
-    $adsEnabled = config('ads.enabled', true);
-    $demoMode = config('ads.demo_mode', true);
-    $clientId = config('ads.client_id');
-    $slotId = config('ads.slots.' . $slot, '1234567890');
+    $adsEnabled = \App\Models\Setting::get('ads_enabled', '1') === '1';
+    $demoMode = \App\Models\Setting::get('ads_demo_mode', '1') === '1';
+    $clientId = \App\Models\Setting::get('adsense_client_id', config('ads.client_id'));
+    $slotId = \App\Models\Setting::get('ads_slot_' . $slot, config('ads.slots.' . $slot, '1234567890'));
     $isPro = session('is_pro_member', false);
 @endphp
 
@@ -70,3 +70,4 @@
     @endif
 </div>
 @endif
+
