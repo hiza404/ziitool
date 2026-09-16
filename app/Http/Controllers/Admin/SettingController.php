@@ -17,10 +17,10 @@ class SettingController extends Controller
     public function index(): View
     {
         $settings = [
-            'site_name' => Setting::get('site_name', 'MicroTools Hub'),
+            'site_name' => Setting::get('site_name', 'ZiiTool'),
             'site_tagline' => Setting::get('site_tagline', 'Công Cụ Tiện Ích Trực Tuyến Nhanh Chóng & Miễn Phí'),
             'meta_description' => Setting::get('meta_description', 'Trọn bộ công cụ tiện ích trực tuyến tốt nhất: Chuyển đổi và nén ảnh WebP/PNG, Format JSON & SQL, tính thuế TNCN, tính lãi kép, tạo mã QR và Mockup thiết bị.'),
-            'contact_email' => Setting::get('contact_email', 'admin@microtools.com'),
+            'contact_email' => Setting::get('contact_email', 'admin@ziitool.com'),
         ];
 
         return view('admin.settings.index', [

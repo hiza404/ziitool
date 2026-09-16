@@ -184,7 +184,7 @@
                     </div>
                     <div>
                         <span class="text-slate-400 block text-[10px] uppercase font-semibold">Chủ tài khoản</span>
-                        <span class="font-semibold text-slate-800 dark:text-slate-200" id="qrAccountHolder">MICROTOOLS HUB</span>
+                        <span class="font-semibold text-slate-800 dark:text-slate-200" id="qrAccountHolder">ZIITOOL</span>
                     </div>
                     <div>
                         <span class="text-slate-400 block text-[10px] uppercase font-semibold">Số tiền</span>

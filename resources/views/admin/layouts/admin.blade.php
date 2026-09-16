@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin Dashboard') - MicroTools Hub</title>
+    <title>@yield('title', 'Admin Dashboard') - ZiiTool</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,7 +37,7 @@
                     ⚡
                 </div>
                 <div>
-                    <span class="font-bold text-sm text-white block leading-none">MicroTools</span>
+                    <span class="font-bold text-sm text-white block leading-none">ZiiTool</span>
                     <span class="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider">Trang Quản Trị</span>
                 </div>
             </div>

@@ -183,7 +183,7 @@
 
     function loadSampleJson() {
         const sample = {
-            "appName": "MicroTools Hub",
+            "appName": "ZiiTool",
             "version": "2.0.0",
             "features": [
                 "100% Client-side Processing",

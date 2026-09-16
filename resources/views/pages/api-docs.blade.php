@@ -6,7 +6,7 @@
     <!-- Header Title -->
     <div class="mb-12">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-3">
-            <span>🚀 MicroTools Developer REST API v1</span>
+            <span>🚀 ZiiTool Developer REST API v1</span>
         </div>
         <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mb-3">
             Tài Liệu REST API Dành Cho Lập Trình Viên

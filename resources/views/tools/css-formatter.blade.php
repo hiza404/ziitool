@@ -165,7 +165,7 @@
     }
 
     function loadSampleCss() {
-        const sample = `/* MicroTools App Stylesheet */
+        const sample = `/* ZiiTool App Stylesheet */
 .btn-primary {
   background-color: #4f46e5;
   color: #ffffff;

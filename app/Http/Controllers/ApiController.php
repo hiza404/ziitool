@@ -15,7 +15,7 @@ class ApiController extends Controller
     public function docs(): View
     {
         $seo = SeoService::getMetadata([
-            'title' => 'Tài Liệu API Dành Cho Lập Trình Viên (MicroTools REST API)',
+            'title' => 'Tài Liệu API Dành Cho Lập Trình Viên (ZiiTool REST API)',
             'description' => 'Tích hợp các công cụ tiện ích mạnh mẽ vào ứng dụng của bạn qua REST API: Tính thuế TNCN, tính lãi kép, sinh mã băm, tạo mã QR tự động.',
         ]);
 

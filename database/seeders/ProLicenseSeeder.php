@@ -21,14 +21,14 @@ class ProLicenseSeeder extends Seeder
                 'notes' => 'Mã khuyến mãi thử nghiệm hệ thống',
             ],
             [
-                'code' => 'VINICORP-VIP',
+                'code' => 'ZIITOOL-VIP',
                 'plan' => 'lifetime',
                 'is_active' => true,
-                'customer_name' => 'Vinicorp Partner',
+                'customer_name' => 'ZiiTool Partner',
                 'notes' => 'Tài khoản đối tác chiến lược',
             ],
             [
-                'code' => 'MICROTOOLS-PRO',
+                'code' => 'ZIITOOL-PRO',
                 'plan' => 'monthly',
                 'is_active' => true,
                 'customer_name' => 'Thành Viên Tiêu Chuẩn',

@@ -47,7 +47,7 @@ class AdminManagementTest extends TestCase
     {
         $response = $this->get('/admin/login');
         $response->assertStatus(200);
-        $response->assertSee('MicroTools Hub');
+        $response->assertSee('ZiiTool Quản Trị');
     }
 
     /**

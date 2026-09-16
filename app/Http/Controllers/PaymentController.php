@@ -24,7 +24,7 @@ class PaymentController extends Controller
             'price_yearly' => (int) Setting::get('price_yearly', config('ads.pro.price_yearly', 399000)),
             'bank_code' => Setting::get('vietqr_bank_code', config('ads.pro.bank_code', 'MB')),
             'account_number' => Setting::get('vietqr_account_number', config('ads.pro.account_number', '0988888888')),
-            'account_name' => Setting::get('vietqr_account_name', config('ads.pro.account_name', 'MICROTOOLS HUB')),
+            'account_name' => Setting::get('vietqr_account_name', config('ads.pro.account_name', 'ZIITOOL')),
         ];
 
         $seo = SeoService::getMetadata([
@@ -64,7 +64,7 @@ class PaymentController extends Controller
 
         $bankCode = Setting::get('vietqr_bank_code', config('ads.pro.bank_code', 'MB'));
         $accountNumber = Setting::get('vietqr_account_number', config('ads.pro.account_number', '0988888888'));
-        $accountName = Setting::get('vietqr_account_name', config('ads.pro.account_name', 'MICROTOOLS HUB'));
+        $accountName = Setting::get('vietqr_account_name', config('ads.pro.account_name', 'ZIITOOL'));
 
         // Lưu đơn hàng gắn với user_id
         Order::create([

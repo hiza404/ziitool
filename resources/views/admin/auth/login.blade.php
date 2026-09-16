@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Nhập Quản Trị - MicroTools Hub</title>
+    <title>Đăng Nhập Quản Trị - ZiiTool</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,7 @@
             <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-2xl mx-auto shadow-lg shadow-indigo-500/30 mb-3">
                 ⚡
             </div>
-            <h1 class="text-xl font-bold text-white tracking-tight">MicroTools Hub</h1>
+            <h1 class="text-xl font-bold text-white tracking-tight">ZiiTool Quản Trị</h1>
             <p class="text-xs text-slate-400">Đăng nhập vào hệ thống quản trị website</p>
         </div>
 
@@ -76,7 +76,7 @@
             <!-- Demo Credentials Box -->
             <div class="p-3.5 rounded-xl bg-slate-800/60 border border-slate-800 text-[11px] text-slate-400 space-y-1">
                 <span class="font-bold text-amber-400 block mb-1">🔑 Tài khoản Admin mặc định:</span>
-                <div>Email: <strong class="text-white font-mono">admin@microtools.com</strong></div>
+                <div>Email: <strong class="text-white font-mono">admin@ziitool.com</strong> (hoặc <strong class="text-white font-mono">admin@microtools.com</strong>)</div>
                 <div>Mật khẩu: <strong class="text-white font-mono">admin123</strong></div>
             </div>
 

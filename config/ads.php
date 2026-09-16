@@ -34,11 +34,11 @@ return [
         'price_yearly' => 399000, // 399.000 VNĐ / năm (tiết kiệm 30%)
         'bank_code' => env('VIETQR_BANK_CODE', 'MB'), // MBBank, VCB, ACB, TPB, v.v.
         'account_number' => env('VIETQR_ACCOUNT_NUMBER', '0988888888'),
-        'account_name' => env('VIETQR_ACCOUNT_NAME', 'NGUYEN VAN A'),
+        'account_name' => env('VIETQR_ACCOUNT_NAME', 'ZIITOOL'),
         'demo_pro_codes' => [
             'PRO-SUPER-2026',
-            'VINICORP-VIP',
-            'MICROTOOLS-PRO',
+            'ZIITOOL-VIP',
+            'ZIITOOL-PRO',
         ],
     ],
 ];

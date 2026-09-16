@@ -22,7 +22,7 @@ class VietQrManageController extends Controller
         $vietqr = [
             'bank_code' => Setting::get('vietqr_bank_code', 'MB'),
             'account_number' => Setting::get('vietqr_account_number', '0988888888'),
-            'account_name' => Setting::get('vietqr_account_name', 'MICROTOOLS HUB'),
+            'account_name' => Setting::get('vietqr_account_name', 'ZIITOOL'),
             'price_monthly' => Setting::get('price_monthly', '49000'),
             'price_yearly' => Setting::get('price_yearly', '399000'),
         ];

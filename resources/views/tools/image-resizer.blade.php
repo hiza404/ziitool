@@ -333,7 +333,7 @@
         const zipBlob = await zip.generateAsync({ type: 'blob' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(zipBlob);
-        a.download = `MicroTools-Resized-Images-${Date.now()}.zip`;
+        a.download = `ZiiTool-Resized-Images-${Date.now()}.zip`;
         a.click();
         showToast('Đã tải xuống file ZIP thành công!', 'success');
     }

@@ -146,7 +146,7 @@
         </h2>
         <div class="space-y-4">
             <div class="p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-2">Các công cụ tại MicroTools Hub có hoàn toàn miễn phí không?</h3>
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-2">Các công cụ tại ZiiTool có hoàn toàn miễn phí không?</h3>
                 <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                     Có! Toàn bộ 12 công cụ trên hệ thống đều miễn phí sử dụng 100%, không giới hạn số lần thực hiện. Bạn cũng có thể đăng ký gói Pro để tắt hoàn toàn banner quảng cáo và nhận mã API token cho developer.
                 </p>

@@ -12,7 +12,7 @@ class SeoService
      */
     public static function getMetadata(array $data = []): array
     {
-        $siteName = config('app.name', 'MicroTools Hub');
+        $siteName = config('app.name', 'ZiiTool');
         $title = $data['title'] ?? 'Công Cụ Tiện Ích Trực Tuyến Nhanh Chóng & Miễn Phí';
         $fullTitle = $title.' - '.$siteName;
         $description = $data['description'] ?? 'Tập hợp các công cụ tiện ích miễn phí 100%: Chuyển đổi và nén ảnh, Beautifier JSON/SQL/CSS, tính thuế TNCN, tính lãi kép, tạo mã QR và mockup thiết bị.';

@@ -7,21 +7,21 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- SEO Meta Tags -->
-    <title>{{ $seo['title'] ?? 'MicroTools Hub - Web Tiện Ích Miễn Phí 100%' }}</title>
+    <title>{{ $seo['title'] ?? 'ZiiTool - Web Tiện Ích Miễn Phí 100%' }}</title>
     <meta name="description" content="{{ $seo['description'] ?? 'Tập hợp các công cụ tiện ích trực tuyến tốt nhất: Nén ảnh, chuyển đổi WebP, JSON formatter, tính thuế TNCN, lãi kép, tạo mã QR.' }}">
-    <meta name="keywords" content="{{ $seo['keywords'] ?? 'web tiện ích, micro tools, nén ảnh, json formatter' }}">
+    <meta name="keywords" content="{{ $seo['keywords'] ?? 'web tiện ích, micro tools, ziitool, nén ảnh, json formatter' }}">
     <link rel="canonical" href="{{ $seo['canonical'] ?? url()->current() }}">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ $seo['canonical'] ?? url()->current() }}">
-    <meta property="og:title" content="{{ $seo['title'] ?? 'MicroTools Hub' }}">
+    <meta property="og:title" content="{{ $seo['title'] ?? 'ZiiTool' }}">
     <meta property="og:description" content="{{ $seo['description'] ?? '' }}">
-    <meta property="og:site_name" content="MicroTools Hub">
+    <meta property="og:site_name" content="ZiiTool">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $seo['title'] ?? 'MicroTools Hub' }}">
+    <meta name="twitter:title" content="{{ $seo['title'] ?? 'ZiiTool' }}">
     <meta name="twitter:description" content="{{ $seo['description'] ?? '' }}">
 
     <!-- Schema.org JSON-LD Structured Data -->
@@ -113,7 +113,7 @@
                     </div>
                     <div class="flex flex-col">
                         <span class="font-bold text-lg leading-tight tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
-                            MicroTools<span class="text-xs px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 font-semibold">Hub</span>
+                            ZiiTool<span class="text-xs px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 font-semibold">Pro</span>
                         </span>
                         <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Chi phí 0đ • Tự động 100%</span>
                     </div>
@@ -227,7 +227,7 @@
                         <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">
                             ⚡
                         </div>
-                        <span class="font-bold text-slate-900 dark:text-white text-base">MicroTools Hub</span>
+                        <span class="font-bold text-slate-900 dark:text-white text-base">ZiiTool</span>
                     </div>
                     <p class="text-xs leading-relaxed text-slate-500 dark:text-slate-400 max-w-md mb-4">
                         Nền tảng công cụ trực tuyến 100% Client-Side. Dữ liệu của bạn được tính toán và xử lý trực tiếp trên trình duyệt, không bao giờ gửi về máy chủ, đảm bảo tốc độ tối đa và quyền riêng tư tuyệt đối.
@@ -270,7 +270,7 @@
             </div>
 
             <div class="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-                <p>© {{ date('Y') }} MicroTools Hub. Phát triển cho cộng đồng lập trình & văn phòng.</p>
+                <p>© {{ date('Y') }} ZiiTool. Phát triển cho cộng đồng lập trình & văn phòng.</p>
                 <div class="flex items-center gap-4">
                     <span>Phiên bản v2.0 (PHP 8.4 / Laravel 12)</span>
                     <button onclick="openLicenseModal()" class="text-amber-500 hover:underline">Kích hoạt Bản quyền Pro</button>

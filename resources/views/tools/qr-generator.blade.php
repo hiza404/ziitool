@@ -228,7 +228,7 @@
             const email = document.getElementById('vcardEmail').value || '';
             return `BEGIN:VCARD\nVERSION:3.0\nN:${name}\nFN:${name}\nTEL:${phone}\nEMAIL:${email}\nEND:VCARD`;
         } else {
-            return document.getElementById('qrText_plain').value || 'MicroTools Hub';
+            return document.getElementById('qrText_plain').value || 'ZiiTool';
         }
     }
 

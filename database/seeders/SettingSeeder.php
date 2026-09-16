@@ -14,11 +14,11 @@ class SettingSeeder extends Seeder
     {
         $settings = [
             // General & SEO
-            'site_name' => ['value' => 'MicroTools Hub', 'group' => 'general'],
+            'site_name' => ['value' => 'ZiiTool', 'group' => 'general'],
             'site_tagline' => ['value' => 'Công Cụ Tiện Ích Trực Tuyến Nhanh Chóng & Miễn Phí', 'group' => 'general'],
             'meta_description' => ['value' => 'Trọn bộ công cụ tiện ích trực tuyến tốt nhất: Chuyển đổi và nén ảnh WebP/PNG, Format JSON & SQL, tính thuế TNCN, tính lãi kép, tạo mã QR và Mockup thiết bị.', 'group' => 'general'],
-            'contact_email' => ['value' => 'admin@microtools.com', 'group' => 'general'],
-            'announcement_banner' => ['value' => '⚡ Chào mừng đến với MicroTools Hub - Nền tảng tiện ích 0đ, tự động hóa 100%!', 'group' => 'general'],
+            'contact_email' => ['value' => 'admin@ziitool.com', 'group' => 'general'],
+            'announcement_banner' => ['value' => '⚡ Chào mừng đến với ZiiTool - Nền tảng tiện ích 0đ, tự động hóa 100%!', 'group' => 'general'],
 
             // Google AdSense
             'ads_enabled' => ['value' => '1', 'group' => 'adsense'],
@@ -32,7 +32,7 @@ class SettingSeeder extends Seeder
             // VietQR & Pricing
             'vietqr_bank_code' => ['value' => 'MB', 'group' => 'vietqr'],
             'vietqr_account_number' => ['value' => '0988888888', 'group' => 'vietqr'],
-            'vietqr_account_name' => ['value' => 'MICROTOOLS HUB', 'group' => 'vietqr'],
+            'vietqr_account_name' => ['value' => 'ZIITOOL', 'group' => 'vietqr'],
             'price_monthly' => ['value' => '49000', 'group' => 'vietqr'],
             'price_yearly' => ['value' => '399000', 'group' => 'vietqr'],
         ];

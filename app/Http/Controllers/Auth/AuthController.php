@@ -92,7 +92,7 @@ class AuthController extends Controller
             return redirect($redirectTo)->with('success', 'Tạo tài khoản thành công! Bạn có thể tiếp tục thao tác.');
         }
 
-        return redirect()->route('home')->with('success', 'Chào mừng bạn đến với MicroTools Hub! Tài khoản của bạn đã sẵn sàng.');
+        return redirect()->route('home')->with('success', 'Chào mừng bạn đến với ZiiTool! Tài khoản của bạn đã sẵn sàng.');
     }
 
     /**

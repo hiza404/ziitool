@@ -13,7 +13,41 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Admin Account
+        // Admin Account (ZiiTool)
+        User::updateOrCreate(
+            ['email' => 'admin@ziitool.com'],
+            [
+                'name' => 'Quản Trị Viên ZiiTool',
+                'password' => Hash::make('admin123'),
+                'is_admin' => true,
+            ]
+        );
+
+        // Standard Demo User (ZiiTool)
+        User::updateOrCreate(
+            ['email' => 'user@ziitool.com'],
+            [
+                'name' => 'Người Dùng ZiiTool',
+                'password' => Hash::make('user123'),
+                'is_admin' => false,
+                'is_pro' => false,
+            ]
+        );
+
+        // Pro Member User (ZiiTool)
+        User::updateOrCreate(
+            ['email' => 'pro@ziitool.com'],
+            [
+                'name' => 'Thành Viên Pro VIP ZiiTool',
+                'password' => Hash::make('pro123'),
+                'is_admin' => false,
+                'is_pro' => true,
+                'pro_plan' => 'yearly',
+                'pro_expires_at' => now()->addYear(),
+            ]
+        );
+
+        // Legacy compatibility accounts
         User::updateOrCreate(
             ['email' => 'admin@microtools.com'],
             [
@@ -22,8 +56,6 @@ class UserSeeder extends Seeder
                 'is_admin' => true,
             ]
         );
-
-        // Standard Demo User
         User::updateOrCreate(
             ['email' => 'user@microtools.com'],
             [
@@ -33,8 +65,6 @@ class UserSeeder extends Seeder
                 'is_pro' => false,
             ]
         );
-
-        // Pro Member User
         User::updateOrCreate(
             ['email' => 'pro@microtools.com'],
             [
