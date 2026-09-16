@@ -19,7 +19,7 @@
                 {{ $tool['title'] }}
             </h1>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-semibold">
-                Xuất Ảnh 2K Không Watermark
+                {{ $tool['badge'] ?? 'Xuất Ảnh 2K Không Watermark' }}
             </span>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-semibold">
                 Nền Gradient Đẹp Mắt

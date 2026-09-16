@@ -19,7 +19,7 @@
                 {{ $tool['title'] }}
             </h1>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 font-semibold">
-                Chèn Logo & Đổi Màu
+                {{ $tool['badge'] ?? 'Chèn Logo & Đổi Màu' }}
             </span>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-semibold">
                 Mã QR Tĩnh Vĩnh Viễn

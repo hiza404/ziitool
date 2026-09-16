@@ -19,7 +19,7 @@
                 {{ $tool['title'] }}
             </h1>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-semibold">
-                Xuất File ZIP Tức Thì
+                {{ $tool['badge'] ?? 'Xuất File ZIP Tức Thì' }}
             </span>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-semibold flex items-center gap-1">
                 <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> 100% Bảo mật

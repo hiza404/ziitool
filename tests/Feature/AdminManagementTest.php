@@ -222,6 +222,88 @@ class AdminManagementTest extends TestCase
     }
 
     /**
+     * Test admin updated prices reflect immediately on public pricing page.
+     */
+    public function test_admin_updated_prices_reflect_on_public_pricing_page(): void
+    {
+        $updateRes = $this->actingAs($this->adminUser)->post('/admin/vietqr/price', [
+            'price_monthly' => 19000,
+            'price_yearly' => 199000,
+        ]);
+        $updateRes->assertRedirect();
+
+        $pricingRes = $this->get('/pricing');
+        $pricingRes->assertStatus(200);
+        $pricingRes->assertSee('19.000đ');
+        $pricingRes->assertSee('Theo Tháng (19k)');
+        $pricingRes->assertSee('Theo Năm (199k)');
+    }
+
+    /**
+     * Test admin updated bank details reflect on VietQR API and modal.
+     */
+    public function test_admin_updated_bank_details_reflect_on_vietqr(): void
+    {
+        $this->actingAs($this->adminUser)->post('/admin/vietqr/bank', [
+            'bank_code' => 'TCB',
+            'account_number' => '1903999999',
+            'account_name' => 'NGUYEN VAN A',
+        ]);
+
+        $user = User::factory()->create();
+        $qrRes = $this->actingAs($user)->postJson('/payment/vietqr', ['plan' => 'monthly']);
+        $qrRes->assertStatus(200);
+        $qrRes->assertJson([
+            'success' => true,
+            'bank_code' => 'TCB',
+            'account_number' => '1903999999',
+            'account_name' => 'NGUYEN VAN A',
+        ]);
+    }
+
+    /**
+     * Test admin updated tool override reflects on home and tool show pages.
+     */
+    public function test_admin_tool_overrides_reflect_on_home_and_tool_pages(): void
+    {
+        $this->actingAs($this->adminUser)->post('/admin/tools/chuyen-doi-anh/update', [
+            'custom_title' => 'Chuyển Đổi Ảnh Siêu Cấp',
+            'custom_badge' => 'Badge Mới 2026',
+            'custom_desc' => 'Mô tả công cụ mới tinh từ admin',
+            'is_active' => '1',
+        ]);
+
+        $homeRes = $this->get('/');
+        $homeRes->assertStatus(200);
+        $homeRes->assertSee('Chuyển Đổi Ảnh Siêu Cấp');
+        $homeRes->assertSee('Badge Mới 2026');
+
+        $toolRes = $this->get('/tool/chuyen-doi-anh');
+        $toolRes->assertStatus(200);
+        $toolRes->assertSee('Chuyển Đổi Ảnh Siêu Cấp');
+        $toolRes->assertSee('Badge Mới 2026');
+        $toolRes->assertSee('Mô tả công cụ mới tinh từ admin');
+    }
+
+    /**
+     * Test admin updated site name reflects on public layout.
+     */
+    public function test_admin_updated_site_name_reflects_on_frontend(): void
+    {
+        $this->actingAs($this->adminUser)->post('/admin/settings', [
+            'site_name' => 'SuperBrandApp',
+            'site_tagline' => 'Tagline Nhanh Gon',
+            'meta_description' => 'Mo ta thu nghiem',
+            'contact_email' => 'contact@test.com',
+        ]);
+
+        $homeRes = $this->get('/');
+        $homeRes->assertStatus(200);
+        $homeRes->assertSee('SuperBrandApp');
+        $homeRes->assertSee('Tagline Nhanh Gon');
+    }
+
+    /**
      * Test admin logout.
      */
     public function test_admin_logout(): void

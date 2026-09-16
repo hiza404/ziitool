@@ -19,7 +19,7 @@
                 {{ $tool['title'] }}
             </h1>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 font-semibold">
-                Phân Tích Điểm Ảnh Tự Động
+                {{ $tool['badge'] ?? 'Phân Tích Điểm Ảnh Tự Động' }}
             </span>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold">
                 Xuất CSS & Tailwind

@@ -99,7 +99,7 @@
     <div class="py-12 border-y border-slate-200 dark:border-slate-800 my-16">
         <div class="max-w-4xl mx-auto text-center mb-10">
             <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-                Vì Sao MicroTools Đạt Hiệu Suất Tối Đa?
+                Vì Sao {{ \App\Models\Setting::get('site_name', 'ZiiTool') }} Đạt Hiệu Suất Tối Đa?
             </h2>
             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                 Kiến trúc hiện đại kết hợp sức mạnh phần cứng máy tính người dùng và hạ tầng Laravel siêu nhẹ.

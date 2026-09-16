@@ -19,7 +19,7 @@
                 {{ $tool['title'] }}
             </h1>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-semibold">
-                Kiểm Tra Cú Pháp Tự Động
+                {{ $tool['badge'] ?? 'Kiểm Tra Cú Pháp Tự Động' }}
             </span>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold">
                 100% Client-Side

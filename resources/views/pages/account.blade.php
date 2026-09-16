@@ -116,13 +116,17 @@
                     </div>
                 </div>
             @else
+                @php
+                    $accMonthlyPrice = (int) \App\Models\Setting::get('price_monthly', 49000);
+                    $accMonthlyLabel = ($accMonthlyPrice >= 1000) ? number_format($accMonthlyPrice / 1000, 0, ',', '.') . 'k' : number_format($accMonthlyPrice, 0, ',', '.') . 'đ';
+                @endphp
                 <div class="p-6 rounded-3xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800/60">
                     <div class="flex items-center gap-2 mb-2 text-amber-800 dark:text-amber-300 font-bold text-sm">
                         <i data-lucide="sparkles" class="w-4 h-4 text-amber-500"></i>
                         <span>Nâng Cấp Gói Pro</span>
                     </div>
                     <p class="text-xs text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
-                        Tắt toàn bộ quảng cáo, tăng tốc xử lý và mở khóa API Key cho Developer chỉ từ 49k/tháng qua VietQR tự động.
+                        Tắt toàn bộ quảng cáo, tăng tốc xử lý và mở khóa API Key cho Developer chỉ từ {{ $accMonthlyLabel }}/tháng qua VietQR tự động.
                     </p>
                     <a href="{{ route('pricing') }}" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition">
                         <span>Nâng cấp ngay bằng VietQR</span>

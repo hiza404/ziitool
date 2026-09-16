@@ -76,7 +76,7 @@
             <!-- Demo Credentials Box -->
             <div class="p-3.5 rounded-xl bg-slate-800/60 border border-slate-800 text-[11px] text-slate-400 space-y-1">
                 <span class="font-bold text-amber-400 block mb-1">🔑 Tài khoản Admin mặc định:</span>
-                <div>Email: <strong class="text-white font-mono">admin@ziitool.com</strong> (hoặc <strong class="text-white font-mono">admin@microtools.com</strong>)</div>
+                <div>Email: <strong class="text-white font-mono">admin@ziitool.com</strong></div>
                 <div>Mật khẩu: <strong class="text-white font-mono">admin123</strong></div>
             </div>
 

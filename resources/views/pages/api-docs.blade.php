@@ -118,7 +118,7 @@
                 <div>
                     <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-2">Request Body (JSON)</h4>
                     <pre class="p-4 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs overflow-x-auto"><code>{
-  "text": "Hello MicroTools 2026"
+  "text": "Hello ZiiTool 2026"
 }</code></pre>
                 </div>
             </div>

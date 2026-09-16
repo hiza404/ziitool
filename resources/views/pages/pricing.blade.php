@@ -69,19 +69,26 @@
                     <span class="text-xs px-2.5 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-bold">VietQR Tự Động</span>
                 </div>
                 <div class="flex items-baseline gap-2 mb-2">
-                    <span class="text-4xl font-black text-indigo-600 dark:text-indigo-400" id="planPriceDisplay">49.000đ</span>
+                    <span class="text-4xl font-black text-indigo-600 dark:text-indigo-400" id="planPriceDisplay">{{ number_format($pro['price_monthly'], 0, ',', '.') }}đ</span>
                     <span class="text-xs text-slate-500" id="planPeriodDisplay">/ tháng</span>
                 </div>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Mở khóa vĩnh viễn trên thiết bị với mã License Key.</p>
 
                 <!-- Billing Cycle Toggle -->
+                @php
+                    $monthlyLabel = ($pro['price_monthly'] >= 1000) ? number_format($pro['price_monthly'] / 1000, 0, ',', '.') . 'k' : number_format($pro['price_monthly'], 0, ',', '.') . 'đ';
+                    $yearlyLabel = ($pro['price_yearly'] >= 1000) ? number_format($pro['price_yearly'] / 1000, 0, ',', '.') . 'k' : number_format($pro['price_yearly'], 0, ',', '.') . 'đ';
+                    $discountPct = ($pro['price_monthly'] > 0) ? round((1 - ($pro['price_yearly'] / ($pro['price_monthly'] * 12))) * 100) : 0;
+                @endphp
                 <div class="grid grid-cols-2 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold mb-6">
                     <button type="button" onclick="selectPlan('monthly')" id="btnMonthly" class="py-2 rounded-lg bg-white dark:bg-slate-700 shadow-xs text-slate-900 dark:text-white transition">
-                        Theo Tháng (49k)
+                        Theo Tháng ({{ $monthlyLabel }})
                     </button>
                     <button type="button" onclick="selectPlan('yearly')" id="btnYearly" class="py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-1">
-                        <span>Theo Năm (399k)</span>
-                        <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">-30%</span>
+                        <span>Theo Năm ({{ $yearlyLabel }})</span>
+                        @if($discountPct > 0)
+                            <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">-{{ $discountPct }}%</span>
+                        @endif
                     </button>
                 </div>
 
@@ -173,27 +180,27 @@
                 <div class="flex-1 text-xs space-y-2.5 w-full">
                     <div>
                         <span class="text-slate-400 block text-[10px] uppercase font-semibold">Ngân hàng</span>
-                        <span class="font-bold text-slate-900 dark:text-white" id="qrBankName">MBBank (Quân Đội)</span>
+                        <span class="font-bold text-slate-900 dark:text-white" id="qrBankName">{{ $pro['bank_code'] }}</span>
                     </div>
                     <div>
                         <span class="text-slate-400 block text-[10px] uppercase font-semibold">Số tài khoản</span>
                         <div class="flex items-center justify-between">
-                            <span class="font-mono font-bold text-indigo-600 dark:text-indigo-400" id="qrAccountNo">0988888888</span>
+                            <span class="font-mono font-bold text-indigo-600 dark:text-indigo-400" id="qrAccountNo">{{ $pro['account_number'] }}</span>
                             <button type="button" onclick="copyText(document.getElementById('qrAccountNo').innerText)" class="text-[11px] text-slate-500 hover:text-indigo-600 underline">Copy</button>
                         </div>
                     </div>
                     <div>
                         <span class="text-slate-400 block text-[10px] uppercase font-semibold">Chủ tài khoản</span>
-                        <span class="font-semibold text-slate-800 dark:text-slate-200" id="qrAccountHolder">ZIITOOL</span>
+                        <span class="font-semibold text-slate-800 dark:text-slate-200" id="qrAccountHolder">{{ $pro['account_name'] }}</span>
                     </div>
                     <div>
                         <span class="text-slate-400 block text-[10px] uppercase font-semibold">Số tiền</span>
-                        <span class="font-bold text-emerald-600 text-sm" id="qrAmountDisplay">49.000 VNĐ</span>
+                        <span class="font-bold text-emerald-600 text-sm" id="qrAmountDisplay">{{ number_format($pro['price_monthly'], 0, ',', '.') }} VNĐ</span>
                     </div>
                     <div>
                         <span class="text-slate-400 block text-[10px] uppercase font-semibold">Nội dung chuyển khoản</span>
                         <div class="flex items-center justify-between">
-                            <span class="font-mono font-bold text-amber-600 dark:text-amber-400" id="qrMemoDisplay">PRO892341</span>
+                            <span class="font-mono font-bold text-amber-600 dark:text-amber-400" id="qrMemoDisplay">PRO...</span>
                             <button type="button" onclick="copyText(document.getElementById('qrMemoDisplay').innerText)" class="text-[11px] text-slate-500 hover:text-amber-600 underline">Copy</button>
                         </div>
                     </div>
@@ -220,6 +227,14 @@
     let currentSelectedPlan = 'monthly';
     let currentOrderCode = '';
     const isUserLoggedIn = @json(auth()->check());
+    const priceMonthly = @json($pro['price_monthly']);
+    const priceYearly = @json($pro['price_yearly']);
+    @php
+        $jsFormattedMonthly = number_format($pro['price_monthly'], 0, ',', '.') . 'đ';
+        $jsFormattedYearly = number_format($pro['price_yearly'], 0, ',', '.') . 'đ';
+    @endphp
+    const formattedPriceMonthly = @json($jsFormattedMonthly);
+    const formattedPriceYearly = @json($jsFormattedYearly);
 
     function selectPlan(plan) {
         currentSelectedPlan = plan;
@@ -231,12 +246,12 @@
         if (plan === 'yearly') {
             btnMonthly.className = 'py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
             btnYearly.className = 'py-2 rounded-lg bg-white dark:bg-slate-700 shadow-xs text-slate-900 dark:text-white transition flex items-center justify-center gap-1';
-            priceDisplay.innerText = '399.000đ';
+            priceDisplay.innerText = formattedPriceYearly;
             periodDisplay.innerText = '/ năm';
         } else {
             btnMonthly.className = 'py-2 rounded-lg bg-white dark:bg-slate-700 shadow-xs text-slate-900 dark:text-white transition';
             btnYearly.className = 'py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-1';
-            priceDisplay.innerText = '49.000đ';
+            priceDisplay.innerText = formattedPriceMonthly;
             periodDisplay.innerText = '/ tháng';
         }
     }

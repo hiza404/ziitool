@@ -6,6 +6,8 @@
     $clientId = \App\Models\Setting::get('adsense_client_id', config('ads.client_id'));
     $slotId = \App\Models\Setting::get('ads_slot_' . $slot, config('ads.slots.' . $slot, '1234567890'));
     $isPro = session('is_pro_member', false) || (auth()->check() && auth()->user()->isPro());
+    $priceMonthly = (int) \App\Models\Setting::get('price_monthly', config('ads.pro.price_monthly', 49000));
+    $monthlyLabel = ($priceMonthly >= 1000) ? number_format($priceMonthly / 1000, 0, ',', '.') . 'k' : number_format($priceMonthly, 0, ',', '.') . 'đ';
 @endphp
 
 @if($adsEnabled && !$isPro)
@@ -41,7 +43,7 @@
                     <div class="text-sm font-bold text-slate-800 dark:text-slate-100">Gói Pro Không Giới Hạn</div>
                     <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-3">Tắt 100% quảng cáo, tải ảnh dung lượng lớn, API cho developer.</div>
                     <a href="{{ route('pricing') }}" class="inline-block w-full py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-semibold rounded-lg shadow transition">
-                        Nâng Cấp 49k/tháng
+                        Nâng Cấp {{ $monthlyLabel }}/tháng
                     </a>
                 </div>
             @else

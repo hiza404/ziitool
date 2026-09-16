@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Setting;
+
 class SeoService
 {
     /**
@@ -12,10 +14,10 @@ class SeoService
      */
     public static function getMetadata(array $data = []): array
     {
-        $siteName = config('app.name', 'ZiiTool');
-        $title = $data['title'] ?? 'Công Cụ Tiện Ích Trực Tuyến Nhanh Chóng & Miễn Phí';
+        $siteName = Setting::get('site_name', config('app.name', 'ZiiTool'));
+        $title = $data['title'] ?? Setting::get('site_tagline', 'Công Cụ Tiện Ích Trực Tuyến Nhanh Chóng & Miễn Phí');
         $fullTitle = $title.' - '.$siteName;
-        $description = $data['description'] ?? 'Tập hợp các công cụ tiện ích miễn phí 100%: Chuyển đổi và nén ảnh, Beautifier JSON/SQL/CSS, tính thuế TNCN, tính lãi kép, tạo mã QR và mockup thiết bị.';
+        $description = $data['description'] ?? Setting::get('meta_description', 'Tập hợp các công cụ tiện ích miễn phí 100%: Chuyển đổi và nén ảnh, Beautifier JSON/SQL/CSS, tính thuế TNCN, tính lãi kép, tạo mã QR và mockup thiết bị.');
         $keywords = $data['keywords'] ?? 'web tiện ích, micro tools, nén ảnh, json formatter, tính thuế tncn, lãi kép, tạo qr code';
         $canonical = $data['url'] ?? url()->current();
         $image = $data['image'] ?? asset('images/og-banner.png');
