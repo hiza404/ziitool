@@ -17,6 +17,7 @@ use App\Http\Controllers\PaymentController;
 */
 
 use App\Http\Controllers\ToolController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Homepage - Danh sách toàn bộ công cụ & tìm kiếm
@@ -24,7 +25,24 @@ Route::get('/', [ToolController::class, 'index'])->name('home');
 
 // Trang chi tiết từng công cụ tiện ích
 Route::get('/tool/{slug}', [ToolController::class, 'show'])->name('tool.show');
-Route::post('/tool/pdf-sang-word/server-convert', [ToolController::class, 'convertPdfToDocx'])->name('tool.pdf-to-word.server-convert');
+Route::post('/tool/tai-video-da-nen-tang/parse', [ToolController::class, 'parseVideo'])->name('tool.video.parse');
+Route::post('/tool/tai-video-tiktok/parse', [ToolController::class, 'parseVideo'])->name('tool.tiktok.parse');
+Route::get('/tool/video/download', [ToolController::class, 'downloadVideo'])->name('tool.video.download');
+
+// Chuyển đổi ngôn ngữ Tiếng Việt & Tiếng Anh
+Route::get('/lang/{locale}', function (Request $request, string $locale) {
+    if (in_array($locale, ['vi', 'en'], true)) {
+        session(['locale' => $locale]);
+        cookie()->queue(cookie()->forever('locale', $locale));
+    }
+
+    $referer = $request->header('referer');
+    if ($referer && ! str_contains($referer, '/lang/')) {
+        return redirect()->to($referer);
+    }
+
+    return redirect()->route('home');
+})->name('lang.switch');
 
 // Gói Pro & Thanh toán VietQR
 Route::get('/pricing', [PaymentController::class, 'pricing'])->name('pricing');

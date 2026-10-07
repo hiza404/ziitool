@@ -1,2 +1,14 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin/
+Disallow: /payment/
+Disallow: /account/
+Disallow: /tool/video/download
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+Sitemap: http://127.0.0.1:8001/sitemap.xml

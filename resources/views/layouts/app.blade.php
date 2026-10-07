@@ -6,11 +6,26 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- SEO Meta Tags -->
+    <!-- Favicon & Mobile Touch Icons -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/png" sizes="64x64" href="{{ asset('favicon.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+    <meta name="theme-color" content="#4f46e5">
+
+    <!-- SEO Meta Tags & Crawlers -->
     <title>{{ $seo['title'] ?? 'ZiiTool - Web Tiện Ích Miễn Phí 100%' }}</title>
     <meta name="description" content="{{ $seo['description'] ?? 'Tập hợp các công cụ tiện ích trực tuyến tốt nhất: Nén ảnh, chuyển đổi WebP, JSON formatter, tính thuế TNCN, lãi kép, tạo mã QR.' }}">
-    <meta name="keywords" content="{{ $seo['keywords'] ?? 'web tiện ích, micro tools, ziitool, nén ảnh, json formatter' }}">
+    <meta name="keywords" content="{{ $seo['keywords'] ?? 'web tiện ích, micro tools, ziitool, snaptik, tải video tiktok, nén ảnh, json formatter' }}">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     <link rel="canonical" href="{{ $seo['canonical'] ?? url()->current() }}">
+
+    <!-- Multilingual Alternate Links for Search Engines -->
+    <link rel="alternate" hreflang="vi" href="{{ url()->current() }}?lang=vi">
+    <link rel="alternate" hreflang="en" href="{{ url()->current() }}?lang=en">
+    <link rel="alternate" hreflang="x-default" href="{{ url()->current() }}">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -18,11 +33,27 @@
     <meta property="og:title" content="{{ $seo['title'] ?? 'ZiiTool' }}">
     <meta property="og:description" content="{{ $seo['description'] ?? '' }}">
     <meta property="og:site_name" content="ZiiTool">
+    <meta property="og:locale" content="{{ app()->getLocale() === 'en' ? 'en_US' : 'vi_VN' }}">
+    <meta property="og:image" content="{{ $seo['image'] ?? asset('favicon.png') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ $seo['title'] ?? 'ZiiTool' }}">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $seo['title'] ?? 'ZiiTool' }}">
     <meta name="twitter:description" content="{{ $seo['description'] ?? '' }}">
+    <meta name="twitter:image" content="{{ $seo['image'] ?? asset('favicon.png') }}">
+
+    <!-- Google AdSense Live Script -->
+    @php
+        $adsEnabled = \App\Models\Setting::get('ads_enabled', config('ads.enabled', '1')) == '1';
+        $adsenseClientId = \App\Models\Setting::get('adsense_client_id', config('ads.client_id'));
+        $demoMode = \App\Models\Setting::get('ads_demo_mode', config('ads.demo_mode', '1')) == '1';
+    @endphp
+    @if($adsEnabled && !$demoMode && !empty($adsenseClientId))
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ $adsenseClientId }}" crossorigin="anonymous"></script>
+    @endif
 
     <!-- Schema.org JSON-LD Structured Data -->
     @if(!empty($seo['schema']))
@@ -113,103 +144,87 @@
                     </div>
                     <div class="flex flex-col">
                         <span class="font-bold text-lg leading-tight tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
-                            {{ \App\Models\Setting::get('site_name', 'ZiiTool') }}<span class="text-xs px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 font-semibold">Pro</span>
+                            {{ \App\Models\Setting::get('site_name', 'ZiiTool') }}<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold">{{ __('100% Miễn Phí') }}</span>
                         </span>
-                        <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">{{ \App\Models\Setting::get('site_tagline', 'Chi phí 0đ • Tự động 100%') }}</span>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-wide hidden sm:block">{{ \App\Models\Setting::get('site_tagline') ?: __('Miễn phí 100% • Không cần đăng nhập') }}</span>
                     </div>
                 </a>
 
-                <!-- Desktop Navigation Links -->
+                <!-- Desktop Navigation Links (Tablet Landscape & Desktop) -->
                 <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300">
                     <a href="{{ route('home') }}" class="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100 dark:hover:text-white dark:hover:bg-slate-800 transition">
-                        Tất cả công cụ
-                    </a>
-                    <a href="{{ route('pricing') }}" class="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100 dark:hover:text-white dark:hover:bg-slate-800 transition flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-semibold">
-                        <span>⚡ Gói Pro</span>
-                        <span class="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 px-1.5 py-0.2 rounded-full">VietQR</span>
+                        {{ __('Tất cả công cụ') }}
                     </a>
                     <a href="{{ route('api.docs') }}" class="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100 dark:hover:text-white dark:hover:bg-slate-800 transition">
-                        REST API
+                        {{ __('REST API') }}
+                    </a>
+                    <a href="https://ziigames.online" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition flex items-center gap-1.5 font-semibold text-indigo-600 dark:text-indigo-400">
+                        <i data-lucide="gamepad-2" class="w-4 h-4"></i>
+                        <span>ziigames.online</span>
                     </a>
                 </nav>
             </div>
 
             <!-- Quick Search Bar & Action Buttons -->
-            <div class="flex items-center gap-2 sm:gap-3">
+            <div class="flex items-center gap-1.5 sm:gap-2.5">
                 
                 <!-- Quick Search Trigger -->
-                <button onclick="openSearchModal()" type="button" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 text-xs sm:text-sm hover:border-slate-300 dark:hover:border-slate-700 transition w-36 sm:w-56 justify-between">
+                <button onclick="openSearchModal()" type="button" class="flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 text-xs sm:text-sm hover:border-slate-300 dark:hover:border-slate-700 transition w-auto sm:w-48 justify-between" title="{{ __('Tìm công cụ...') }}">
                     <span class="flex items-center gap-1.5">
                         <i data-lucide="search" class="w-4 h-4"></i>
-                        <span class="hidden sm:inline">Tìm công cụ...</span>
-                        <span class="sm:hidden">Tìm...</span>
+                        <span class="hidden sm:inline">{{ __('Tìm công cụ...') }}</span>
                     </span>
                     <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-xs">Ctrl K</kbd>
                 </button>
 
-                <!-- Authentication Actions -->
-                @auth
-                    <div class="relative" id="userMenuWrapper">
-                        <button onclick="toggleUserDropdown()" type="button" class="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-                            <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-bold text-xs flex items-center justify-center">
-                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                            </div>
-                            <span class="hidden sm:inline text-xs font-semibold max-w-[100px] truncate text-slate-800 dark:text-slate-200">
-                                {{ auth()->user()->name }}
-                            </span>
-                            @if(auth()->user()->isPro())
-                                <span class="hidden sm:inline px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-400 text-slate-950">PRO</span>
-                            @endif
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
-                        </button>
-
-                        <!-- Dropdown Menu -->
-                        <div id="userMenuDropdown" class="hidden absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-2 z-50 text-xs">
-                            <div class="px-4 py-2 border-b border-slate-100 dark:border-slate-800">
-                                <p class="font-bold text-slate-900 dark:text-white truncate">{{ auth()->user()->name }}</p>
-                                <p class="text-[11px] text-slate-400 truncate">{{ auth()->user()->email }}</p>
-                            </div>
-
-                            <a href="{{ route('account') }}" class="flex items-center gap-2 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">
-                                <i data-lucide="user" class="w-4 h-4 text-indigo-500"></i>
-                                <span>Tài khoản của tôi</span>
-                            </a>
-
-                            @if(auth()->user()->is_admin)
-                                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-4 py-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 font-semibold">
-                                    <i data-lucide="shield" class="w-4 h-4"></i>
-                                    <span>Trang Quản Trị (Admin)</span>
-                                </a>
-                            @endif
-
-                            <div class="border-t border-slate-100 dark:border-slate-800 my-1"></div>
-
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40">
-                                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                                    <span>Đăng xuất</span>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                @else
-                    <div class="flex items-center gap-1.5">
-                        <a href="{{ route('login') }}" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-                            Đăng nhập
-                        </a>
-                        <a href="{{ route('register') }}" class="hidden sm:inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition">
-                            Đăng ký
-                        </a>
-                    </div>
-                @endauth
+                <!-- Language Switcher Pill (VI / EN) -->
+                <div class="flex items-center p-0.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900/80 text-xs font-semibold">
+                    <a href="{{ route('lang.switch', ['locale' => 'vi']) }}" 
+                       class="px-2 py-1 rounded-lg transition {{ app()->getLocale() === 'vi' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white' }}"
+                       title="Tiếng Việt">
+                        🇻🇳 VI
+                    </a>
+                    <a href="{{ route('lang.switch', ['locale' => 'en']) }}" 
+                       class="px-2 py-1 rounded-lg transition {{ app()->getLocale() === 'en' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white' }}"
+                       title="English">
+                        🇬🇧 EN
+                    </a>
+                </div>
 
                 <!-- Dark / Light Mode Toggle -->
                 <button onclick="toggleTheme()" type="button" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition" aria-label="Toggle theme">
                     <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
                     <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
                 </button>
+
+                <!-- Mobile & Tablet Menu Button (md:hidden) -->
+                <button onclick="toggleMobileMenu()" type="button" class="md:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition" aria-label="Toggle Navigation Menu">
+                    <i data-lucide="menu" id="iconMenuBars" class="w-4 h-4"></i>
+                    <i data-lucide="x" id="iconMenuClose" class="w-4 h-4 hidden"></i>
+                </button>
             </div>
+        </div>
+
+        <!-- Mobile & Tablet Collapsible Navigation Drawer (md:hidden) -->
+        <div id="mobileDrawer" class="hidden md:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-4 py-3 space-y-1 shadow-lg">
+            <a href="{{ route('home') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold">
+                    ⚡
+                </div>
+                <span>{{ __('Tất cả công cụ') }}</span>
+            </a>
+            <a href="{{ route('api.docs') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                <div class="w-8 h-8 rounded-lg bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+                    <i data-lucide="code" class="w-4 h-4"></i>
+                </div>
+                <span>{{ __('REST API') }}</span>
+            </a>
+            <a href="https://ziigames.online" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition">
+                <div class="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                    <i data-lucide="gamepad-2" class="w-4 h-4"></i>
+                </div>
+                <span>ziigames.online ↗</span>
+            </a>
         </div>
     </header>
 
@@ -253,38 +268,45 @@
                 </div>
 
                 <div>
-                    <h3 class="font-semibold text-slate-900 dark:text-slate-200 text-xs uppercase tracking-wider mb-3">Hệ thống</h3>
+                    <h3 class="font-semibold text-slate-900 dark:text-slate-200 text-xs uppercase tracking-wider mb-3">{{ __('Hệ thống') }}</h3>
                     <ul class="space-y-2 text-xs">
-                        <li><a href="{{ route('pricing') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">Bảng giá Gói Pro (VietQR)</a></li>
-                        @auth
-                            <li><a href="{{ route('account') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold text-indigo-600 dark:text-indigo-400">Tài khoản & Bản quyền</a></li>
-                        @else
-                            <li><a href="{{ route('login') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">Đăng nhập tài khoản</a></li>
-                            <li><a href="{{ route('register') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">Đăng ký thành viên</a></li>
-                        @endauth
-                        <li><a href="{{ route('api.docs') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">Tài liệu REST API</a></li>
+                        <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> {{ __('100% Miễn phí & Không cần đăng nhập') }}
+                        </li>
+                        <li><a href="{{ route('api.docs') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">{{ __('Tài liệu REST API') }}</a></li>
                         <li><a href="{{ route('sitemap') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400" target="_blank">Sitemap.xml</a></li>
-                        <li><a href="{{ route('admin.login') }}" class="hover:text-amber-500 flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400"><i data-lucide="shield" class="w-3 h-3"></i> Quản trị (Admin)</a></li>
+                        <li>
+                            <a href="https://ziigames.online" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1.5 font-semibold text-indigo-600 dark:text-indigo-400">
+                                <i data-lucide="gamepad-2" class="w-3.5 h-3.5"></i> ziigames.online ↗
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
 
             <div class="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-                <p>© {{ date('Y') }} {{ \App\Models\Setting::get('site_name', 'ZiiTool') }}. Phát triển cho cộng đồng lập trình & văn phòng.</p>
+                <p>© {{ date('Y') }} {{ \App\Models\Setting::get('site_name', 'ZiiTool') }}. {{ __('Phát triển cho cộng đồng lập trình & văn phòng.') }}</p>
                 <div class="flex items-center gap-4">
-                    <span>Phiên bản v2.0 (PHP 8.4 / Laravel 12)</span>
-                    <button onclick="openLicenseModal()" class="text-amber-500 hover:underline">Kích hoạt Bản quyền Pro</button>
+                    <a href="https://ziigames.online" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1 font-medium transition">
+                        <i data-lucide="gamepad-2" class="w-3.5 h-3.5 text-indigo-500"></i> ziigames.online
+                    </a>
+                    <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> {{ __('Miễn phí vĩnh viễn') }}
+                    </span>
                 </div>
             </div>
         </div>
     </footer>
+
+    <!-- Bottom Sticky Sponsored Ad Banner -->
+    <x-ad-banner slot="bottom_sticky" class="fixed bottom-0 left-0 right-0 z-30 !my-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 shadow-2xl" />
 
     <!-- Search Modal -->
     <div id="searchModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-start justify-center pt-20">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden transition-all">
             <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3">
                 <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
-                <input id="searchInput" type="text" placeholder="Tìm công cụ (vd: nén ảnh, json, thuế tncn, qr code...)" class="w-full bg-transparent border-none text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none text-base" oninput="filterSearchTools()">
+                <input id="searchInput" type="text" placeholder="{{ __('Tìm công cụ (vd: nén ảnh, json, thuế tncn, qr code...)') }}" class="w-full bg-transparent border-none text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none text-base" oninput="filterSearchTools()">
                 <button onclick="closeSearchModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
@@ -292,40 +314,6 @@
             <div id="searchResults" class="p-2 max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/50">
                 <!-- Search Items dynamically filled by JS -->
             </div>
-        </div>
-    </div>
-
-    <!-- Pro License Activation Modal -->
-    <div id="licenseModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md shadow-2xl p-6 relative">
-            <button onclick="closeLicenseModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-            
-            <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4">
-                <i data-lucide="key" class="w-6 h-6"></i>
-            </div>
-            
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Kích Hoạt Bản Quyền Pro</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Nhập mã bản quyền nhận được sau khi thanh toán VietQR để tắt quảng cáo và mở khóa quyền lợi Pro.</p>
-
-            <form onsubmit="submitLicenseCode(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Mã License Pro</label>
-                    <input id="licenseCodeInput" type="text" placeholder="Ví dụ: PRO-SUPER-2026" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-mono uppercase text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                </div>
-                <div class="text-[11px] text-slate-400">
-                    💡 Mã thử nghiệm: <span class="font-mono text-amber-500 font-semibold cursor-pointer" onclick="fillDemoKey('PRO-SUPER-2026')">PRO-SUPER-2026</span>
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="submit" id="btnSubmitLicense" class="flex-1 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold text-sm rounded-xl shadow transition">
-                        Xác Nhận Kích Hoạt
-                    </button>
-                    <a href="{{ route('pricing') }}" class="px-4 py-2.5 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-sm rounded-xl text-center transition">
-                        Mua Key
-                    </a>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -347,6 +335,21 @@
                 localStorage.theme = 'dark';
             }
             lucide.createIcons();
+        }
+
+        // Mobile & Tablet Menu Toggle
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileDrawer');
+            const bars = document.getElementById('iconMenuBars');
+            const close = document.getElementById('iconMenuClose');
+            if (drawer) {
+                const isHidden = drawer.classList.contains('hidden');
+                drawer.classList.toggle('hidden');
+                if (bars && close) {
+                    bars.classList.toggle('hidden', isHidden);
+                    close.classList.toggle('hidden', !isHidden);
+                }
+            }
         }
 
         // Tools Data for Quick Search
@@ -395,7 +398,7 @@
             );
 
             if (matches.length === 0) {
-                container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">Không tìm thấy công cụ nào phù hợp với từ khóa "${query}".</div>`;
+                container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">{{ __('Không tìm thấy công cụ nào phù hợp.') }}</div>`;
                 return;
             }
 
@@ -426,52 +429,8 @@
             }
             if (e.key === 'Escape') {
                 closeSearchModal();
-                closeLicenseModal();
             }
         });
-
-        // License Modal
-        function openLicenseModal() {
-            document.getElementById('licenseModal').classList.remove('hidden');
-        }
-        function closeLicenseModal() {
-            document.getElementById('licenseModal').classList.add('hidden');
-        }
-        function fillDemoKey(key) {
-            document.getElementById('licenseCodeInput').value = key;
-        }
-
-        async function submitLicenseCode(e) {
-            e.preventDefault();
-            const code = document.getElementById('licenseCodeInput').value;
-            const btn = document.getElementById('btnSubmitLicense');
-            btn.disabled = true;
-            btn.innerText = 'Đang kiểm tra...';
-
-            try {
-                const res = await fetch('{{ route("payment.verify_license") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ license_code: code })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    showToast(data.message, 'success');
-                    closeLicenseModal();
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    showToast(data.message, 'error');
-                }
-            } catch (err) {
-                showToast('Lỗi kết nối máy chủ khi xác thực license.', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Xác Nhận Kích Hoạt';
-            }
-        }
 
         // Toast Helper
         function showToast(message, type = 'info') {

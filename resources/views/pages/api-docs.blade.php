@@ -23,12 +23,12 @@
             <span class="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400">{{ url('/api/v1') }}</span>
         </div>
         <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <span class="text-xs text-slate-400 block mb-1">Định dạng phản hồi</span>
+            <span class="text-xs text-slate-400 block mb-1">{{ __('Định dạng phản hồi') }}</span>
             <span class="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">application/json</span>
         </div>
         <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <span class="text-xs text-slate-400 block mb-1">Gói Pro API Key</span>
-            <a href="{{ route('pricing') }}" class="font-mono text-xs font-bold text-amber-500 hover:underline">Nhận API Key Pro →</a>
+            <span class="text-xs text-slate-400 block mb-1">{{ __('Quyền truy cập API') }}</span>
+            <span class="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">{{ __('Mở công khai (Không cần Key)') }}</span>
         </div>
     </div>
 

@@ -33,6 +33,9 @@
         </p>
     </div>
 
+    <!-- Top Leaderboard Ad Banner -->
+    <x-ad-banner slot="top_leaderboard" class="mb-8" />
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
         
         <!-- Main Tool Workspace (2 cols) -->

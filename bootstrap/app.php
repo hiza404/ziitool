@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\SetLocaleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,8 +15,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            SetLocaleMiddleware::class,
+        ]);
         $middleware->alias([
             'admin' => AdminMiddleware::class,
+        ]);
+        $middleware->validateCsrfTokens(except: [
+            'tool/tai-video-tiktok/parse',
+            'tool/tai-video-da-nen-tang/parse',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

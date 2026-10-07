@@ -333,169 +333,68 @@ return [
             ],
         ],
 
-        // 13. PDF to Word Converter
-        'pdf-sang-word' => [
-            'slug' => 'pdf-sang-word',
-            'title' => 'Chuyển PDF Sang Word',
-            'category' => 'finance',
-            'badge' => 'Hot Nhất',
-            'short_desc' => 'Chuyển đổi tệp PDF sang tài liệu Microsoft Word (.docx) chuẩn xác, giữ nguyên văn bản và bố cục.',
-            'icon' => 'file-text',
-            'seo_title' => 'Chuyển PDF Sang Word Online Miễn Phí (.DOCX) - Bảo Mật & Chuẩn Định Dạng',
-            'seo_desc' => 'Công cụ chuyển đổi PDF sang Word trực tuyến miễn phí 100%, bảo mật tuyệt đối không tải tài liệu lên máy chủ. Xuất file DOCX chuẩn định dạng, sửa đổi dễ dàng trên Microsoft Word.',
-            'keywords' => 'chuyển pdf sang word, convert pdf to word, pdf sang docx, chuyen pdf qua word mien phi, pdf to docx online',
-            'how_to' => [
-                'Chọn hoặc kéo thả tệp PDF cần chuyển đổi từ máy tính hoặc điện thoại.',
-                'Chọn tùy chọn trang (Toàn bộ tài liệu hoặc dải trang cụ thể).',
-                'Hệ thống tự động phân tích văn bản, phông chữ và ngắt dòng trong bộ nhớ trình duyệt.',
-                'Nhấn nút "Tải File Word (.docx)" để nhận ngay tài liệu có thể chỉnh sửa.',
-            ],
-            'faq' => [
-                [
-                    'q' => 'Tài liệu PDF của tôi có bị lưu lại trên máy chủ không?',
-                    'a' => 'Tuyệt đối không! Toàn bộ quá trình đọc PDF và tạo file Word DOCX được thực thi 100% trong trình duyệt của bạn (Client-Side), tài liệu không bao giờ rời khỏi thiết bị.',
-                ],
-                [
-                    'q' => 'Tệp Word xuất ra có tương thích với Microsoft Office và Google Docs không?',
-                    'a' => 'Có. File xuất ra theo định dạng Office OpenXML tiêu chuẩn (.docx) nên mở mượt mà trên Microsoft Word, Google Docs, WPS Office và LibreOffice.',
-                ],
-            ],
-        ],
-
-        // 14. Convert to Excel (XLSX)
-        'chuyen-sang-excel' => [
-            'slug' => 'chuyen-sang-excel',
-            'title' => 'Chuyển Đổi Sang Excel (.XLSX)',
-            'category' => 'finance',
-            'badge' => 'Văn phòng',
-            'short_desc' => 'Chuyển đổi bảng biểu từ PDF, CSV, JSON, HTML Table sang bảng tính Excel (.xlsx) chuẩn xác.',
-            'icon' => 'table',
-            'seo_title' => 'Chuyển Đổi PDF, CSV, JSON Sang Excel (.XLSX) Trực Tuyến Miễn Phí',
-            'seo_desc' => 'Chuyển đổi nhanh chóng tài liệu PDF có bảng số liệu, tệp CSV, dữ liệu JSON hoặc bảng HTML thành bảng tính Excel XLSX hoàn chỉnh, hỗ trợ phân tách cột thông minh.',
-            'keywords' => 'chuyển pdf sang excel, csv sang excel, json to excel, html table sang excel, convert to xlsx online free',
-            'how_to' => [
-                'Chọn nguồn dữ liệu: Tệp PDF (có bảng biểu), Tệp CSV/TSV, Dữ liệu JSON hoặc mã HTML Table.',
-                'Hệ thống tự động nhận diện cấu trúc hàng/cột và kiểu dữ liệu (số, ngày tháng, chuỗi).',
-                'Xem trước bảng dữ liệu trong giao diện tương tác.',
-                'Nhấn "Tải Bảng Tính (.xlsx)" để lưu file Excel về máy tính.',
-            ],
-            'faq' => [
-                [
-                    'q' => 'Công cụ có nhận diện được bảng biểu trong file PDF không?',
-                    'a' => 'Có. Thuật toán tự động phân tích các dòng văn bản có cấu trúc cột, số liệu và tiêu đề trong PDF để chuyển thành các ô tính toán tương ứng trong Excel.',
-                ],
-                [
-                    'q' => 'Có giới hạn dung lượng hoặc số dòng khi chuyển đổi không?',
-                    'a' => 'Công cụ xử lý trực tiếp trên RAM máy tính của bạn nên có thể chuyển đổi các tệp dữ liệu lên đến hàng chục nghìn dòng mà không gặp giới hạn của máy chủ.',
-                ],
-            ],
-        ],
-
-        // 15. Convert to Word (DOCX)
-        'chuyen-sang-word' => [
-            'slug' => 'chuyen-sang-word',
-            'title' => 'Chuyển Đổi Tài Liệu Sang Word',
-            'category' => 'finance',
-            'badge' => 'Đa định dạng',
-            'short_desc' => 'Chuyển đổi Markdown, HTML, Text, RTF và tệp tài liệu sang Microsoft Word (.docx) chuẩn phong cách.',
-            'icon' => 'file-edit',
-            'seo_title' => 'Chuyển Đổi Markdown, HTML, Text Sang Word (.DOCX) Trực Tuyến',
-            'seo_desc' => 'Công cụ chuyển đổi các định dạng văn bản Markdown, mã nguồn HTML và văn bản thuần túy sang tài liệu Word DOCX với đầy đủ định dạng tiêu đề, danh sách, in đậm/nghiêng và bảng biểu.',
-            'keywords' => 'chuyển sang word, markdown sang word, html to docx, text sang word, convert document to docx online',
-            'how_to' => [
-                'Tải file hoặc dán trực tiếp nội dung văn bản (Markdown, HTML, Text, RTF).',
-                'Tùy chỉnh định dạng font chữ, lề tài liệu và kiểu tiêu đề mong muốn.',
-                'Kiểm tra định dạng trong khung xem trước thời gian thực.',
-                'Nhấn "Tải Xuống Tệp Word (.docx)" để xuất tài liệu.',
-            ],
-            'faq' => [
-                [
-                    'q' => 'Công cụ có giữ nguyên các định dạng như tiêu đề H1-H3, danh sách và bảng không?',
-                    'a' => 'Có. Bộ phân tích cú pháp hỗ trợ chuyển đổi đầy đủ các cấu trúc Heading, Bullet List, Numbered List, In đậm, In nghiêng, Trích dẫn và Bảng biểu sang style tương ứng của Word.',
-                ],
-            ],
-        ],
-
-        // 16. AI Background Remover
+        // 13. AI Background Remover & Replacer
         'xoa-phong-anh' => [
             'slug' => 'xoa-phong-anh',
-            'title' => 'Xóa Phông Nền Ảnh Bằng AI',
-            'category' => 'image',
-            'badge' => 'AI Mới',
-            'short_desc' => 'Tự động tách nền ảnh bằng AI, tạo phông trong suốt (.PNG), đổi phông trắng/xanh ảnh thẻ hoặc làm mờ phông bokeh chân dung tức thì.',
-            'icon' => 'scissors',
-            'seo_title' => 'Xóa Phông Nền Ảnh Bằng AI Online Miễn Phí - Tách Nền Trong Suốt Tức Thì',
-            'seo_desc' => 'Công cụ xóa phông nền ảnh bằng trí tuệ nhân tạo (AI Background Remover) 100% miễn phí. Tách nền ảnh chân dung, ảnh thẻ, ảnh sản phẩm bán hàng không mất chi tiết tóc.',
-            'keywords' => 'xóa phông ảnh ai, tách nền ảnh online, remove background ai free, đổi nền ảnh thẻ, làm mờ phông ảnh',
-            'how_to' => [
-                'Tải ảnh chân dung hoặc sản phẩm bạn muốn tách nền.',
-                'Mô hình AI tự động quét chủ thể, bóc tách phông nền trong 0.5 giây.',
-                'Chọn hiệu ứng: Nền trong suốt PNG, Phông màu (trắng, xanh, xám studio), Làm mờ phông bokeh, hoặc Ghép ảnh nền mới.',
-                'Bấm "Tải Ảnh Về Máy" để lưu ảnh chất lượng cao độ phân giải gốc.',
-            ],
-            'faq' => [
-                [
-                    'q' => 'Mô hình AI nhận diện được những chi tiết khó như tóc hay viền áo không?',
-                    'a' => 'Có! Mô hình Deep Learning phân đoạn ngữ nghĩa tự động phát hiện đường viền phức tạp của tóc tơ, nếp gấp quần áo và vật thể với độ chính xác cao.',
-                ],
-                [
-                    'q' => 'Ảnh có bị gửi lên máy chủ của bên thứ ba không?',
-                    'a' => 'Không. Mô hình AI WebAssembly chạy trực tiếp trong bộ nhớ trình duyệt của bạn (Client-Side AI Engine), hoàn toàn bảo mật và miễn phí 0đ.',
-                ],
-            ],
-        ],
-
-        // 17. AI Image Enhancer & Upscaler
-        'nang-chat-luong-anh' => [
-            'slug' => 'nang-chat-luong-anh',
-            'title' => 'Nâng Cao Chất Lượng & Làm Nét Ảnh AI',
+            'title' => 'Xóa Phông & Đổi Nền Ảnh Bằng AI',
             'category' => 'image',
             'badge' => 'AI Hot',
-            'short_desc' => 'Tăng độ phân giải 2x, 4x bằng AI Super-Resolution, phục hồi ảnh mờ, làm nét khuôn mặt, khử nhiễu với thanh so sánh Before/After trực quan.',
-            'icon' => 'sparkles',
-            'seo_title' => 'Nâng Cấp Chất Lượng & Làm Nét Ảnh Bằng AI Online Miễn Phí (Super-Resolution 4X)',
-            'seo_desc' => 'Công cụ nâng cấp chất lượng ảnh bằng AI online tốt nhất. Phóng to ảnh 2x, 4x không vỡ hạt, làm nét ảnh cũ bị mờ, khử nhiễu ISO, phục hồi chi tiết khuôn mặt sắc nét.',
-            'keywords' => 'làm nét ảnh ai, nâng chất lượng ảnh, ai image upscaler, phục hồi ảnh mờ online, tăng độ phân giải ảnh 4k',
+            'short_desc' => 'Tự động tách nền trong suốt (.PNG), đổi phông ảnh thẻ trắng/xanh, làm mờ bokeh hoặc ghép ảnh nền mới bằng AI trong 1 giây.',
+            'icon' => 'scissors',
+            'seo_title' => 'Xóa Phông & Đổi Nền Ảnh Bằng AI Online Miễn Phí - Tách Nền Trong Suốt Tức Thì',
+            'seo_desc' => 'Công cụ xóa phông và đổi màu nền ảnh bằng AI miễn phí 100%. Tách nền ảnh chân dung, đổi màu phông trắng/xanh ảnh thẻ, làm mờ phông bokeh và ghép ảnh nền mới.',
+            'keywords' => 'xóa phông ảnh ai, đổi phông ảnh online, tách nền ảnh, đổi nền ảnh thẻ, xóa phông nền ảnh, remove background ai',
             'how_to' => [
-                'Chọn ảnh bị mờ, ảnh vỡ nét hoặc ảnh chụp kích thước nhỏ cần nâng cấp.',
-                'Chọn tỷ lệ phóng to (2X, 4X) và chế độ tối ưu (Chân dung, Phong cảnh, Văn bản).',
-                'Kéo thanh trượt Before/After trực quan để so sánh độ nét chi tiết trước và sau khi xử lý.',
-                'Nhấn "Tải Ảnh Sắc Nét" để lưu về thiết bị.',
+                'Tải ảnh chân dung hoặc vật thể bạn muốn xóa phông hoặc đổi nền.',
+                'Hệ thống AI tự động phân tích chủ thể và bóc tách phông nền trong 0.5 giây.',
+                'Chọn chế độ nền: Trong suốt (PNG), Phông màu thẻ (Trắng, Xanh, Đỏ, Studio), Mờ Bokeh hoặc Tải ảnh nền mới để ghép.',
+                'Nhấn nút "Tải Về Ảnh" để lưu ảnh chất lượng cao về máy tính/điện thoại.',
             ],
             'faq' => [
                 [
-                    'q' => 'Làm nét ảnh bằng AI khác gì so với phóng to ảnh thông thường?',
-                    'a' => 'Phóng to thông thường khiến ảnh bị vỡ pixel và nhòe hạt. Thuật toán AI Super-Resolution sử dụng mạng nơ-ron để tái tạo các cạnh chi tiết, khử nhiễu hạt và khôi phục độ tương phản viền sắc sảo.',
+                    'q' => 'Công cụ có hỗ trợ đổi màu phông cho ảnh thẻ CCCD, bằng lái xe không?',
+                    'a' => 'Có! Bạn có thể chuyển nền sang màu trắng chuẩn quốc tế hoặc màu xanh dương chỉ với 1 cú nhấp chuột.',
+                ],
+                [
+                    'q' => 'Ảnh có bị tải lên máy chủ hoặc bị lộ thông tin không?',
+                    'a' => 'Tuyệt đối không! Mô hình AI chạy trực tiếp trong trình duyệt của bạn (Client-Side), hình ảnh không bao giờ rời khỏi thiết bị của bạn.',
                 ],
             ],
         ],
 
-        // 18. Canva Presentation Maker & Slide Editor
-        'bai-thuyet-trinh' => [
-            'slug' => 'bai-thuyet-trinh',
-            'title' => 'Bài Thuyết Trình',
-            'category' => 'graphics',
-            'badge' => 'Canva Presentation',
-            'short_desc' => 'Tạo bài thuyết trình online chuẩn phong cách Canva: Hàng chục mẫu slide đẹp 1920x1080, áp dụng 10 trang 1 chạm, thanh filmstrip slide đáy màn hình, nạp file PPTX cũ lên sửa trực tiếp, trình chiếu toàn màn hình và xuất file .pptx thật.',
-            'icon' => 'presentation',
-            'seo_title' => 'Tạo Bài Thuyết Trình Online Đẹp Như Canva & Chỉnh Sửa PowerPoint',
-            'seo_desc' => 'Ứng dụng tạo bài thuyết trình trực tuyến phong cách Canva. Kho mẫu slide đa dạng tỉ lệ 1920x1080, áp dụng 10 trang 1 chạm, bóc tách và sửa file PowerPoint PPTX cũ, trình chiếu toàn màn hình và xuất file .pptx thật 100%.',
-            'keywords' => 'bài thuyết trình canva, tạo slide thuyết trình online, sửa file pptx online, mẫu slide đẹp, làm bài thuyết trình, ziitool slide',
+        // 14. All-in-One Social Video Downloader (TikTok, YouTube, Facebook)
+        'tai-video-tiktok' => [
+            'slug' => 'tai-video-tiktok',
+            'title' => 'Tải Video Đa Nền Tảng (TikTok, YouTube, Facebook)',
+            'category' => 'image',
+            'badge' => '3-in-1 Hot',
+            'short_desc' => 'Tải video TikTok không logo, video & Shorts YouTube Full HD, video & Reels Facebook và tách nhạc MP3 miễn phí siêu tốc.',
+            'icon' => 'video',
+            'seo_title' => 'Tải Video TikTok, YouTube, Facebook Không Logo Online Miễn Phí',
+            'seo_desc' => 'Công cụ tải video đa nền tảng miễn phí tốt nhất: Tải video TikTok không watermark, video YouTube HD/4K, Shorts, video Facebook & Reels và tách nhạc MP3.',
+            'keywords' => 'tải video tiktok không logo, tải video youtube, tải video facebook, download youtube shorts, tải reels facebook, snaptik, y2mate, savefrom, fdownloader',
             'how_to' => [
-                'Chọn một bộ mẫu bài thuyết trình (mẫu vui nhộn 10 trang, báo cáo doanh nghiệp, giáo dục, startup) hoặc nạp file .pptx cũ từ máy tính lên.',
-                'Sử dụng thanh filmstrip ở đáy màn hình để duyệt qua các trang slide, thêm trang mới (+) hoặc sắp xếp thứ tự.',
-                'Nhấp đúp chuột vào văn bản trên khung vẽ 16:9 để chỉnh sửa nội dung, thay đổi phông chữ, màu sắc, chèn hình khối và ảnh.',
-                'Nhấn nút "Thuyết trình" (hoặc phím F5) để chiếu bài thuyết trình toàn màn hình.',
-                'Nhấn "Chia sẻ" để tải file PowerPoint (.pptx) chuẩn hoặc xuất file PDF bài thuyết trình.',
+                'Mở ứng dụng hoặc trang web TikTok, YouTube, hoặc Facebook và bấm "Chia sẻ" → "Sao chép liên kết" video/reels muốn tải.',
+                'Dán liên kết vào ô tìm kiếm của công cụ ZiiTool.',
+                'Bấm nút "Tải xuống" để hệ thống tự động nhận diện nền tảng và bóc tách dữ liệu video.',
+                'Chọn tải Video chất lượng cao HD/4K, Video tiêu chuẩn, hoặc trích xuất riêng âm thanh MP3.',
             ],
             'faq' => [
                 [
-                    'q' => 'Tôi có thể tải file PowerPoint (.pptx) cũ lên để sửa trên giao diện Canva không?',
-                    'a' => 'Có! Công cụ tích hợp bộ bóc tách file PPTX tự động, nạp toàn bộ các slide vào thanh filmstrip đáy màn hình để bạn chỉnh sửa trực tiếp.',
+                    'q' => 'Công cụ hỗ trợ tải những nền tảng nào?',
+                    'a' => 'Hệ thống hỗ trợ 3 nền tảng lớn nhất hiện nay: TikTok (video, slide ảnh không watermark), YouTube (video dài, YouTube Shorts) và Facebook (Reels, Watch, bài viết công khai).',
                 ],
                 [
-                    'q' => 'File tải về có mở được trên Microsoft PowerPoint và Google Slides không?',
-                    'a' => 'Được 100%! File .pptx được tạo chuẩn định dạng Office OpenXML, mở và chỉnh sửa được đầy đủ trên Microsoft PowerPoint, Google Slides, Keynote và LibreOffice.',
+                    'q' => 'Tải video TikTok qua công cụ này có dính logo không?',
+                    'a' => 'Hoàn toàn không! Hệ thống tự động bóc tách luồng video sạch gốc trực tiếp từ máy chủ, xóa sạch 100% watermark và ID người dùng.',
+                ],
+                [
+                    'q' => 'Có thể tách riêng bài hát hoặc nhạc nền MP3 không?',
+                    'a' => 'Có. Bạn có thể nhấn nút "Tải Âm Thanh (MP3)" để lưu riêng file nhạc làm nhạc chuông điện thoại hoặc nghe offline.',
+                ],
+                [
+                    'q' => 'Công cụ có dùng được trên điện thoại iPhone (iOS) và Android không?',
+                    'a' => 'Có! Dùng mượt mà trên mọi trình duyệt điện thoại (Safari, Chrome, Cốc Cốc), lưu trực tiếp vào thư viện ảnh hoặc ứng dụng Tệp.',
                 ],
             ],
         ],

@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\ToolOverride;
 use App\Services\SeoService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ToolController extends Controller
 {
@@ -50,9 +53,10 @@ class ToolController extends Controller
         }
 
         $seo = SeoService::getMetadata([
-            'title' => 'Web Tiện Ích Online Miễn Phí 100% - Siêu Tốc & Bảo Mật',
-            'description' => 'Trọn bộ công cụ tiện ích trực tuyến tốt nhất: Chuyển đổi và nén ảnh WebP/PNG, Format JSON & SQL, tính thuế TNCN, tính lãi kép, tạo mã QR và Mockup thiết bị.',
-            'keywords' => 'web tiện ích, micro tools online, nén ảnh online, json formatter, tính thuế tncn 2026, tính lãi kép, tạo qr code',
+            'is_home' => true,
+            'title' => 'Web Tiện Ích Online Miễn Phí 100% | SnapTik Tải Video TikTok, Xóa Phông AI, Nén Ảnh',
+            'description' => 'Trọn bộ công cụ tiện ích trực tuyến miễn phí 100%: Tải video TikTok không logo Full HD (SnapTik), tải video YouTube & Facebook, xóa phông ảnh AI, nén ảnh siêu nhẹ, format JSON, tính thuế TNCN.',
+            'keywords' => 'ziitool, snaptik, tải video tiktok, tải video tiktok không logo, tai video tiktok, download video tiktok, tải video youtube, tải video facebook, xóa phông ảnh, tách nền ảnh, nén ảnh online, format json, tính thuế tncn 2026, tạo mã qr',
         ]);
 
         return view('pages.home', [
@@ -70,8 +74,13 @@ class ToolController extends Controller
     public function show(string $slug): View|RedirectResponse
     {
         $redirects = [
-            'tao-slide-thuyet-trinh' => 'bai-thuyet-trinh',
-            'chinh-anh-meitu' => 'bai-thuyet-trinh',
+            'doi-phong-anh' => 'xoa-phong-anh',
+            'xoa-doi-phong-anh' => 'xoa-phong-anh',
+            'snaptik' => 'tai-video-tiktok',
+            'tai-video-douyin' => 'tai-video-tiktok',
+            'tai-video-youtube' => 'tai-video-tiktok',
+            'tai-video-facebook' => 'tai-video-tiktok',
+            'tai-video-da-nen-tang' => 'tai-video-tiktok',
         ];
 
         if (isset($redirects[$slug])) {
@@ -131,14 +140,11 @@ class ToolController extends Controller
             'tinh-lai-kep' => 'tools.compound-interest',
             'tao-mockup-thiet-bi' => 'tools.device-mockup',
             'trich-xuat-bang-mau' => 'tools.color-palette',
-            'pdf-sang-word' => 'tools.pdf-to-word',
-            'chuyen-sang-excel' => 'tools.format-to-excel',
-            'chuyen-sang-word' => 'tools.format-to-word',
             'xoa-phong-anh' => 'tools.ai-background-remover',
-            'nang-chat-luong-anh' => 'tools.ai-image-enhancer',
-            'bai-thuyet-trinh' => 'tools.slide-presentation-maker',
-            'tao-slide-thuyet-trinh' => 'tools.slide-presentation-maker',
-            'chinh-anh-meitu' => 'tools.slide-presentation-maker',
+            'doi-phong-anh' => 'tools.ai-background-remover',
+            'xoa-doi-phong-anh' => 'tools.ai-background-remover',
+            'tai-video-tiktok' => 'tools.tiktok-downloader',
+            'snaptik' => 'tools.tiktok-downloader',
         ];
 
         $viewName = $viewMap[$slug] ?? 'tools.generic';
@@ -159,38 +165,46 @@ class ToolController extends Controller
     {
         $tools = config('tools.list', []);
         $baseUrl = url('/');
+        $today = date('Y-m-d');
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>';
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">';
 
-        // Home
+        // Home Page (Highest Priority)
         $xml .= '<url>';
         $xml .= '<loc>'.htmlspecialchars($baseUrl).'</loc>';
+        $xml .= '<lastmod>'.$today.'</lastmod>';
         $xml .= '<changefreq>daily</changefreq>';
         $xml .= '<priority>1.0</priority>';
-        $xml .= '</url>';
-
-        // Pricing
-        $xml .= '<url>';
-        $xml .= '<loc>'.htmlspecialchars($baseUrl.'/pricing').'</loc>';
-        $xml .= '<changefreq>weekly</changefreq>';
-        $xml .= '<priority>0.8</priority>';
+        $xml .= '<xhtml:link rel="alternate" hreflang="vi" href="'.htmlspecialchars($baseUrl).'?lang=vi" />';
+        $xml .= '<xhtml:link rel="alternate" hreflang="en" href="'.htmlspecialchars($baseUrl).'?lang=en" />';
+        $xml .= '<xhtml:link rel="alternate" hreflang="x-default" href="'.htmlspecialchars($baseUrl).'" />';
         $xml .= '</url>';
 
         // API Docs
         $xml .= '<url>';
         $xml .= '<loc>'.htmlspecialchars($baseUrl.'/api-docs').'</loc>';
+        $xml .= '<lastmod>'.$today.'</lastmod>';
         $xml .= '<changefreq>weekly</changefreq>';
         $xml .= '<priority>0.8</priority>';
         $xml .= '</url>';
 
-        // Each Tool
+        // Tools (High Priority for Trending Tools)
+        $trendingSlugs = ['tai-video-tiktok', 'xoa-phong-anh', 'nen-anh', 'format-json', 'thue-tncn'];
         foreach ($tools as $tool) {
             $toolUrl = route('tool.show', ['slug' => $tool['slug']]);
+            $isTrending = in_array($tool['slug'], $trendingSlugs, true);
+            $priority = $isTrending ? '0.95' : '0.85';
+            $changefreq = $isTrending ? 'daily' : 'weekly';
+
             $xml .= '<url>';
             $xml .= '<loc>'.htmlspecialchars($toolUrl).'</loc>';
-            $xml .= '<changefreq>weekly</changefreq>';
-            $xml .= '<priority>0.9</priority>';
+            $xml .= '<lastmod>'.$today.'</lastmod>';
+            $xml .= '<changefreq>'.$changefreq.'</changefreq>';
+            $xml .= '<priority>'.$priority.'</priority>';
+            $xml .= '<xhtml:link rel="alternate" hreflang="vi" href="'.htmlspecialchars($toolUrl).'?lang=vi" />';
+            $xml .= '<xhtml:link rel="alternate" hreflang="en" href="'.htmlspecialchars($toolUrl).'?lang=en" />';
+            $xml .= '<xhtml:link rel="alternate" hreflang="x-default" href="'.htmlspecialchars($toolUrl).'" />';
             $xml .= '</url>';
         }
 
@@ -206,7 +220,17 @@ class ToolController extends Controller
      */
     public function robots(): Response
     {
-        $content = "User-agent: *\nAllow: /\nSitemap: ".url('/sitemap.xml')."\n";
+        $content = "User-agent: *\n";
+        $content .= "Allow: /\n";
+        $content .= "Disallow: /admin/\n";
+        $content .= "Disallow: /payment/\n";
+        $content .= "Disallow: /account/\n";
+        $content .= "Disallow: /tool/video/download\n\n";
+        $content .= "User-agent: Googlebot\n";
+        $content .= "Allow: /\n\n";
+        $content .= "User-agent: Googlebot-Image\n";
+        $content .= "Allow: /\n\n";
+        $content .= 'Sitemap: '.url('/sitemap.xml')."\n";
 
         return response($content, 200, [
             'Content-Type' => 'text/plain',
@@ -214,47 +238,444 @@ class ToolController extends Controller
     }
 
     /**
-     * High-Fidelity Server Engine for PDF to Word conversion.
+     * Parse video from TikTok, YouTube, or Facebook and return download streams.
      */
-    public function convertPdfToDocx(Request $request)
+    public function parseVideo(Request $request): JsonResponse
     {
         $request->validate([
-            'pdf_file' => 'required|file|mimes:pdf|max:51200',
+            'url' => 'required|string|max:1000',
         ]);
 
-        $file = $request->file('pdf_file');
-        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $tempId = uniqid('pdf_conv_', true);
-        $tempDir = storage_path('app/temp/'.$tempId);
-        @mkdir($tempDir.'/profile', 0777, true);
+        $rawUrl = trim($request->input('url'));
 
-        $pdfPath = $tempDir.'/input.pdf';
-        $file->move($tempDir, 'input.pdf');
-
-        $cmd = sprintf(
-            'HOME=%s soffice "-env:UserInstallation=file://%s/profile" --headless --infilter="writer_pdf_import" --convert-to docx %s --outdir %s 2>&1',
-            escapeshellarg($tempDir),
-            $tempDir,
-            escapeshellarg($pdfPath),
-            escapeshellarg($tempDir)
-        );
-
-        exec($cmd, $output, $exitCode);
-
-        $docxFiles = glob($tempDir.'/*.docx');
-        if ($exitCode === 0 && ! empty($docxFiles) && file_exists($docxFiles[0])) {
-            $docxPath = $docxFiles[0];
-            $downloadName = ($originalName ?: 'document').'_ziitool.docx';
-
-            return response()->download($docxPath, $downloadName)->deleteFileAfterSend(true);
+        // Extract http/https URL if user pasted text containing a URL (e.g., from mobile share sheet)
+        if (preg_match('/https?:\/\/[^\s]+/i', $rawUrl, $match)) {
+            $rawUrl = $match[0];
+        } elseif (! str_starts_with($rawUrl, 'http://') && ! str_starts_with($rawUrl, 'https://')) {
+            $rawUrl = 'https://'.$rawUrl;
         }
 
-        // Cleanup if failed
-        @unlink($pdfPath);
+        $rawUrl = rtrim($rawUrl, ".,;!?)>\"'\t\n\r");
+
+        // Resolve shortened links (vt.tiktok.com, vm.tiktok.com, fb.watch, youtu.be)
+        if (preg_match('/(vt\.tiktok\.com|vm\.tiktok\.com|fb\.watch|youtu\.be)/i', $rawUrl)) {
+            $ch = curl_init($rawUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_NOBODY, true);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X)');
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_exec($ch);
+            $effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+            curl_close($ch);
+            if (! empty($effectiveUrl) && filter_var($effectiveUrl, FILTER_VALIDATE_URL)) {
+                $rawUrl = $effectiveUrl;
+            }
+        }
+
+        if (preg_match('/(tiktok\.com|douyin\.com)/i', $rawUrl)) {
+            return $this->parseTiktokEngine($rawUrl);
+        } elseif (preg_match('/(youtube\.com|youtu\.be)/i', $rawUrl)) {
+            return $this->parseYoutubeEngine($rawUrl);
+        } elseif (preg_match('/(facebook\.com|fb\.watch|fb\.com)/i', $rawUrl)) {
+            return $this->parseFacebookEngine($rawUrl);
+        }
 
         return response()->json([
-            'error' => 'Không thể chuyển đổi tệp bằng engine máy chủ. Vui lòng chuyển sang sử dụng Engine Trình Duyệt để bóc tách thông minh.',
-            'details' => implode("\n", $output),
+            'success' => false,
+            'message' => 'Liên kết không được hỗ trợ. Vui lòng nhập liên kết hợp lệ từ TikTok, YouTube hoặc Facebook.',
         ], 422);
+    }
+
+    /**
+     * Stream download video/audio file with attachment headers so the browser saves it directly.
+     */
+    public function downloadVideo(Request $request): StreamedResponse|Response
+    {
+        $url = $request->query('url');
+        $rawTitle = $request->query('title', 'video');
+        $platform = strtolower($request->query('platform', 'video'));
+        $type = $request->query('type', 'video');
+        $ext = strtolower($request->query('ext', 'mp4'));
+        $videoId = $request->query('video_id', '');
+
+        if (! in_array($ext, ['mp4', 'mp3', 'jpg', 'jpeg', 'webm', 'm4a'])) {
+            $ext = 'mp4';
+        }
+
+        $safeTitle = Str::slug($rawTitle) ?: 'video';
+        if (strlen($safeTitle) > 50) {
+            $safeTitle = substr($safeTitle, 0, 50);
+        }
+        $filename = "Ziitool_{$platform}_{$safeTitle}.{$ext}";
+
+        $contentType = match ($ext) {
+            'mp3', 'm4a' => 'audio/mpeg',
+            'jpg', 'jpeg' => 'image/jpeg',
+            default => 'video/mp4',
+        };
+
+        // If platform is YouTube, stream directly from yt-dlp to bypass googlevideo IP restrictions
+        if ($platform === 'youtube' && ! empty($videoId)) {
+            $binPath = storage_path('app/bin/yt-dlp');
+            if (file_exists($binPath)) {
+                $ytUrl = "https://www.youtube.com/watch?v={$videoId}";
+                $format = ($type === 'audio') ? '140/ba/b' : '18/b[ext=mp4]/best[ext=mp4]/best';
+
+                $cmd = sprintf(
+                    '%s --js-runtimes node:/usr/bin/node -f %s --no-warnings -o - %s',
+                    escapeshellarg($binPath),
+                    escapeshellarg($format),
+                    escapeshellarg($ytUrl)
+                );
+
+                return response()->stream(function () use ($cmd) {
+                    set_time_limit(0);
+                    $proc = popen($cmd, 'r');
+                    if ($proc) {
+                        while (! feof($proc)) {
+                            $buf = fread($proc, 1024 * 64);
+                            if ($buf !== false && strlen($buf) > 0) {
+                                echo $buf;
+                                if (ob_get_level() > 0) {
+                                    ob_flush();
+                                }
+                                flush();
+                            }
+                        }
+                        pclose($proc);
+                    }
+                }, 200, [
+                    'Content-Type' => $contentType,
+                    'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+                    'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                    'Pragma' => 'no-cache',
+                    'Expires' => '0',
+                ]);
+            }
+        }
+
+        // For direct CDN URL (TikTok, Facebook, Images, etc.)
+        if (empty($url) || ! filter_var($url, FILTER_VALIDATE_URL)) {
+            return response('Không tìm thấy liên kết tệp để tải về.', 404);
+        }
+
+        return response()->stream(function () use ($url) {
+            set_time_limit(0);
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36');
+            curl_setopt($ch, CURLOPT_REFERER, 'https://www.tiktok.com/');
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 180);
+            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $chunk) {
+                echo $chunk;
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+                flush();
+
+                return strlen($chunk);
+            });
+            curl_exec($ch);
+            curl_close($ch);
+        }, 200, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
+    }
+
+    /**
+     * Backward-compatible alias for TikTok parsing.
+     */
+    public function parseTiktok(Request $request): JsonResponse
+    {
+        return $this->parseVideo($request);
+    }
+
+    /**
+     * Engine for extracting TikTok and Douyin videos without watermark.
+     */
+    private function parseTiktokEngine(string $url): JsonResponse
+    {
+        try {
+            $ch = curl_init('https://www.tikwm.com/api/');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+                'url' => $url,
+                'hd' => 1,
+            ]));
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36');
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            if ($response === false || $httpCode !== 200) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể kết nối đến máy chủ TikTok. Lỗi: '.($curlError ?: 'HTTP '.$httpCode),
+                ], 502);
+            }
+
+            $data = json_decode($response, true);
+
+            if (! isset($data['code']) || $data['code'] !== 0 || empty($data['data'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $data['msg'] ?? 'Không tìm thấy video hoặc video đang ở chế độ riêng tư/bị xóa.',
+                ], 404);
+            }
+
+            $item = $data['data'];
+            $item['platform'] = 'tiktok';
+            $item['platform_name'] = 'TikTok';
+
+            return response()->json([
+                'success' => true,
+                'data' => $item,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi xử lý TikTok: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Engine for extracting YouTube and Shorts videos.
+     */
+    private function parseYoutubeEngine(string $url): JsonResponse
+    {
+        try {
+            $binPath = storage_path('app/bin/yt-dlp');
+            if (! file_exists($binPath)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Engine bóc tách video chưa được cài đặt trên hệ thống.',
+                ], 500);
+            }
+
+            $cmd = sprintf(
+                '%s --no-check-certificates --js-runtimes node:/usr/bin/node --socket-timeout 10 --dump-single-json --skip-download --no-warnings %s 2>&1',
+                escapeshellarg($binPath),
+                escapeshellarg($url)
+            );
+
+            $output = shell_exec($cmd);
+            $info = json_decode($output, true);
+
+            if (! $info || empty($info['id'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể bóc tách video YouTube. Vui lòng kiểm tra lại đường dẫn video hoặc trạng thái công khai của video.',
+                ], 404);
+            }
+
+            $formats = $info['formats'] ?? [];
+            $hdVideoUrl = null;
+            $sdVideoUrl = null;
+            $audioUrl = null;
+            $hdSize = null;
+            $sdSize = null;
+
+            foreach ($formats as $f) {
+                if (empty($f['url'])) {
+                    continue;
+                }
+                $vcodec = $f['vcodec'] ?? 'none';
+                $acodec = $f['acodec'] ?? 'none';
+                $height = $f['height'] ?? 0;
+
+                // Best audio
+                if ($vcodec === 'none' && $acodec !== 'none') {
+                    if (! $audioUrl || ($f['abr'] ?? 0) > 120) {
+                        $audioUrl = $f['url'];
+                    }
+                }
+
+                // Progressive video + audio
+                if ($vcodec !== 'none' && $acodec !== 'none') {
+                    if ($height >= 720) {
+                        $hdVideoUrl = $f['url'];
+                        $hdSize = $f['filesize'] ?? null;
+                    } else {
+                        $sdVideoUrl = $f['url'];
+                        $sdSize = $f['filesize'] ?? null;
+                    }
+                }
+            }
+
+            // Fallback video URL if no combined format was found
+            if (! $hdVideoUrl) {
+                foreach ($formats as $f) {
+                    if (! empty($f['url']) && ($f['vcodec'] ?? 'none') !== 'none') {
+                        $hdVideoUrl = $f['url'];
+                        $hdSize = $f['filesize'] ?? null;
+                        break;
+                    }
+                }
+            }
+
+            $result = [
+                'platform' => 'youtube',
+                'platform_name' => 'YouTube',
+                'id' => $info['id'],
+                'title' => $info['title'] ?? 'YouTube Video',
+                'author' => [
+                    'nickname' => $info['uploader'] ?? $info['channel'] ?? 'YouTube Creator',
+                    'avatar' => $info['thumbnail'] ?? '',
+                    'unique_id' => $info['uploader_id'] ?? $info['id'],
+                ],
+                'cover' => $info['thumbnail'] ?? "https://i.ytimg.com/vi/{$info['id']}/maxresdefault.jpg",
+                'duration' => $info['duration'] ?? 0,
+                'digg_count' => $info['like_count'] ?? 0,
+                'comment_count' => $info['comment_count'] ?? 0,
+                'share_count' => $info['view_count'] ?? 0,
+                'play' => $sdVideoUrl ?: $hdVideoUrl,
+                'hdplay' => $hdVideoUrl,
+                'wmplay' => $sdVideoUrl ?: $hdVideoUrl,
+                'music' => $audioUrl,
+                'size' => $sdSize,
+                'hd_size' => $hdSize,
+                'embed_url' => "https://www.youtube.com/embed/{$info['id']}",
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi xử lý YouTube: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Engine for extracting Facebook videos and reels.
+     */
+    private function parseFacebookEngine(string $url): JsonResponse
+    {
+        try {
+            $binPath = storage_path('app/bin/yt-dlp');
+            $info = null;
+
+            if (file_exists($binPath)) {
+                $cmd = sprintf(
+                    '%s --no-check-certificates --socket-timeout 8 --dump-single-json --skip-download --no-warnings %s 2>&1',
+                    escapeshellarg($binPath),
+                    escapeshellarg($url)
+                );
+                $output = shell_exec($cmd);
+                $info = json_decode($output, true);
+            }
+
+            if ($info && ! empty($info['title'])) {
+                $formats = $info['formats'] ?? [];
+                $hdUrl = null;
+                $sdUrl = null;
+                foreach ($formats as $f) {
+                    if (empty($f['url'])) {
+                        continue;
+                    }
+                    $formatId = strtolower($f['format_id'] ?? '');
+                    if (str_contains($formatId, 'hd') || ($f['height'] ?? 0) >= 720) {
+                        $hdUrl = $f['url'];
+                    } else {
+                        $sdUrl = $f['url'];
+                    }
+                }
+
+                $result = [
+                    'platform' => 'facebook',
+                    'platform_name' => 'Facebook',
+                    'id' => $info['id'] ?? uniqid('fb_'),
+                    'title' => $info['title'] ?? 'Facebook Video',
+                    'author' => [
+                        'nickname' => $info['uploader'] ?? 'Facebook User',
+                        'avatar' => $info['thumbnail'] ?? '',
+                        'unique_id' => $info['uploader_id'] ?? 'facebook',
+                    ],
+                    'cover' => $info['thumbnail'] ?? '',
+                    'duration' => $info['duration'] ?? 0,
+                    'digg_count' => $info['like_count'] ?? 0,
+                    'comment_count' => $info['comment_count'] ?? 0,
+                    'share_count' => $info['view_count'] ?? 0,
+                    'play' => $sdUrl ?: $hdUrl,
+                    'hdplay' => $hdUrl ?: $sdUrl,
+                    'wmplay' => $sdUrl ?: $hdUrl,
+                    'music' => null,
+                ];
+
+                return response()->json([
+                    'success' => true,
+                    'data' => $result,
+                ]);
+            }
+
+            // Fallback scraping via cURL
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 8);
+            $html = curl_exec($ch);
+            curl_close($ch);
+
+            preg_match('/"(playable_url_quality_hd|browser_native_hd_url|hd_src)":"(https:[^"]+)"/i', $html ?: '', $hdMatch);
+            preg_match('/"(playable_url|browser_native_sd_url|sd_src)":"(https:[^"]+)"/i', $html ?: '', $sdMatch);
+            preg_match('/"(preferred_thumbnail|thumbnail)":\{"image":\{"uri":"(https:[^"]+)"/i', $html ?: '', $thumbMatch);
+
+            $cleanHd = ! empty($hdMatch[2]) ? stripslashes($hdMatch[2]) : null;
+            $cleanSd = ! empty($sdMatch[2]) ? stripslashes($sdMatch[2]) : null;
+            $cleanThumb = ! empty($thumbMatch[2]) ? stripslashes($thumbMatch[2]) : null;
+
+            if ($cleanHd || $cleanSd) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'platform' => 'facebook',
+                        'platform_name' => 'Facebook',
+                        'id' => uniqid('fb_'),
+                        'title' => 'Facebook Video',
+                        'author' => [
+                            'nickname' => 'Facebook User',
+                            'avatar' => $cleanThumb ?: '',
+                            'unique_id' => 'facebook',
+                        ],
+                        'cover' => $cleanThumb ?: '',
+                        'duration' => 0,
+                        'digg_count' => 0,
+                        'comment_count' => 0,
+                        'share_count' => 0,
+                        'play' => $cleanSd ?: $cleanHd,
+                        'hdplay' => $cleanHd ?: $cleanSd,
+                        'wmplay' => $cleanSd ?: $cleanHd,
+                        'music' => null,
+                    ],
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể bóc tách video Facebook này. Hãy đảm bảo video được chia sẻ ở chế độ Công khai (Public).',
+            ], 404);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi xử lý Facebook: '.$e->getMessage(),
+            ], 500);
+        }
     }
 }
