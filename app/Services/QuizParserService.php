@@ -32,7 +32,29 @@ class QuizParserService
             }
         }
 
-        // 1. Try Gemini AI with resilient multi-model fallback chain
+        // 1. FAST PATH: Instant local parsing (0.05s) if document has clear questions and answers
+        $localResult = null;
+        if ($mode === 'auto' || $mode === 'local') {
+            $localResult = $this->parseWithLocal($input);
+            if (! empty($localResult['questions']) && count($localResult['questions']) >= 2) {
+                $uniqueAnswers = [];
+                foreach ($localResult['questions'] as $q) {
+                    $uniqueAnswers[$q['correct']] = true;
+                }
+                // If local parser found multiple distinct answers (meaning real answers were matched, not all defaulting to A)
+                if (count($uniqueAnswers) >= 2 || count($localResult['questions']) === 1) {
+                    return [
+                        'success' => true,
+                        'source' => 'local',
+                        'total_questions' => count($localResult['questions']),
+                        'title' => $localResult['title'] ?? 'Bài Thi Trắc Nghiệm',
+                        'questions' => $localResult['questions'],
+                    ];
+                }
+            }
+        }
+
+        // 2. INTELLIGENT AI PATH: If local parser could not extract or couldn't identify distinct answers
         $canUseAi = ! empty($apiKey) && ($mode === 'ai' || $mode === 'auto');
 
         $lastAiError = null;
@@ -77,9 +99,7 @@ class QuizParserService
             }
         }
 
-        // 2. Local fallback parser
-        $localResult = $this->parseWithLocal($input);
-
+        // 3. Fallback to local result if any questions were found
         if (! empty($localResult['questions'])) {
             return [
                 'success' => true,
