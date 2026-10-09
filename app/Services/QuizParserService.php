@@ -131,7 +131,12 @@ class QuizParserService
     {
         $prompt = <<<'PROMPT'
 Bạn là chuyên gia trích xuất và phân tích đề thi trắc nghiệm hàng đầu.
-Nhiệm vụ: Phân tích tài liệu được cung cấp và trích xuất danh sách tất cả các câu hỏi trắc nghiệm kèm đáp án.
+Nhiệm vụ: Phân tích tài liệu được cung cấp và trích xuất TOÀN BỘ 100% TẤT CẢ các câu hỏi trắc nghiệm có trong tài liệu kèm đáp án.
+
+YÊU CẦU BẮT BUỘC VỀ SỐ LƯỢNG (QUAN TRỌNG NHẤT):
+1. PHẢI TRÍCH XUẤT ĐẦY ĐỦ 100% TẤT CẢ CÁC CÂU HỎI TRONG TÀI LIỆU, từ câu 1 đến câu cuối cùng (ví dụ nếu tài liệu có 30, 50, 70 hay 150 câu hỏi thì PHẢI trích xuất đủ 100% bấy nhiêu câu).
+2. TUYỆT ĐỐI KHÔNG TỰ Ý CẮT BỚT, KHÔNG BỎ QUA BẤT KỲ CÂU NÀO, KHÔNG ĐƯỢC CHỈ LẤY MỘT PHẦN LÀM MẪU. Mọi câu hỏi có trong tài liệu đều phải được đưa vào danh sách "questions".
+3. ĐÁNH SỐ THỨ TỰ id từ 1 đến hết tương ứng với số thứ tự các câu hỏi trong đề thi.
 
 QUY TẮC NHẬN DIỆN ĐÁP ÁN ĐÚNG QUAN TRỌNG:
 1. ĐẶC ĐIỂM ĐÁP ÁN TRONG TÀI LIỆU: Đáp án đúng thường được:
@@ -141,7 +146,7 @@ QUY TẮC NHẬN DIỆN ĐÁP ÁN ĐÚNG QUAN TRỌNG:
    - Đánh dấu sao (*) hoặc tích (✓)
 2. BẢNG ĐÁP ÁN: Kiểm tra xem có bảng "GỢI Ý ĐÁP ÁN" / "ĐÁP ÁN" ở cuối trang, cuối chương hoặc cuối tài liệu hay không (ví dụ: Câu 1: C, Câu 2: B...). Hãy đối chiếu chính xác số thứ tự câu hỏi với đáp án trong bảng.
 3. NẾU KHÔNG CÓ ĐÁP ÁN ĐÁNH DẤU: Hãy tự suy luận và giải để đưa ra đáp án chính xác nhất.
-4. Mỗi câu hỏi chỉ giải thích ngắn gọn trong 1 câu (dưới 20 từ) để tối ưu thời gian phản hồi.
+4. Mỗi câu hỏi chỉ giải thích ngắn gọn trong 1 câu (dưới 20 từ) để tối ưu dung lượng và tốc độ phản hồi.
 5. TUYỆT ĐỐI LOẠI BỎ CHÂN TRANG (FOOTER): Không lấy bất kỳ thông tin chân trang, watermark, thông tin người tải (Downloaded by...), email, số trang (Trang 1/10), tên website (Studocu...) vào câu hỏi hoặc đáp án.
 
 ĐỊNH DẠNG ĐẦU RA BẮT BUỘC (JSON THUẦN TÚY):
@@ -197,6 +202,7 @@ PROMPT;
         $generationConfig = [
             'responseMimeType' => 'application/json',
             'temperature' => 0.1,
+            'maxOutputTokens' => 65536,
         ];
         if (str_contains($model, 'flash') && ! str_contains($model, 'lite')) {
             $generationConfig['thinkingConfig'] = [
@@ -204,7 +210,7 @@ PROMPT;
             ];
         }
 
-        $response = Http::timeout(90)->withHeaders([
+        $response = Http::timeout(120)->withHeaders([
             'Content-Type' => 'application/json',
         ])->post($apiUrl, [
             'contents' => [
@@ -230,6 +236,17 @@ PROMPT;
         $cleanJson = preg_replace('/\s*```$/', '', $cleanJson);
 
         $decoded = json_decode($cleanJson, true);
+        if (! is_array($decoded)) {
+            // Attempt to repair truncated JSON if output stopped near the end
+            $lastBrace = strrpos($cleanJson, '}');
+            if ($lastBrace !== false) {
+                $repaired = substr($cleanJson, 0, $lastBrace + 1);
+                if (! str_ends_with($repaired, ']}')) {
+                    $repaired .= ']}';
+                }
+                $decoded = json_decode($repaired, true);
+            }
+        }
         if (! is_array($decoded)) {
             throw new \RuntimeException('Hệ thống phân tích trả về dữ liệu không đúng định dạng JSON.');
         }
@@ -270,12 +287,12 @@ PROMPT;
         $answersMap = $this->extractAnswerTable($text);
         $explanationsMap = $this->extractExplanations($text);
 
-        // Separate question text from answer table / solutions section to avoid treating solutions as questions
+        // Separate question text from global answer table / solutions section if located at the end
         $qText = $text;
         if (preg_match('/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|LỜI\s*GIẢI\s*CHI\s*TIẾT|HƯỚNG\s*DẪN\s*GIẢI)/iu', $text, $ansPos, PREG_OFFSET_CAPTURE)) {
-            $qText = trim(substr($text, 0, $ansPos[0][1]));
-        } elseif (preg_match('/(?:\n\s*(?:(?:Câu|C)\s*)?1[\.\)]\s+[A-D]\s*\n\s*(?:(?:Câu|C)\s*)?2[\.\)]\s+[A-D]\s*\n)/u', $text, $seqPos, PREG_OFFSET_CAPTURE)) {
-            $qText = trim(substr($text, 0, $seqPos[0][1]));
+            if ($ansPos[0][1] > strlen($text) * 0.4) {
+                $qText = trim(substr($text, 0, $ansPos[0][1]));
+            }
         }
 
         // Check if the document has chapters (e.g., 'CHƯƠNG 1:', 'Phần I:', 'Phần 1:')
@@ -715,9 +732,23 @@ PY;
             $rawOptions = $q['options'] ?? [];
             $options = [];
             if (is_array($rawOptions)) {
+                $alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
+                $idx = 0;
                 foreach ($rawOptions as $k => $v) {
+                    $optText = trim((string) $v);
                     $optKey = strtoupper(trim((string) $k));
-                    $options[$optKey] = trim((string) $v);
+
+                    if (is_numeric($optKey)) {
+                        if (preg_match('/^([A-F])[\.\:\)\s]+(.*)$/iu', $optText, $m)) {
+                            $optKey = strtoupper($m[1]);
+                            $optText = trim($m[2]);
+                        } else {
+                            $optKey = $alphabet[$idx] ?? chr(65 + $idx);
+                        }
+                    }
+
+                    $options[$optKey] = $optText;
+                    $idx++;
                 }
             }
 
