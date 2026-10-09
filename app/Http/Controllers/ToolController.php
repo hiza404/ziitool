@@ -160,6 +160,7 @@ class ToolController extends Controller
             'relatedTools' => $relatedTools,
             'allTools' => $allTools,
             'seo' => $seo,
+            'hasSystemGeminiKey' => ! empty(config('services.gemini.key')),
         ]);
     }
 
