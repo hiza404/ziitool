@@ -338,7 +338,7 @@ PROMPT;
 
         // Single section parsing (non-chapter documents)
         $qText = $text;
-        $endPattern = '/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|LỜI\s*GIẢI\s*CHI\s*TIẾT|HƯỚNG\s*DẪN\s*GIẢI|BẢNG\s*TRA\s*ĐÁP\s*ÁN|ANSWER\s*KEY|KEY\s*ĐÁP\s*ÁN|[-=–—\s]*THE\s*END[-=–—\s]*|[-=–—\s]*HẾT[-=–—\s]*)/iu';
+        $endPattern = '/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|LỜI\s*GIẢI\s*CHI\s*TIẾT|HƯỚNG\s*DẪN\s*GIẢI|BẢNG\s*TRA\s*ĐÁP\s*ÁN|ANSWER\s*KEY|KEY\s*ĐÁP\s*ÁN|(?:^|\n)\s*[-=–—\s]*(?:THE\s*END|HẾT|KẾT\s*THÚC)\s*[-=–—\s]*(?:\r?\n|\Z))/iu';
         if (preg_match($endPattern, $text, $ansPos, PREG_OFFSET_CAPTURE)) {
             if ($ansPos[0][1] > strlen($text) * 0.3) {
                 $qText = trim(substr($text, 0, $ansPos[0][1]));
@@ -372,9 +372,9 @@ PROMPT;
 
         // 2. Separate question text from answer table text
         $qText = trim($text)."\n";
-        $endSectionPattern = '/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|LỜI\s*GIẢI\s*CHI\s*TIẾT|HƯỚNG\s*DẪN\s*GIẢI|ANSWER\s*KEY|KEY\s*ĐÁP\s*ÁN|[-=–—\s]*THE\s*END[-=–—\s]*|[-=–—\s]*HẾT[-=–—\s]*)/iu';
+        $endSectionPattern = '/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|LỜI\s*GIẢI\s*CHI\s*TIẾT|HƯỚNG\s*DẪN\s*GIẢI|ANSWER\s*KEY|KEY\s*ĐÁP\s*ÁN|(?:^|\n)\s*[-=–—\s]*(?:THE\s*END|HẾT|KẾT\s*THÚC)\s*[-=–—\s]*(?:\r?\n|\Z))/iu';
         if (preg_match($endSectionPattern, $text, $ansPos, PREG_OFFSET_CAPTURE)) {
-            if ($ansPos[0][1] > strlen($text) * 0.3) {
+            if ($ansPos[0][1] > strlen($text) * 0.4) {
                 $qText = trim(substr($text, 0, $ansPos[0][1]))."\n";
             }
         }
@@ -759,7 +759,10 @@ PY;
             $cleanedLines[] = $line;
         }
 
-        return implode("\n", $cleanedLines);
+        $res = implode("\n", $cleanedLines);
+
+        // Normalize inline questions that share a line with previous text (e.g. "... nghiệp Câu 8: ...")
+        return preg_replace('/(?<!\n)([\s\t]+)((?:Question|Q|Câu|C|Bài)\s*\d+[\s*:\.-]+)/iu', "\n$2", $res);
     }
 
     /**
