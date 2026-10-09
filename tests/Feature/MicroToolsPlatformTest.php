@@ -26,7 +26,7 @@ class MicroToolsPlatformTest extends TestCase
     public function test_all_tools_render_successfully(): void
     {
         $tools = config('tools.list', []);
-        $this->assertCount(14, $tools);
+        $this->assertCount(15, $tools);
 
         foreach ($tools as $slug => $tool) {
             $response = $this->get("/tool/{$slug}");
@@ -297,5 +297,59 @@ class MicroToolsPlatformTest extends TestCase
         $toolResponse->assertStatus(200);
         $toolResponse->assertSee('AggregateRating', false);
         $toolResponse->assertSee('BreadcrumbList', false);
+    }
+
+    /**
+     * Test Quiz Maker tool renders and aliases work.
+     */
+    public function test_quiz_tool_renders_and_aliases_work(): void
+    {
+        $response = $this->get('/tool/tao-de-trac-nghiem-tu-file');
+        $response->assertStatus(200);
+        $response->assertSee('Tạo Đề Trắc Nghiệm Từ File');
+        $response->assertSee('Gemini');
+        $response->assertSee('Bắt Đầu Làm Bài Thi');
+
+        // Test alias redirect
+        $aliasResponse = $this->get('/tool/trac-nghiem-online');
+        $aliasResponse->assertRedirect('/tool/tao-de-trac-nghiem-tu-file');
+    }
+
+    /**
+     * Test Quiz sample API returns questions.
+     */
+    public function test_quiz_sample_api(): void
+    {
+        $response = $this->get('/tool/trac-nghiem/sample');
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+        $data = $response->json();
+        $this->assertNotEmpty($data['questions']);
+        $this->assertEquals('C', $data['questions'][0]['correct']);
+    }
+
+    /**
+     * Test Quiz parse API with raw text.
+     */
+    public function test_quiz_parse_api_with_text(): void
+    {
+        $rawText = "Câu 1: Mặt trời mọc ở hướng nào?\nA. Tây\nB. Đông\nC. Nam\nD. Bắc\nĐáp án: B\n\nCâu 2: Một tuần có mấy ngày?\nA. 5 ngày\nB. 6 ngày\nC. 7 ngày\nD. 8 ngày\nĐáp án: C";
+
+        $response = $this->post('/tool/trac-nghiem/parse', [
+            'text' => $rawText,
+            'mode' => 'local',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'total_questions' => 2,
+        ]);
+
+        $data = $response->json();
+        $this->assertEquals('B', $data['questions'][0]['correct']);
+        $this->assertEquals('C', $data['questions'][1]['correct']);
     }
 }

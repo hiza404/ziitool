@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ToolOverride;
+use App\Services\QuizParserService;
 use App\Services\SeoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -81,6 +82,9 @@ class ToolController extends Controller
             'tai-video-youtube' => 'tai-video-tiktok',
             'tai-video-facebook' => 'tai-video-tiktok',
             'tai-video-da-nen-tang' => 'tai-video-tiktok',
+            'trac-nghiem-online' => 'tao-de-trac-nghiem-tu-file',
+            'thi-trac-nghiem-ai' => 'tao-de-trac-nghiem-tu-file',
+            'doc-file-trac-nghiem' => 'tao-de-trac-nghiem-tu-file',
         ];
 
         if (isset($redirects[$slug])) {
@@ -145,6 +149,7 @@ class ToolController extends Controller
             'xoa-doi-phong-anh' => 'tools.ai-background-remover',
             'tai-video-tiktok' => 'tools.tiktok-downloader',
             'snaptik' => 'tools.tiktok-downloader',
+            'tao-de-trac-nghiem-tu-file' => 'tools.quiz-maker',
         ];
 
         $viewName = $viewMap[$slug] ?? 'tools.generic';
@@ -677,5 +682,45 @@ class ToolController extends Controller
                 'message' => 'Lỗi xử lý Facebook: '.$e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Parse quiz questions from uploaded document or raw text.
+     */
+    public function parseQuiz(Request $request, QuizParserService $parser): JsonResponse
+    {
+        $request->validate([
+            'file' => 'nullable|file|max:20480', // 20MB max
+            'text' => 'nullable|string',
+            'api_key' => 'nullable|string',
+            'model' => 'nullable|string',
+            'mode' => 'nullable|string',
+        ]);
+
+        if (! $request->hasFile('file') && empty(trim((string) $request->input('text', '')))) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Vui lòng tải lên file tài liệu (PDF, Word, TXT) hoặc dán nội dung câu hỏi.',
+            ], 422);
+        }
+
+        $input = $request->hasFile('file') ? $request->file('file') : (string) $request->input('text');
+        $options = [
+            'api_key' => $request->input('api_key'),
+            'model' => $request->input('model', 'gemini-1.5-flash'),
+            'mode' => $request->input('mode', 'auto'),
+        ];
+
+        $result = $parser->parse($input, $options);
+
+        return response()->json($result, ($result['success'] ?? false) ? 200 : 400);
+    }
+
+    /**
+     * Load pre-packaged sample exam questions.
+     */
+    public function sampleQuiz(QuizParserService $parser): JsonResponse
+    {
+        return response()->json($parser->getSampleExam());
     }
 }

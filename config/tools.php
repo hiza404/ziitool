@@ -26,6 +26,12 @@ return [
             'icon' => 'sparkles',
             'color' => 'rose',
         ],
+        'education' => [
+            'name' => 'Giáo dục & Ôn thi AI',
+            'desc' => 'Tạo đề thi trắc nghiệm từ file tài liệu, làm bài kiểm tra và chấm điểm tự động bằng AI',
+            'icon' => 'academic-cap',
+            'color' => 'violet',
+        ],
     ],
 
     'list' => [
@@ -395,6 +401,44 @@ return [
                 [
                     'q' => 'Công cụ có dùng được trên điện thoại iPhone (iOS) và Android không?',
                     'a' => 'Có! Dùng mượt mà trên mọi trình duyệt điện thoại (Safari, Chrome, Cốc Cốc), lưu trực tiếp vào thư viện ảnh hoặc ứng dụng Tệp.',
+                ],
+            ],
+        ],
+
+        // 15. AI Quiz / Exam Maker from Document
+        'tao-de-trac-nghiem-tu-file' => [
+            'slug' => 'tao-de-trac-nghiem-tu-file',
+            'title' => 'Tạo Đề Trắc Nghiệm Từ File & Chấm Điểm Online (AI Gemini Pro)',
+            'category' => 'education',
+            'badge' => 'AI Mới Hot',
+            'short_desc' => 'Chuyển đổi file PDF, Word (DOCX) hoặc văn bản thành bài thi trắc nghiệm online bằng AI Gemini Pro. Tự động nhận diện đáp án in đậm, bôi màu hoặc bảng đáp án, làm bài có bấm giờ, chấm điểm tức thì và lọc xem lại toàn bộ câu sai.',
+            'icon' => 'academic-cap',
+            'seo_title' => 'Tạo Đề Trắc Nghiệm Từ File PDF, Word Bằng AI Gemini & Chấm Điểm Online',
+            'seo_desc' => 'Công cụ đọc file PDF, Word trích xuất đề thi trắc nghiệm online miễn phí bằng AI Gemini Pro. Tự động nhận diện đáp án in đậm/bôi màu, làm bài thi có hẹn giờ, chấm điểm tức thì và lọc xem lại câu sai.',
+            'keywords' => 'tạo đề trắc nghiệm từ file, đọc file trắc nghiệm online, làm bài kiểm tra trắc nghiệm, chấm điểm trắc nghiệm online, xem lại câu sai, ai đọc file trắc nghiệm, trắc nghiệm gemini pro, thi trắc nghiệm online',
+            'how_to' => [
+                'Tải lên file tài liệu trắc nghiệm của bạn (hỗ trợ PDF, DOCX, TXT) hoặc dán văn bản câu hỏi.',
+                'Chọn chế độ AI Gemini Pro (nhập API Key của bạn để nhận diện đáp án in đậm, bôi màu hoặc suy luận lời giải) hoặc chế độ trích xuất tự động siêu tốc.',
+                'Tùy chỉnh số lượng câu hỏi, thời gian làm bài kiểm tra và tùy chọn xáo trộn đề thi.',
+                'Bấm "Bắt đầu làm bài" để vào phòng thi: tích chọn đáp án A, B, C, D trực quan trên mọi thiết bị.',
+                'Bấm "Nộp bài" để xem ngay điểm số, tỷ lệ đúng/sai và bấm "Xem lại câu sai" để xem đáp án đúng kèm giải thích.',
+            ],
+            'faq' => [
+                [
+                    'q' => 'Công cụ có nhận diện được đáp án được in đậm hoặc bôi màu trong file không?',
+                    'a' => 'Có! Khi kết nối AI Gemini Pro, mô hình AI đọc trực quan định dạng file gốc, nhận diện chính xác các đáp án được tô màu, in đậm (bold), gạch chân hoặc bảng đáp án ở cuối tài liệu.',
+                ],
+                [
+                    'q' => 'Nếu trong file tài liệu không có đáp án thì công cụ có giải được không?',
+                    'a' => 'Được! Với mô hình AI Gemini Pro, nếu đề thi chưa có đáp án, AI sẽ tự động phân tích và giải đề, đưa ra đáp án chính xác nhất kèm theo lời giải thích chi tiết cho từng câu hỏi.',
+                ],
+                [
+                    'q' => 'Tôi có thể xem lại những câu làm sai sau khi nộp bài không?',
+                    'a' => 'Hoàn toàn có! Hệ thống có sẵn bộ lọc "Chỉ xem câu sai", hiển thị rõ ràng câu bạn đã chọn sai (màu đỏ) so với đáp án chính xác (màu xanh lá) và cho phép bạn làm lại riêng các câu sai để ghi nhớ kiến thức.',
+                ],
+                [
+                    'q' => 'Tôi lấy API Key Google Gemini Pro ở đâu?',
+                    'a' => 'Bạn có thể tạo Gemini API Key hoàn toàn miễn phí tại Google AI Studio (aistudio.google.com). Sau khi nhập, key sẽ được lưu bảo mật trong trình duyệt của bạn.',
                 ],
             ],
         ],

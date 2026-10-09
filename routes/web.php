@@ -28,6 +28,8 @@ Route::get('/tool/{slug}', [ToolController::class, 'show'])->name('tool.show');
 Route::post('/tool/tai-video-da-nen-tang/parse', [ToolController::class, 'parseVideo'])->name('tool.video.parse');
 Route::post('/tool/tai-video-tiktok/parse', [ToolController::class, 'parseVideo'])->name('tool.tiktok.parse');
 Route::get('/tool/video/download', [ToolController::class, 'downloadVideo'])->name('tool.video.download');
+Route::post('/tool/trac-nghiem/parse', [ToolController::class, 'parseQuiz'])->name('tool.quiz.parse');
+Route::get('/tool/trac-nghiem/sample', [ToolController::class, 'sampleQuiz'])->name('tool.quiz.sample');
 
 // Chuyển đổi ngôn ngữ Tiếng Việt & Tiếng Anh
 Route::get('/lang/{locale}', function (Request $request, string $locale) {
