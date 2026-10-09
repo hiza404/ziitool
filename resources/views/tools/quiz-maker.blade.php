@@ -185,7 +185,7 @@
 
                     <!-- Khu vực dán văn bản -->
                     <div id="inputTabText" class="hidden space-y-3">
-                        <textarea id="rawTextContent" rows="7" placeholder="{{ __('Dán nội dung câu hỏi trắc nghiệm vào đây...\nVí dụ:\nCâu 1: Thủ đô của Việt Nam là gì?\nA. Đà Nẵng\nB. Hà Nội\nC. TP Hồ Chí Minh\nD. Cần Thơ\nĐáp án: B') }}" class="w-full text-xs sm:text-sm p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none"></textarea>
+                        <textarea id="rawTextContent" oninput="hasNewUnparsedInput = true;" rows="7" placeholder="{{ __('Dán nội dung câu hỏi trắc nghiệm vào đây...\nVí dụ:\nCâu 1: Thủ đô của Việt Nam là gì?\nA. Đà Nẵng\nB. Hà Nội\nC. TP Hồ Chí Minh\nD. Cần Thơ\nĐáp án: B') }}" class="w-full text-xs sm:text-sm p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none"></textarea>
                     </div>
 
                     <!-- Quick Sample Exam Banner -->
@@ -1519,6 +1519,10 @@
         currentExamTitle = quiz.title;
         currentActiveQuizId = quiz.id;
         currentQuizCode = quiz.code || null;
+        selectedUploadFile = null;
+        hasNewUnparsedInput = false;
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput) fileInput.value = '';
 
         updateQuizCodeUI(currentQuizCode);
 
@@ -1655,6 +1659,7 @@
     }
 
     let selectedUploadFile = null;
+    let hasNewUnparsedInput = false;
 
     function handleFileSelected(files) {
         if (!files || files.length === 0) return;
@@ -1665,9 +1670,11 @@
             const input = document.getElementById('fileInput');
             if (input) input.value = '';
             selectedUploadFile = null;
+            hasNewUnparsedInput = false;
             return;
         }
         selectedUploadFile = file;
+        hasNewUnparsedInput = true;
         document.getElementById('fileLabelTitle').innerHTML = `${I18N.selectedPdf} <span class="text-violet-600 font-bold">${escapeHtml(selectedUploadFile.name)}</span>`;
         document.getElementById('fileLabelDesc').innerText = I18N.fileSizeReady.replace(':size', (selectedUploadFile.size / 1024 / 1024).toFixed(2));
     }
@@ -1701,11 +1708,22 @@
 
     // Start exam button handler
     async function handleStartExam() {
+        // If an exam is already loaded into memory (e.g. from code ZT-..., saved history, or sample)
+        // and no new file was explicitly uploaded, start exam session directly!
+        if (rawQuestions && rawQuestions.length > 0 && !hasNewUnparsedInput) {
+            startExamSession();
+            return;
+        }
+
         const textContent = document.getElementById('rawTextContent').value.trim();
-        const model = 'gemini-3.8-flash';
+        const model = 'gemini-flash-latest';
         const mode = 'auto';
 
         if (!selectedUploadFile && !textContent) {
+            if (rawQuestions && rawQuestions.length > 0) {
+                startExamSession();
+                return;
+            }
             alert(I18N.pleaseSelectFileOrText);
             return;
         }
@@ -1745,6 +1763,8 @@
             }
 
             rawQuestions = data.questions;
+            hasNewUnparsedInput = false;
+            selectedUploadFile = null;
             currentExamTitle = data.title || (selectedUploadFile ? selectedUploadFile.name : I18N.defaultExamTitle);
             currentActiveQuizId = saveExamToHistory(currentExamTitle, rawQuestions);
             const badge = document.getElementById('detectedQuestionsBadge');

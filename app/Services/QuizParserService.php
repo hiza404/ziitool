@@ -538,18 +538,25 @@ PROMPT;
         if ($ext === 'pdf') {
             // Ensure Smalot\PdfParser classes can be loaded even if composer autoloader hasn't dumped
             if (! class_exists(Parser::class)) {
-                $smalotBase = base_path('vendor/smalot/pdfparser/src/Smalot/PdfParser');
-                if (is_dir($smalotBase)) {
-                    spl_autoload_register(function ($class) {
-                        $prefix = 'Smalot\\PdfParser\\';
-                        if (str_starts_with($class, $prefix)) {
-                            $file = base_path('vendor/smalot/pdfparser/src/'.str_replace('\\', '/', $class).'.php');
-                            if (file_exists($file)) {
-                                require_once $file;
-                            }
+                $bundledPath = app_path('Support/PdfParser');
+                $vendorPath = base_path('vendor/smalot/pdfparser/src/Smalot/PdfParser');
+
+                spl_autoload_register(function ($class) use ($bundledPath, $vendorPath) {
+                    $prefix = 'Smalot\\PdfParser\\';
+                    if (str_starts_with($class, $prefix)) {
+                        $relative = substr($class, strlen($prefix));
+                        $relFile = str_replace('\\', '/', $relative).'.php';
+                        if (is_dir($bundledPath) && file_exists($bundledPath.'/'.$relFile)) {
+                            require_once $bundledPath.'/'.$relFile;
+
+                            return;
                         }
-                    });
-                }
+                        $vendorFile = base_path('vendor/smalot/pdfparser/src/'.str_replace('\\', '/', $class).'.php');
+                        if (is_dir($vendorPath) && file_exists($vendorFile)) {
+                            require_once $vendorFile;
+                        }
+                    }
+                });
             }
 
             // 1. Try Smalot\PdfParser (Pure PHP, works everywhere including cPanel, super fast 0.5s)
