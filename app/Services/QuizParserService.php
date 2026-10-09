@@ -18,8 +18,8 @@ class QuizParserService
      */
     public function parse(UploadedFile|string $input, array $options = []): array
     {
-        $apiKey = $options['api_key'] ?? config('services.gemini.key');
-        $model = $options['model'] ?? config('services.gemini.model', 'gemini-1.5-flash');
+        $apiKey = ! empty($options['api_key']) ? $options['api_key'] : config('services.gemini.key');
+        $model = ! empty($options['model']) ? $options['model'] : config('services.gemini.model', 'gemini-2.0-flash');
         $mode = $options['mode'] ?? 'auto';
 
         // 1. Try Gemini AI if requested or available
@@ -39,11 +39,31 @@ class QuizParserService
                     ];
                 }
             } catch (\Throwable $e) {
-                Log::warning('Gemini AI parsing failed, falling back to local parser: '.$e->getMessage());
+                Log::warning('Gemini AI parsing with '.$model.' failed, trying fallback: '.$e->getMessage());
+
+                // Fallback attempt with gemini-1.5-flash if primary model was 2.0
+                if ($model !== 'gemini-1.5-flash') {
+                    try {
+                        $aiResult = $this->parseWithGemini($input, $apiKey, 'gemini-1.5-flash');
+                        if (! empty($aiResult['questions'])) {
+                            return [
+                                'success' => true,
+                                'source' => 'gemini',
+                                'model' => 'gemini-1.5-flash',
+                                'total_questions' => count($aiResult['questions']),
+                                'title' => $aiResult['title'] ?? 'Bài Thi Trắc Nghiệm (Tạo Bởi AI)',
+                                'questions' => $aiResult['questions'],
+                            ];
+                        }
+                    } catch (\Throwable $fallbackEx) {
+                        Log::warning('Gemini 1.5 Flash fallback also failed: '.$fallbackEx->getMessage());
+                    }
+                }
+
                 if ($mode === 'ai') {
                     return [
                         'success' => false,
-                        'error' => 'Lỗi kết nối Gemini AI: '.$e->getMessage().'. Vui lòng kiểm tra lại API Key hoặc đổi mô hình (Gemini 1.5 Flash).',
+                        'error' => 'Lỗi kết nối Gemini AI: '.$e->getMessage().'. Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau giây lát.',
                     ];
                 }
             }

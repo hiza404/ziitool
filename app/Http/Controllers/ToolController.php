@@ -708,7 +708,7 @@ class ToolController extends Controller
         $input = $request->hasFile('file') ? $request->file('file') : (string) $request->input('text');
         $options = [
             'api_key' => $request->input('api_key'),
-            'model' => $request->input('model', 'gemini-1.5-flash'),
+            'model' => $request->input('model', config('services.gemini.model', 'gemini-2.0-flash')),
             'mode' => $request->input('mode', 'auto'),
         ];
 

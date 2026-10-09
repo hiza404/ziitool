@@ -111,43 +111,6 @@
 
                 </div>
 
-                <!-- Động cơ AI Gemini tích hợp sẵn trên hệ thống -->
-                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                                <i data-lucide="sparkles" class="w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">2. Động Cơ AI Gemini 2.0 Flash (Tích Hợp Sẵn)</h2>
-                                <p class="text-xs text-slate-500">Tự động nhận diện chữ in đậm, bôi màu, bảng đáp án & suy luận giải đề</p>
-                            </div>
-                        </div>
-                        <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold flex items-center gap-1">
-                            <i data-lucide="zap" class="w-3.5 h-3.5"></i> Max Ping Siêu Tốc
-                        </span>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Mô hình AI:</label>
-                            <select id="geminiModel" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
-                                <option value="gemini-2.0-flash" selected>Gemini 2.0 Flash (⚡ Max Ping - Phản hồi 1-2s)</option>
-                                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Tối ưu tài liệu lớn)</option>
-                                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Suy luận sâu)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Chế độ phân tích:</label>
-                            <select id="parseMode" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
-                                <option value="auto" selected>Tự động thông minh (Ưu tiên AI, dự phòng bộ bóc tách)</option>
-                                <option value="ai">Bắt buộc AI (Đọc màu sắc, chữ in đậm & giải đề)</option>
-                                <option value="local">Bộ lọc nội bộ (Xử lý tức thì không tốn token)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
             <!-- Cột phải: Cài đặt đề thi & Bắt đầu (1 col) -->
@@ -158,7 +121,7 @@
                             <i data-lucide="sliders" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">3. Cài Đặt Bài Thi</h2>
+                            <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">2. Cài Đặt Bài Thi</h2>
                             <p class="text-xs text-slate-500">Tùy chỉnh số câu & thời gian</p>
                         </div>
                     </div>
@@ -584,8 +547,8 @@
     // Start exam button handler
     async function handleStartExam() {
         const textContent = document.getElementById('rawTextContent').value.trim();
-        const model = document.getElementById('geminiModel').value;
-        const mode = document.getElementById('parseMode').value;
+        const model = 'gemini-2.0-flash';
+        const mode = 'auto';
 
         if (!selectedUploadFile && !textContent) {
             alert('Vui lòng chọn 1 file tài liệu (PDF, Word, TXT) hoặc dán văn bản câu hỏi, hoặc bấm "Thử Đề Mẫu Ngay".');
