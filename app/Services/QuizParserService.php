@@ -19,7 +19,7 @@ class QuizParserService
     public function parse(UploadedFile|string $input, array $options = []): array
     {
         $apiKey = ! empty($options['api_key']) ? $options['api_key'] : config('services.gemini.key');
-        $model = ! empty($options['model']) ? $options['model'] : config('services.gemini.model', 'gemini-3.8-flash');
+        $primaryModel = ! empty($options['model']) ? $options['model'] : config('services.gemini.model', 'gemini-3.5-flash');
         $mode = $options['mode'] ?? 'auto';
 
         if ($input instanceof UploadedFile) {
@@ -32,52 +32,48 @@ class QuizParserService
             }
         }
 
-        // 1. Try Gemini AI if requested or available
+        // 1. Try Gemini AI with resilient multi-model fallback chain
         $canUseAi = ! empty($apiKey) && ($mode === 'ai' || $mode === 'auto');
 
         $lastAiError = null;
         if ($canUseAi) {
-            try {
-                $aiResult = $this->parseWithGemini($input, $apiKey, $model);
-                if (! empty($aiResult['questions'])) {
-                    return [
-                        'success' => true,
-                        'source' => 'gemini',
-                        'model' => $model,
-                        'total_questions' => count($aiResult['questions']),
-                        'title' => $aiResult['title'] ?? 'Bài Thi Trắc Nghiệm',
-                        'questions' => $aiResult['questions'],
-                    ];
-                }
-            } catch (\Throwable $e) {
-                $lastAiError = $e->getMessage();
-                Log::warning('Gemini parsing with '.$model.' failed, trying fallback: '.$e->getMessage());
+            $candidateModels = array_values(array_unique([
+                $primaryModel,
+                'gemini-3.5-flash',
+                'gemini-3.6-flash',
+                'gemini-3.7-flash',
+                'gemini-3-flash-preview',
+                'gemini-3.1-flash-lite',
+                'gemini-3.5-flash-lite',
+            ]));
 
-                // Fallback attempt with alternative model if primary model failed
-                $fallbackModel = $model !== 'gemini-3.8-flash' ? 'gemini-3.8-flash' : 'gemini-flash-latest';
+            foreach ($candidateModels as $currentModel) {
                 try {
-                    $aiResult = $this->parseWithGemini($input, $apiKey, $fallbackModel);
+                    $aiResult = $this->parseWithGemini($input, $apiKey, $currentModel);
                     if (! empty($aiResult['questions'])) {
                         return [
                             'success' => true,
                             'source' => 'gemini',
-                            'model' => $fallbackModel,
+                            'model' => $currentModel,
                             'total_questions' => count($aiResult['questions']),
                             'title' => $aiResult['title'] ?? 'Bài Thi Trắc Nghiệm',
                             'questions' => $aiResult['questions'],
                         ];
                     }
-                } catch (\Throwable $fallbackEx) {
-                    $lastAiError = $fallbackEx->getMessage();
-                    Log::warning('Gemini fallback to '.$fallbackModel.' also failed: '.$fallbackEx->getMessage());
-                }
+                } catch (\Throwable $e) {
+                    $lastAiError = $e->getMessage();
+                    Log::warning("Gemini parsing with {$currentModel} failed: ".$e->getMessage());
 
-                if ($mode === 'ai') {
-                    return [
-                        'success' => false,
-                        'error' => 'Lỗi kết nối phân tích tài liệu: '.$e->getMessage().'. Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau giây lát.',
-                    ];
+                    // If error is high demand spike, not found, or quota issue on this model, try next candidate model
+                    continue;
                 }
+            }
+
+            if ($mode === 'ai') {
+                return [
+                    'success' => false,
+                    'error' => 'Lỗi kết nối phân tích tài liệu: '.$lastAiError.'. Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau giây lát.',
+                ];
             }
         }
 
