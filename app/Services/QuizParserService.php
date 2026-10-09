@@ -309,19 +309,11 @@ PROMPT;
         $answersMap = $this->extractAnswerTable($text);
         $explanationsMap = $this->extractExplanations($text);
 
-        // Separate question text from global answer table / solutions section if located at the end
-        $qText = $text;
-        if (preg_match('/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|LỜI\s*GIẢI\s*CHI\s*TIẾT|HƯỚNG\s*DẪN\s*GIẢI)/iu', $text, $ansPos, PREG_OFFSET_CAPTURE)) {
-            if ($ansPos[0][1] > strlen($text) * 0.4) {
-                $qText = trim(substr($text, 0, $ansPos[0][1]));
-            }
-        }
-
         // Check if the document has chapters (e.g., 'CHƯƠNG 1:', 'Phần I:', 'Phần 1:')
-        $hasChapters = preg_match('/(?:^|\n)\s*(?:CHƯƠNG|PHẦN)\s+(?:\d+|[IVXLCDM]+)[:\s\.]+/iu', $qText);
+        $hasChapters = preg_match('/(?:^|\n)\s*(?:CHƯƠNG|PHẦN)\s+(?:\d+|[IVXLCDM]+)[:\s\.]+/iu', $text);
 
         if ($hasChapters) {
-            $segments = preg_split('/(?:^|\n)\s*((?:CHƯƠNG|PHẦN)\s+(?:\d+|[IVXLCDM]+)[:\s\.]+[^\n]+)/iu', $qText, -1, PREG_SPLIT_DELIM_CAPTURE);
+            $segments = preg_split('/(?:^|\n)\s*((?:CHƯƠNG|PHẦN)\s+(?:\d+|[IVXLCDM]+)[:\s\.]+[^\n]+)/iu', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
             $allQuestions = [];
             $globalId = 1;
 
@@ -344,7 +336,15 @@ PROMPT;
             }
         }
 
-        // Single section parsing
+        // Single section parsing (non-chapter documents)
+        $qText = $text;
+        $endPattern = '/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|LỜI\s*GIẢI\s*CHI\s*TIẾT|HƯỚNG\s*DẪN\s*GIẢI|BẢNG\s*TRA\s*ĐÁP\s*ÁN|ANSWER\s*KEY|KEY\s*ĐÁP\s*ÁN|[-=–—\s]*THE\s*END[-=–—\s]*|[-=–—\s]*HẾT[-=–—\s]*)/iu';
+        if (preg_match($endPattern, $text, $ansPos, PREG_OFFSET_CAPTURE)) {
+            if ($ansPos[0][1] > strlen($text) * 0.3) {
+                $qText = trim(substr($text, 0, $ansPos[0][1]));
+            }
+        }
+
         $questions = $this->parseTextSection($qText, null, 1, $answersMap, $explanationsMap);
 
         return [
@@ -372,12 +372,15 @@ PROMPT;
 
         // 2. Separate question text from answer table text
         $qText = trim($text)."\n";
-        if (preg_match('/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|LỜI\s*GIẢI\s*CHI\s*TIẾT)/iu', $text, $ansPos, PREG_OFFSET_CAPTURE)) {
-            $qText = trim(substr($text, 0, $ansPos[0][1]))."\n";
+        $endSectionPattern = '/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|LỜI\s*GIẢI\s*CHI\s*TIẾT|HƯỚNG\s*DẪN\s*GIẢI|ANSWER\s*KEY|KEY\s*ĐÁP\s*ÁN|[-=–—\s]*THE\s*END[-=–—\s]*|[-=–—\s]*HẾT[-=–—\s]*)/iu';
+        if (preg_match($endSectionPattern, $text, $ansPos, PREG_OFFSET_CAPTURE)) {
+            if ($ansPos[0][1] > strlen($text) * 0.3) {
+                $qText = trim(substr($text, 0, $ansPos[0][1]))."\n";
+            }
         }
 
         $questions = [];
-        $qPattern = '/(?:^|\n)\s*(?:\[bold\]\s*)*(?:(?:Câu|C)\s*(\d+)[\s*:\.-]+|(\d+)[\.\)]\s+)([\s\S]*?)(?=(?:\n\s*(?:\[bold\]\s*)*(?:(?:Câu|C)\s*\d+[\s*:\.-]+|\d+[\.\)]\s+)|\s*\Z))/iu';
+        $qPattern = '/(?:^|\n)\s*(?:\[bold\]\s*)*(?:(?:Question|Q|Câu|C|Bài)\s*(\d+)[\s*:\.-]+|(\d+)[\.\)]\s+)([\s\S]*?)(?=(?:\n\s*(?:\[bold\]\s*)*(?:(?:Question|Q|Câu|C|Bài)\s*\d+[\s*:\.-]+|\d+[\.\)]\s+)|\s*\Z))/iu';
 
         if (preg_match_all($qPattern, $qText, $matches, PREG_SET_ORDER)) {
             $currentId = $startId;
@@ -435,9 +438,12 @@ PROMPT;
                     $explanation = $explanationsMap[$qNumber] ?? "Đáp án chính xác là {$correct}.";
 
                     $prefix = $sectionPrefix ? "[$sectionPrefix] " : '';
+                    $titlePrefix = "Câu {$qNumber}";
+                    $qTitle = ! empty($questionStem) ? "{$prefix}{$titlePrefix}: {$questionStem}" : "{$prefix}{$titlePrefix}";
+
                     $questions[] = [
                         'id' => $currentId,
-                        'question' => "{$prefix}Câu {$qNumber}: {$questionStem}",
+                        'question' => $qTitle,
                         'options' => $options,
                         'correct' => $correct,
                         'explanation' => $explanation,
@@ -460,12 +466,12 @@ PROMPT;
     {
         $answers = [];
 
-        // 1. Check for "GỢI Ý ĐÁP ÁN" or "BẢNG ĐÁP ÁN" blocks
-        if (preg_match('/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|BẢNG\s*TRA\s*ĐÁP\s*ÁN)([\s\S]*?)(?:HƯỚNG\s*DẪN|LỜI\s*GIẢI|CHƯƠNG|\Z)/iu', $text, $ansBlock)) {
+        // 1. Check for "GỢI Ý ĐÁP ÁN" or "BẢNG ĐÁP ÁN" or "ANSWER KEY" blocks
+        if (preg_match('/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|BẢNG\s*TRA\s*ĐÁP\s*ÁN|ANSWER\s*KEY|ĐÁP\s*ÁN)([\s\S]*?)(?:HƯỚNG\s*DẪN|LỜI\s*GIẢI|CHƯƠNG|\Z)/iu', $text, $ansBlock)) {
             $blockText = $ansBlock[1];
 
-            // Match 'Câu 1 C' or 'Câu 1: C' or '1. C' or table format '1 \t C \t 11 \t D'
-            if (preg_match_all('/(?:(?:Câu|C)\s*)?(\d+)[\s*:\.\|\t\n-]+(?:\[bold\]\s*)?([A-Da-d])\b/u', $blockText, $matches, PREG_SET_ORDER)) {
+            // Match 'Câu 1 C' or 'Question 1: C' or '1. C' or table format '1 \t C \t 11 \t D'
+            if (preg_match_all('/(?:(?:Question|Q|Câu|C)\s*)?(\d+)[\s*:\.\|\t\n-]+(?:\[bold\]\s*)?([A-Da-d])\b/u', $blockText, $matches, PREG_SET_ORDER)) {
                 foreach ($matches as $m) {
                     $qNum = (int) $m[1];
                     $ans = strtoupper($m[2]);
@@ -474,24 +480,24 @@ PROMPT;
             }
         }
 
-        // 2. Also check if explanations section contains "Câu X ... Đáp án / Chọn [A-D]"
+        // 2. Check for standalone sequence of answers at the bottom: e.g. 1. A \n 2. C \n 3. B ...
         if (count($answers) < 5) {
-            if (preg_match_all('/(?:^|\n)\s*(?:\[bold\]\s*)*(?:Câu|C)\s*(\d+)[\s\S]*?(?:Đáp\s*án|Chọn)\s*[:\.]?\s*([A-Da-d])\b/iu', $text, $solMatches, PREG_SET_ORDER)) {
-                foreach ($solMatches as $sm) {
-                    $qNum = (int) $sm[1];
-                    if (! isset($answers[$qNum])) {
+            if (preg_match_all('/(?:^|\n)\s*(?:(?:Question|Q|Câu|C)\s*)?(\d+)[\s*:\.\|\t-]+(?:\[bold\]\s*)?([A-E])\s*(?=\r?\n|\Z)/iu', $text, $seqMatches, PREG_SET_ORDER)) {
+                if (count($seqMatches) >= 4) {
+                    foreach ($seqMatches as $sm) {
+                        $qNum = (int) $sm[1];
                         $answers[$qNum] = strtoupper($sm[2]);
                     }
                 }
             }
         }
 
-        // 3. Check for standalone sequence of answers at the bottom: e.g. 1. A \n 2. C \n 3. B ...
+        // 3. Also check if explanations section contains "Câu X ... Đáp án / Chọn [A-D]"
         if (count($answers) < 5) {
-            if (preg_match_all('/(?:^|\n)\s*(?:(?:Câu|C)\s*)?(\d+)[\.\)]\s+([A-D])\s*(?=\n|$)/iu', $text, $seqMatches, PREG_SET_ORDER)) {
-                if (count($seqMatches) >= 4) {
-                    foreach ($seqMatches as $sm) {
-                        $qNum = (int) $sm[1];
+            if (preg_match_all('/(?:^|\n)\s*(?:\[bold\]\s*)*(?:Question|Q|Câu|C)\s*(\d+)[\s\S]*?(?:Đáp\s*án|Chọn|Key)\s*[:\.]?\s*([A-Da-d])\b/iu', $text, $solMatches, PREG_SET_ORDER)) {
+                foreach ($solMatches as $sm) {
+                    $qNum = (int) $sm[1];
+                    if (! isset($answers[$qNum])) {
                         $answers[$qNum] = strtoupper($sm[2]);
                     }
                 }
