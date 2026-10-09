@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Quiz;
 use App\Models\ToolOverride;
 use App\Services\QuizParserService;
 use App\Services\SeoService;
@@ -9,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -154,6 +156,29 @@ class ToolController extends Controller
 
         $viewName = $viewMap[$slug] ?? 'tools.generic';
 
+        $initialQuiz = null;
+        if ($slug === 'tao-de-trac-nghiem-tu-file' && request()->filled('code')) {
+            $quizCode = trim((string) request()->query('code'));
+            $foundQuiz = Quiz::where('code', $quizCode)->first();
+            if ($foundQuiz) {
+                if ($foundQuiz->is_public || (Auth::check() && Auth::id() === $foundQuiz->user_id)) {
+                    $foundQuiz->increment('attempts_count');
+                    $initialQuiz = [
+                        'code' => $foundQuiz->code,
+                        'title' => $foundQuiz->title,
+                        'is_public' => $foundQuiz->is_public,
+                        'is_owner' => Auth::check() && Auth::id() === $foundQuiz->user_id,
+                        'total_questions' => $foundQuiz->total_questions,
+                        'questions' => $foundQuiz->questions,
+                    ];
+                } else {
+                    session()->flash('quiz_error', 'Đề thi này được đặt ở chế độ Riêng tư (Chỉ chủ sở hữu tài khoản mới có quyền mở).');
+                }
+            } else {
+                session()->flash('quiz_error', 'Không tìm thấy đề thi với mã: '.$quizCode);
+            }
+        }
+
         return view($viewName, [
             'tool' => $tool,
             'categoryInfo' => $categoryInfo,
@@ -161,6 +186,7 @@ class ToolController extends Controller
             'allTools' => $allTools,
             'seo' => $seo,
             'hasSystemGeminiKey' => ! empty(config('services.gemini.key')),
+            'initialQuiz' => $initialQuiz,
         ]);
     }
 
@@ -723,5 +749,210 @@ class ToolController extends Controller
     public function sampleQuiz(QuizParserService $parser): JsonResponse
     {
         return response()->json($parser->getSampleExam());
+    }
+
+    /**
+     * Save quiz to database with shareable code and public/private visibility.
+     */
+    public function saveQuiz(Request $request): JsonResponse
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'questions' => 'required|array|min:1',
+            'is_public' => 'nullable|boolean',
+            'code' => 'nullable|string|max:20',
+        ]);
+
+        $user = Auth::user();
+        $isPublic = $request->boolean('is_public', true);
+
+        if (! $isPublic && ! Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'require_login' => true,
+                'error' => 'Bạn cần đăng nhập tài khoản để đặt đề thi ở chế độ Riêng Tư (Private).',
+            ], 401);
+        }
+
+        $code = $request->input('code');
+        $quiz = null;
+
+        if ($code) {
+            $quiz = Quiz::where('code', $code)->first();
+            if ($quiz && $quiz->user_id && (! Auth::check() || Auth::id() !== $quiz->user_id)) {
+                $quiz = null;
+            }
+        }
+
+        if (! $quiz) {
+            $code = Quiz::generateCode();
+            $quiz = new Quiz;
+            $quiz->code = $code;
+        }
+
+        $quiz->user_id = $user?->id;
+        $quiz->title = $request->input('title');
+        $quiz->is_public = $isPublic;
+        $quiz->total_questions = count($request->input('questions'));
+        $quiz->questions = $request->input('questions');
+        $quiz->save();
+
+        $shareUrl = route('tool.show', ['slug' => 'tao-de-trac-nghiem-tu-file']).'?code='.$quiz->code;
+
+        return response()->json([
+            'success' => true,
+            'code' => $quiz->code,
+            'is_public' => $quiz->is_public,
+            'is_owner' => Auth::check() && Auth::id() === $quiz->user_id,
+            'share_url' => $shareUrl,
+            'message' => $quiz->is_public
+                ? 'Đã lưu đề thi thành công! Bất kỳ ai có mã hoặc link đều có thể mở làm đề này.'
+                : 'Đã lưu đề thi Riêng Tư thành công! Chỉ tài khoản của bạn mới có thể mở đề này.',
+        ]);
+    }
+
+    /**
+     * Load a saved quiz by its code.
+     */
+    public function loadQuizByCode(Request $request, string $code): JsonResponse
+    {
+        $code = trim(strtoupper($code));
+        $quiz = Quiz::where('code', $code)->first();
+
+        if (! $quiz) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Không tìm thấy đề thi với mã: '.$code,
+            ], 404);
+        }
+
+        if (! $quiz->is_public) {
+            if (! Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'require_login' => true,
+                    'error' => 'Đề thi này được đặt ở chế độ Riêng Tư. Vui lòng đăng nhập tài khoản chủ sở hữu để truy cập.',
+                ], 403);
+            }
+
+            if (Auth::id() !== $quiz->user_id) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Đề thi này được đặt ở chế độ Riêng Tư. Bạn không có quyền truy cập đề thi của người khác.',
+                ], 403);
+            }
+        }
+
+        $quiz->increment('attempts_count');
+
+        return response()->json([
+            'success' => true,
+            'code' => $quiz->code,
+            'title' => $quiz->title,
+            'is_public' => $quiz->is_public,
+            'is_owner' => Auth::check() && Auth::id() === $quiz->user_id,
+            'total_questions' => $quiz->total_questions,
+            'questions' => $quiz->questions,
+        ]);
+    }
+
+    /**
+     * Toggle or update quiz visibility (Public <-> Private).
+     */
+    public function toggleQuizVisibility(Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => 'required|string',
+            'is_public' => 'required|boolean',
+        ]);
+
+        if (! Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'require_login' => true,
+                'error' => 'Vui lòng đăng nhập để thay đổi quyền riêng tư của đề thi.',
+            ], 401);
+        }
+
+        $quiz = Quiz::where('code', $request->input('code'))->first();
+        if (! $quiz) {
+            return response()->json(['success' => false, 'error' => 'Không tìm thấy đề thi.'], 404);
+        }
+
+        if ($quiz->user_id !== Auth::id()) {
+            return response()->json(['success' => false, 'error' => 'Bạn không phải chủ sở hữu đề thi này.'], 403);
+        }
+
+        $quiz->is_public = $request->boolean('is_public');
+        $quiz->save();
+
+        return response()->json([
+            'success' => true,
+            'is_public' => $quiz->is_public,
+            'message' => $quiz->is_public ? 'Đã chuyển sang chế độ Công Khai (Public).' : 'Đã chuyển sang chế độ Riêng Tư (Private).',
+        ]);
+    }
+
+    /**
+     * Get list of quizzes created by authenticated user.
+     */
+    public function myQuizzes(): JsonResponse
+    {
+        if (! Auth::check()) {
+            return response()->json(['success' => true, 'quizzes' => []]);
+        }
+
+        $quizzes = Quiz::where('user_id', Auth::id())
+            ->orderByDesc('id')
+            ->limit(30)
+            ->get(['id', 'code', 'title', 'is_public', 'total_questions', 'attempts_count', 'created_at']);
+
+        return response()->json([
+            'success' => true,
+            'quizzes' => $quizzes->map(fn ($q) => [
+                'id' => $q->id,
+                'code' => $q->code,
+                'title' => $q->title,
+                'is_public' => $q->is_public,
+                'total_questions' => $q->total_questions,
+                'attempts_count' => $q->attempts_count,
+                'created_at' => $q->created_at?->format('d/m/Y H:i'),
+                'share_url' => route('tool.show', ['slug' => 'tao-de-trac-nghiem-tu-file']).'?code='.$q->code,
+            ]),
+        ]);
+    }
+
+    /**
+     * Delete a saved quiz owned by the authenticated user.
+     */
+    public function deleteQuiz(Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        if (! Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'require_login' => true,
+                'error' => 'Vui lòng đăng nhập để xóa đề thi.',
+            ], 401);
+        }
+
+        $quiz = Quiz::where('code', $request->input('code'))->first();
+        if (! $quiz) {
+            return response()->json(['success' => false, 'error' => 'Không tìm thấy đề thi.'], 404);
+        }
+
+        if ($quiz->user_id !== Auth::id()) {
+            return response()->json(['success' => false, 'error' => 'Bạn không có quyền xóa đề thi của người khác.'], 403);
+        }
+
+        $quiz->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đã xóa đề thi thành công.',
+        ]);
     }
 }

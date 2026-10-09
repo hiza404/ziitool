@@ -51,6 +51,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Quizzes created by this user.
+     */
+    public function quizzes(): HasMany
+    {
+        return $this->hasMany(Quiz::class);
+    }
+
+    /**
      * Check whether the user currently has an active Pro membership.
      */
     public function isPro(): bool

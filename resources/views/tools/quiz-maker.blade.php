@@ -36,6 +36,93 @@
     <!-- Top Leaderboard Ad Banner -->
     <x-ad-banner slot="top_leaderboard" class="mb-8" />
 
+    @if(session('quiz_error'))
+        <div class="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs sm:text-sm flex items-center justify-between gap-3 shadow-sm animate-pulse">
+            <div class="flex items-center gap-2.5">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-600 flex-shrink-0"></i>
+                <span class="font-medium">{{ session('quiz_error') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700 p-1">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+    @endif
+
+    <!-- Thanh Thông Tin Tài Khoản & Truy Cập Đề Của Tôi -->
+    <div class="mb-6 p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            @auth
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
+                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">{{ Auth::user()->name }}</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold flex items-center gap-1">
+                            <i data-lucide="check" class="w-3 h-3"></i> Đã đăng nhập
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Bạn có thể lưu đề thi vĩnh viễn trên Server và tùy chọn chế độ <b>Công Khai</b> hoặc <b>Riêng Tư</b>.</p>
+                </div>
+            @else
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="user-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">Khách Vãng Lai</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium">Chưa đăng nhập</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Đăng nhập để tự động đồng bộ đề thi lên tài khoản và tạo đề <b>Riêng Tư (Private)</b> chỉ mình bạn mở được.</p>
+                </div>
+            @endauth
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap self-end sm:self-auto">
+            @auth
+                <button type="button" onclick="openMyQuizzesModal()" class="px-3.5 py-2 rounded-xl bg-violet-50 dark:bg-violet-950/50 hover:bg-violet-100 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800/80 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="folder-kanban" class="w-4 h-4 text-violet-600"></i>
+                    <span>Bộ Đề Của Tôi (Server)</span>
+                </button>
+            @else
+                <a href="{{ route('login', ['redirect' => request()->getRequestUri()]) }}" class="px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                    <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+                    <span>Đăng Nhập</span>
+                </a>
+                <a href="{{ route('register', ['redirect' => request()->getRequestUri()]) }}" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition">
+                    Đăng Ký
+                </a>
+            @endauth
+        </div>
+    </div>
+
+    <!-- Thanh Mở Nhanh Đề Thi Bằng Mã Đề (Quick Open by Quiz Code) -->
+    <div class="mb-8 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-violet-600/10 via-indigo-600/10 to-transparent border border-violet-200/80 dark:border-violet-800/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-violet-500/20">
+                <i data-lucide="key-round" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h3 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>Bạn Có Mã Đề Thi Được Chia Sẻ?</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 font-semibold">1 Giây Mở Đề</span>
+                </h3>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Nhập mã đề (Ví dụ: <code class="font-mono font-bold text-violet-600 dark:text-violet-400">ZT-A1B2C3</code>) để mở làm ngay trên bất kỳ máy nào mà không cần tải lại file.</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 w-full md:w-auto">
+            <div class="relative flex-1 md:w-56">
+                <input type="text" id="quickQuizCodeInput" placeholder="ZT-XXXXXX" maxlength="15" onkeydown="if(event.key==='Enter') handleLoadQuizByCode()" class="w-full text-xs sm:text-sm font-mono font-bold uppercase tracking-wider py-2.5 px-3.5 pl-8 rounded-xl border border-violet-200 dark:border-violet-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none shadow-inner">
+                <i data-lucide="hash" class="w-4 h-4 text-slate-400 absolute left-2.5 top-3"></i>
+            </div>
+            <button type="button" onclick="handleLoadQuizByCode()" id="btnQuickLoadCode" class="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-violet-500/20 transition flex items-center gap-1.5 flex-shrink-0">
+                <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
+                <span id="btnQuickLoadCodeText">Mở Đề Thi</span>
+            </button>
+        </div>
+    </div>
+
     <!-- ========================================== -->
     <!-- PANEL 1: CẤU HÌNH & TẢI FILE TÀI LIỆU -->
     <!-- ========================================== -->
@@ -242,13 +329,53 @@
                         </label>
                     </div>
 
-                    <!-- Nút Bắt đầu làm bài -->
-                    <div class="pt-3">
+                    <!-- 5. Quyền riêng tư & Lưu trữ đề thi -->
+                    <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Quyền riêng tư đề thi:</label>
+                            <span id="visStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 font-bold">Công Khai</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" id="visPublicBtn" onclick="setQuizVisibility(true)" class="p-2.5 rounded-2xl border-2 border-violet-600 bg-violet-50/70 dark:bg-violet-950/40 text-left transition relative">
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <div class="w-5 h-5 rounded-md bg-violet-600 text-white flex items-center justify-center text-[10px]">
+                                        <i data-lucide="globe" class="w-3 h-3"></i>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-900 dark:text-white">Công Khai</span>
+                                    <span id="visPublicCheck" class="ml-auto w-2 h-2 rounded-full bg-violet-600"></span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">Ai có mã/link đều có thể làm</p>
+                            </button>
+
+                            <button type="button" id="visPrivateBtn" onclick="setQuizVisibility(false)" class="p-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-left hover:border-slate-300 dark:hover:border-slate-700 transition relative">
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <div class="w-5 h-5 rounded-md bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center text-[10px]">
+                                        <i data-lucide="lock" class="w-3 h-3"></i>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Riêng Tư</span>
+                                    <span id="visPrivateCheck" class="ml-auto w-2 h-2 rounded-full bg-violet-600 hidden"></span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">Chỉ tài khoản bạn mới mở được</p>
+                            </button>
+                        </div>
+                        <p id="visGuestNotice" class="hidden text-[11px] text-amber-600 dark:text-amber-400 flex items-center gap-1 pt-1 bg-amber-50 dark:bg-amber-950/40 p-2 rounded-xl border border-amber-200 dark:border-amber-800/60">
+                            <i data-lucide="alert-circle" class="w-3.5 h-3.5 flex-shrink-0"></i>
+                            <span>Bạn cần <a href="{{ route('login', ['redirect' => request()->getRequestUri()]) }}" class="underline font-bold">đăng nhập</a> để đặt đề ở chế độ Riêng tư.</span>
+                        </p>
+                    </div>
+
+                    <!-- Nút Bắt đầu làm bài & Lấy link chia sẻ -->
+                    <div class="pt-3 space-y-2">
                         <button type="button" id="startExamBtn" onclick="handleStartExam()" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-violet-500/25 transition flex items-center justify-center gap-2">
                             <i data-lucide="play-circle" class="w-5 h-5"></i>
                             <span id="startExamBtnText">Bắt Đầu Làm Bài Thi</span>
                         </button>
+                        <button type="button" id="shareQuizSetupBtn" onclick="openShareModal()" class="w-full py-2.5 px-4 rounded-xl border border-violet-200 dark:border-violet-800 hover:bg-violet-50 dark:hover:bg-violet-950/40 text-violet-700 dark:text-violet-300 font-semibold text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+                            <i data-lucide="share-2" class="w-4 h-4"></i>
+                            <span>Lấy Mã Đề & Link Chia Sẻ</span>
+                        </button>
                     </div>
+
 
                     <!-- Trạng thái Loading khi trích xuất -->
                     <div id="parseLoadingStatus" class="hidden text-center py-4 space-y-2">
@@ -291,7 +418,14 @@
             </div>
 
             <!-- Timer & Actions -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2.5">
+                <!-- Mã đề & Nút chia sẻ nhanh -->
+                <button type="button" onclick="openShareModal()" id="examHeaderShareBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-950/60 hover:bg-violet-100 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-xs font-bold border border-violet-200 dark:border-violet-800 transition shadow-sm" title="Bấm để xem mã đề & sao chép link chia sẻ">
+                    <i data-lucide="share-2" class="w-3.5 h-3.5 text-violet-600 dark:text-violet-400"></i>
+                    <span class="hidden sm:inline">Mã:</span>
+                    <span id="activeQuizCodeBadge" class="font-mono">---</span>
+                </button>
+
                 <!-- Đồng hồ bấm giờ -->
                 <div id="timerBadge" class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm font-mono font-bold">
                     <i data-lucide="clock" class="w-4 h-4 text-violet-600"></i>
@@ -304,6 +438,7 @@
                     <span id="submitExamBtnText">Kết Thúc Ôn Tập</span>
                 </button>
             </div>
+
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -419,6 +554,9 @@
 
             <!-- Nút hành động nhanh -->
             <div class="relative z-10 flex flex-wrap items-center gap-3 pt-6 mt-6 border-t border-white/10">
+                <button type="button" onclick="openShareModal()" class="px-4 py-2.5 rounded-xl bg-white text-violet-900 hover:bg-slate-100 font-bold text-xs transition flex items-center gap-2 shadow-sm">
+                    <i data-lucide="share-2" class="w-4 h-4 text-violet-600"></i> Chia Sẻ Đề Này (Mã Đề)
+                </button>
                 <button type="button" onclick="retakeWrongOnly()" id="retakeWrongBtn" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center gap-2 shadow-sm">
                     <i data-lucide="refresh-cw" class="w-4 h-4"></i> Ôn Luyện Lại Riêng Các Câu Sai
                 </button>
@@ -429,6 +567,7 @@
                     <i data-lucide="file-plus" class="w-4 h-4"></i> Tạo Đề Mới Từ File Khác
                 </button>
             </div>
+
         </div>
 
         <!-- Bộ Lọc Xem Lại Câu Hỏi (Tất Cả, Chỉ Câu Sai, Chỉ Câu Đúng) -->
@@ -530,20 +669,145 @@
     </div>
 </div>
 
+<!-- Modal Chia Sẻ Đề Thi & Mã Đề -->
+<div id="shareQuizModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-violet-100 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+                    <i data-lucide="share-2" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Chia Sẻ & Mã Đề Thi</h3>
+                    <p class="text-xs text-slate-500">Mã đề giúp người khác mở làm trên mọi thiết bị</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeShareModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Tiêu đề đề thi đang chia sẻ -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between gap-2">
+            <span class="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate" id="shareModalExamTitle">Đề Thi Trắc Nghiệm</span>
+            <span id="shareModalVisibilityBadge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex-shrink-0">
+                Công Khai
+            </span>
+        </div>
+
+        <!-- Hộp hiển thị Mã Đề to rõ -->
+        <div class="p-5 rounded-2xl bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-950/40 dark:to-indigo-950/40 border border-violet-200 dark:border-violet-800 text-center space-y-2">
+            <span class="text-xs font-bold tracking-wider text-violet-700 dark:text-violet-300 uppercase">Mã Đề Thi (Quiz Code)</span>
+            <div class="flex items-center justify-center gap-3">
+                <span id="shareModalCodeDisplay" class="text-3xl sm:text-4xl font-black font-mono tracking-widest text-violet-600 dark:text-violet-400 select-all">ZT-XXXXXX</span>
+                <button type="button" onclick="copyShareCode()" class="p-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white transition shadow-sm" title="Sao chép mã">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Người nhận chỉ cần nhập mã này vào ô tìm mã đề ở đầu trang để làm.</p>
+        </div>
+
+        <!-- Hộp Link chia sẻ trực tiếp -->
+        <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Link mở trực tiếp bài thi:</label>
+            <div class="flex items-center gap-2">
+                <input type="text" id="shareModalUrlInput" readonly class="flex-1 text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-mono outline-none select-all">
+                <button type="button" onclick="copyShareLink()" id="btnCopyShareLink" class="px-3.5 py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition flex items-center gap-1.5 flex-shrink-0 shadow-sm">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    <span id="btnCopyShareLinkText">Sao Chép Link</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Khu vực chuyển đổi quyền riêng tư -->
+        <div id="shareModalOwnerActions" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between gap-3">
+            <div class="space-y-0.5">
+                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Quyền riêng tư đề thi</span>
+                <p id="shareModalVisDesc" class="text-[11px] text-slate-500">Đang ở chế độ Công Khai (Bất kỳ ai có mã đều xem được).</p>
+            </div>
+            <button type="button" onclick="toggleCurrentQuizVisibility()" id="btnToggleVisInModal" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1.5 flex-shrink-0">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                <span id="btnToggleVisText">Đổi sang Riêng Tư</span>
+            </button>
+        </div>
+
+        <div class="flex justify-end pt-2">
+            <button type="button" onclick="closeShareModal()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Quản Lý Bộ Đề Của Tôi (My Quizzes) -->
+<div id="myQuizzesModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-2xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6 max-h-[90vh] flex flex-col">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                    <i data-lucide="folder-kanban" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Bộ Đề Của Tôi (Lưu Trên Server)</h3>
+                    <p class="text-xs text-slate-500">Được đồng bộ với tài khoản, lưu vĩnh viễn và không bị mất</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeMyQuizzesModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Danh sách đề -->
+        <div id="myQuizzesListContainer" class="flex-1 overflow-y-auto space-y-3 pr-1">
+            <div class="text-center py-8 text-slate-400 text-xs">
+                <div class="inline-block animate-spin text-violet-600 mb-2">
+                    <i data-lucide="loader-2" class="w-6 h-6"></i>
+                </div>
+                <p>Đang tải danh sách đề thi...</p>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800 flex-shrink-0">
+            <span id="myQuizzesCountBadge" class="text-xs text-slate-500 font-medium">0 đề thi</span>
+            <button type="button" onclick="closeMyQuizzesModal()" class="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>
+
+
 @push('scripts')
 <script>
+    // Server Configuration & Initial Data
+    const INITIAL_QUIZ = @json($initialQuiz);
+    const IS_LOGGED_IN = {{ Auth::check() ? 'true' : 'false' }};
+    const CURRENT_USER_ID = {{ Auth::check() ? Auth::id() : 'null' }};
+    const LOGIN_URL = @json(route('login', ['redirect' => request()->getRequestUri()]));
+    const SAVE_QUIZ_URL = @json(route('tool.quiz.save'));
+    const LOAD_QUIZ_URL = @json(url('/tool/trac-nghiem/load'));
+    const VISIBILITY_URL = @json(route('tool.quiz.visibility'));
+    const MY_QUIZZES_URL = @json(route('tool.quiz.my_quizzes'));
+    const DELETE_QUIZ_URL = @json(route('tool.quiz.delete'));
+    const CSRF_TOKEN = '{{ csrf_token() }}';
+
     // State management
     let rawQuestions = [];
     let currentQuestions = [];
     let userAnswers = {}; // { questionId: 'A' }
     let flaggedQuestions = new Set();
     let currentExamTitle = 'Bài Thi Trắc Nghiệm';
+    let currentQuizCode = null;
+    let currentQuizIsPublic = true;
+    let currentQuizIsOwner = false;
+    let currentQuizShareUrl = null;
     let timerInterval = null;
     let totalExamSeconds = 0;
     let remainingSeconds = 0;
     let timeElapsed = 0;
     let currentFilter = 'all';
     let currentQuizMode = 'practice'; // 'practice' (Ôn tập) or 'exam' (Thi thử)
+    let currentActiveQuizId = null;
 
     // Switch Quiz Mode: Ôn tập vs Thi thử
     function setQuizMode(mode) {
@@ -593,187 +857,410 @@
         lucide.createIcons();
     }
 
-    let currentActiveQuizId = null;
-
-    // LocalStorage management for saved exams
-    function getSavedExams() {
-        try {
-            const data = localStorage.getItem('ziitool_saved_quizzes');
-            return data ? JSON.parse(data) : [];
-        } catch (e) {
-            console.warn('Cannot read localStorage:', e);
-            return [];
+    // Switch Quiz Visibility: Công Khai (Public) vs Riêng Tư (Private)
+    function setQuizVisibility(isPublic) {
+        if (!isPublic && !IS_LOGGED_IN) {
+            const guestNotice = document.getElementById('visGuestNotice');
+            if (guestNotice) guestNotice.classList.remove('hidden');
+            if (confirm('Chế độ Riêng Tư (Private) yêu cầu tài khoản để bảo mật và chỉ mình bạn mở được.\nBạn có muốn chuyển sang trang Đăng nhập ngay bây giờ?')) {
+                window.location.href = LOGIN_URL;
+            }
+            return;
         }
+
+        currentQuizIsPublic = isPublic;
+        const pubBtn = document.getElementById('visPublicBtn');
+        const privBtn = document.getElementById('visPrivateBtn');
+        const pubCheck = document.getElementById('visPublicCheck');
+        const privCheck = document.getElementById('visPrivateCheck');
+        const statusBadge = document.getElementById('visStatusBadge');
+        const guestNotice = document.getElementById('visGuestNotice');
+
+        if (guestNotice) guestNotice.classList.add('hidden');
+
+        if (isPublic) {
+            if (pubBtn) pubBtn.className = 'p-2.5 rounded-2xl border-2 border-violet-600 bg-violet-50/70 dark:bg-violet-950/40 text-left transition relative';
+            if (pubCheck) pubCheck.classList.remove('hidden');
+            if (privBtn) privBtn.className = 'p-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-left hover:border-slate-300 dark:hover:border-slate-700 transition relative';
+            if (privCheck) privCheck.classList.add('hidden');
+            if (statusBadge) {
+                statusBadge.innerText = 'Công Khai';
+                statusBadge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 font-bold';
+            }
+        } else {
+            if (privBtn) privBtn.className = 'p-2.5 rounded-2xl border-2 border-violet-600 bg-violet-50/70 dark:bg-violet-950/40 text-left transition relative';
+            if (privCheck) privCheck.classList.remove('hidden');
+            if (pubBtn) pubBtn.className = 'p-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-left hover:border-slate-300 dark:hover:border-slate-700 transition relative';
+            if (pubCheck) pubCheck.classList.add('hidden');
+            if (statusBadge) {
+                statusBadge.innerText = 'Riêng Tư';
+                statusBadge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-bold';
+            }
+        }
+        lucide.createIcons();
     }
 
-    function saveExamToHistory(title, questions) {
-        if (!questions || questions.length === 0) return null;
+    // Save Quiz to server
+    async function saveQuizToServer(isPublic = null) {
+        if (!rawQuestions || rawQuestions.length === 0) return null;
+
+        const visibility = (isPublic !== null) ? isPublic : currentQuizIsPublic;
+        if (!visibility && !IS_LOGGED_IN) {
+            alert('Bạn cần đăng nhập để lưu đề ở chế độ Riêng Tư.');
+            return null;
+        }
+
         try {
-            const saved = getSavedExams();
-            const existingIdx = saved.findIndex(item => item.title === title && item.total_questions === questions.length);
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            const resp = await fetch(SAVE_QUIZ_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN
+                },
+                body: JSON.stringify({
+                    title: currentExamTitle || 'Bài Thi Trắc Nghiệm',
+                    questions: rawQuestions,
+                    is_public: visibility,
+                    code: currentQuizCode || null
+                })
+            });
 
-            const examItem = {
-                id: existingIdx >= 0 ? saved[existingIdx].id : 'quiz_' + Date.now(),
-                title: title || 'Đề Thi Trắc Nghiệm',
-                total_questions: questions.length,
-                created_at: existingIdx >= 0 ? saved[existingIdx].created_at : dateStr,
-                updated_at: dateStr,
-                last_score: existingIdx >= 0 ? saved[existingIdx].last_score : null,
-                last_rank: existingIdx >= 0 ? saved[existingIdx].last_rank : null,
-                questions: questions
-            };
+            const data = await resp.json();
+            if (data.success && data.code) {
+                currentQuizCode = data.code;
+                currentQuizShareUrl = data.share_url;
+                currentQuizIsOwner = data.is_owner;
+                currentQuizIsPublic = data.is_public;
 
-            if (existingIdx >= 0) {
-                saved.splice(existingIdx, 1);
+                updateQuizCodeUI(currentQuizCode);
+
+                if (window.history && window.history.replaceState) {
+                    const newUrl = `${window.location.pathname}?code=${currentQuizCode}`;
+                    window.history.replaceState(null, '', newUrl);
+                }
+
+                saveExamToHistory(currentExamTitle, rawQuestions, currentQuizCode);
+                return data;
+            } else {
+                if (data.require_login) {
+                    if (confirm(data.error + '\nBạn có muốn chuyển sang trang Đăng nhập ngay bây giờ?')) {
+                        window.location.href = LOGIN_URL;
+                    }
+                } else {
+                    console.warn('Lỗi lưu đề:', data.error);
+                }
+                return null;
             }
-            saved.unshift(examItem);
-
-            // Cap at 15 items
-            if (saved.length > 15) {
-                saved.pop();
-            }
-
-            localStorage.setItem('ziitool_saved_quizzes', JSON.stringify(saved));
-            renderSavedExamsList();
-            return examItem.id;
         } catch (e) {
-            console.warn('Cannot save exam to localStorage:', e);
+            console.error('Error saving quiz to server:', e);
             return null;
         }
     }
 
-    function updateExamScoreInHistory(title, scoreTen, rank) {
+    function updateQuizCodeUI(code) {
+        if (!code) return;
+        const codeInput = document.getElementById('quickQuizCodeInput');
+        if (codeInput && !codeInput.value) codeInput.value = code;
+
+        const headerCode = document.getElementById('activeQuizCodeBadge');
+        if (headerCode) headerCode.innerText = code;
+
+        const shareCodeDisp = document.getElementById('shareModalCodeDisplay');
+        if (shareCodeDisp) shareCodeDisp.innerText = code;
+
+        const shareUrlInput = document.getElementById('shareModalUrlInput');
+        if (shareUrlInput) {
+            const currentUrl = `${window.location.origin}${window.location.pathname}?code=${code}`;
+            shareUrlInput.value = currentUrl;
+        }
+    }
+
+    // Load Quiz by Code (from input or param)
+    async function handleLoadQuizByCode(codeToLoad = null) {
+        let code = codeToLoad;
+        if (!code) {
+            const input = document.getElementById('quickQuizCodeInput');
+            code = input ? input.value.trim() : '';
+        }
+        code = code.toUpperCase();
+
+        if (!code) {
+            alert('Vui lòng nhập Mã Đề Thi (Ví dụ: ZT-A1B2C3).');
+            return;
+        }
+
+        const btn = document.getElementById('btnQuickLoadCode');
+        const btnText = document.getElementById('btnQuickLoadCodeText');
+        if (btnText) btnText.innerText = 'Đang nạp...';
+        if (btn) btn.disabled = true;
+
         try {
-            const saved = getSavedExams();
-            const item = saved.find(q => q.title === title || q.id === currentActiveQuizId);
-            if (item) {
-                item.last_score = `${scoreTen}/10`;
-                item.last_rank = rank;
-                const now = new Date();
-                item.updated_at = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-                localStorage.setItem('ziitool_saved_quizzes', JSON.stringify(saved));
-                renderSavedExamsList();
+            const resp = await fetch(`${LOAD_QUIZ_URL}/${encodeURIComponent(code)}`, {
+                headers: { 'Accept': 'application/json' }
+            });
+            const data = await resp.json();
+
+            if (!resp.ok || !data.success) {
+                if (data.require_login) {
+                    if (confirm(data.error + '\nBạn có muốn chuyển sang trang Đăng nhập ngay bây giờ?')) {
+                        window.location.href = LOGIN_URL;
+                    }
+                } else {
+                    alert(data.error || 'Không tìm thấy đề thi với mã: ' + code);
+                }
+                return;
             }
-        } catch (e) {
-            console.warn('Cannot update score in localStorage:', e);
-        }
-    }
 
-    function deleteSavedExam(id, e) {
-        if (e) e.stopPropagation();
-        if (!confirm('Bạn có chắc chắn muốn xóa đề thi này khỏi danh sách đã lưu?')) return;
-        try {
-            let saved = getSavedExams();
-            saved = saved.filter(item => item.id !== id);
-            localStorage.setItem('ziitool_saved_quizzes', JSON.stringify(saved));
-            if (currentActiveQuizId === id) {
-                currentActiveQuizId = null;
+            // Load successful
+            rawQuestions = data.questions;
+            currentExamTitle = data.title;
+            currentQuizCode = data.code;
+            currentQuizIsPublic = data.is_public;
+            currentQuizIsOwner = data.is_owner;
+            currentActiveQuizId = saveExamToHistory(currentExamTitle, rawQuestions, currentQuizCode);
+
+            updateQuizCodeUI(currentQuizCode);
+
+            const badge = document.getElementById('detectedQuestionsBadge');
+            if (badge) {
+                badge.innerText = `(Đã nạp ${rawQuestions.length} câu từ mã ${currentQuizCode})`;
+                badge.classList.remove('hidden');
             }
-            renderSavedExamsList();
-        } catch (e) {
-            console.warn(e);
-        }
-    }
 
-    function clearAllSavedExams() {
-        if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách đề thi đã lưu?')) return;
-        try {
-            localStorage.removeItem('ziitool_saved_quizzes');
-            currentActiveQuizId = null;
-            renderSavedExamsList();
-        } catch (e) {
-            console.warn(e);
-        }
-    }
-
-    function loadSavedExam(id, startImmediately = false) {
-        const list = getSavedExams();
-        const quiz = list.find(item => item.id === id);
-        if (!quiz) return;
-
-        rawQuestions = quiz.questions;
-        currentExamTitle = quiz.title;
-        currentActiveQuizId = quiz.id;
-
-        const badge = document.getElementById('detectedQuestionsBadge');
-        if (badge) {
-            badge.innerText = `(Đã nạp ${rawQuestions.length} câu từ đề đã lưu)`;
-            badge.classList.remove('hidden');
-        }
-
-        renderSavedExamsList(id);
-
-        if (startImmediately) {
-            startExamSession();
-        } else {
+            setQuizVisibility(currentQuizIsPublic);
             const settingsCard = document.getElementById('examSettingsCard');
             if (settingsCard) {
                 settingsCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
+
+            alert(`🎉 Mở đề thi thành công: "${currentExamTitle}" (${rawQuestions.length} câu)!\nBạn có thể tùy chỉnh số câu & thời gian rồi bấm Bắt Đầu.`);
+
+        } catch (err) {
+            alert('Lỗi kết nối khi tải đề thi: ' + err.message);
+        } finally {
+            if (btnText) btnText.innerText = 'Mở Đề Thi';
+            if (btn) btn.disabled = false;
         }
     }
 
-    function renderSavedExamsList(activeId = null) {
-        const container = document.getElementById('savedExamsList');
-        const badge = document.getElementById('savedExamsCountBadge');
-        const clearBtn = document.getElementById('clearAllExamsBtn');
+    // Share modal handlers
+    async function openShareModal(specificCode = null, specificTitle = null, specificPublic = null) {
+        let code = specificCode || currentQuizCode;
+        let title = specificTitle || currentExamTitle;
+        let isPublic = (specificPublic !== null) ? specificPublic : currentQuizIsPublic;
+
+        if (!code && rawQuestions && rawQuestions.length > 0) {
+            const saved = await saveQuizToServer();
+            if (saved && saved.code) {
+                code = saved.code;
+                isPublic = saved.is_public;
+            }
+        }
+
+        if (!code) {
+            alert('Vui lòng tải file hoặc chọn đề thi trước khi lấy mã chia sẻ.');
+            return;
+        }
+
+        const modal = document.getElementById('shareQuizModal');
+        const codeDisplay = document.getElementById('shareModalCodeDisplay');
+        const urlInput = document.getElementById('shareModalUrlInput');
+        const titleDisplay = document.getElementById('shareModalExamTitle');
+        const visBadge = document.getElementById('shareModalVisibilityBadge');
+        const visDesc = document.getElementById('shareModalVisDesc');
+        const btnToggleVis = document.getElementById('btnToggleVisText');
+        const ownerActions = document.getElementById('shareModalOwnerActions');
+
+        if (codeDisplay) codeDisplay.innerText = code;
+        if (titleDisplay) titleDisplay.innerText = title || 'Đề Thi Trắc Nghiệm';
+        if (urlInput) {
+            urlInput.value = `${window.location.origin}${window.location.pathname}?code=${code}`;
+        }
+
+        if (visBadge) {
+            visBadge.innerText = isPublic ? 'Công Khai' : 'Riêng Tư';
+            visBadge.className = isPublic 
+                ? 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex-shrink-0'
+                : 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 flex-shrink-0';
+        }
+
+        if (visDesc) {
+            visDesc.innerText = isPublic
+                ? 'Đang ở chế độ Công Khai (Bất kỳ ai có mã đều xem được).'
+                : 'Đang ở chế độ Riêng Tư (Chỉ bạn mới có quyền xem).';
+        }
+
+        if (btnToggleVis) {
+            btnToggleVis.innerText = isPublic ? 'Đổi sang Riêng Tư' : 'Đổi sang Công Khai';
+        }
+
+        if (ownerActions) {
+            ownerActions.classList.toggle('hidden', !IS_LOGGED_IN);
+        }
+
+        if (modal) {
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+    }
+
+    function closeShareModal() {
+        const modal = document.getElementById('shareQuizModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function copyShareCode() {
+        const code = document.getElementById('shareModalCodeDisplay')?.innerText;
+        if (!code) return;
+        navigator.clipboard.writeText(code).then(() => {
+            alert(`Đã sao chép mã đề: ${code}`);
+        }).catch(() => {
+            prompt('Sao chép mã đề:', code);
+        });
+    }
+
+    function copyShareLink() {
+        const input = document.getElementById('shareModalUrlInput');
+        if (!input || !input.value) return;
+        navigator.clipboard.writeText(input.value).then(() => {
+            const btnText = document.getElementById('btnCopyShareLinkText');
+            if (btnText) {
+                btnText.innerText = 'Đã chép!';
+                setTimeout(() => { btnText.innerText = 'Sao Chép Link'; }, 2000);
+            }
+        }).catch(() => {
+            prompt('Sao chép liên kết:', input.value);
+        });
+    }
+
+    async function toggleCurrentQuizVisibility() {
+        if (!currentQuizCode) return;
+        if (!IS_LOGGED_IN) {
+            alert('Vui lòng đăng nhập để thay đổi quyền riêng tư của đề thi.');
+            window.location.href = LOGIN_URL;
+            return;
+        }
+
+        const newVis = !currentQuizIsPublic;
+        try {
+            const resp = await fetch(VISIBILITY_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN
+                },
+                body: JSON.stringify({
+                    code: currentQuizCode,
+                    is_public: newVis
+                })
+            });
+
+            const data = await resp.json();
+            if (data.success) {
+                currentQuizIsPublic = data.is_public;
+                setQuizVisibility(currentQuizIsPublic);
+                openShareModal(currentQuizCode, currentExamTitle, currentQuizIsPublic);
+                alert(data.message);
+            } else {
+                alert(data.error || 'Không thể thay đổi quyền riêng tư.');
+            }
+        } catch (e) {
+            alert('Lỗi: ' + e.message);
+        }
+    }
+
+    // My Quizzes Modal handlers
+    async function openMyQuizzesModal() {
+        if (!IS_LOGGED_IN) {
+            window.location.href = LOGIN_URL;
+            return;
+        }
+
+        const modal = document.getElementById('myQuizzesModal');
+        const container = document.getElementById('myQuizzesListContainer');
+        const badge = document.getElementById('myQuizzesCountBadge');
+        if (modal) modal.classList.remove('hidden');
+
+        if (container) {
+            container.innerHTML = `
+                <div class="text-center py-8 text-slate-400 text-xs">
+                    <div class="inline-block animate-spin text-violet-600 mb-2">
+                        <i data-lucide="loader-2" class="w-6 h-6"></i>
+                    </div>
+                    <p>Đang tải danh sách đề thi trên Server...</p>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        try {
+            const resp = await fetch(MY_QUIZZES_URL, { headers: { 'Accept': 'application/json' } });
+            const data = await resp.json();
+
+            if (data.success && data.quizzes) {
+                renderMyQuizzesList(data.quizzes);
+                if (badge) badge.innerText = `${data.quizzes.length} đề thi đã lưu`;
+            } else {
+                if (container) container.innerHTML = `<p class="text-center py-6 text-rose-500 text-xs">Không thể tải danh sách đề thi.</p>`;
+            }
+        } catch (e) {
+            if (container) container.innerHTML = `<p class="text-center py-6 text-rose-500 text-xs">Lỗi kết nối: ${escapeHtml(e.message)}</p>`;
+        }
+    }
+
+    function closeMyQuizzesModal() {
+        const modal = document.getElementById('myQuizzesModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function renderMyQuizzesList(quizzes) {
+        const container = document.getElementById('myQuizzesListContainer');
         if (!container) return;
 
-        const saved = getSavedExams();
-        if (badge) badge.innerText = `${saved.length} đề`;
-
-        if (saved.length === 0) {
-            if (clearBtn) clearBtn.classList.add('hidden');
+        if (quizzes.length === 0) {
             container.innerHTML = `
-                <div class="text-center py-6 px-4 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-400 text-xs space-y-1">
-                    <i data-lucide="inbox" class="w-6 h-6 mx-auto mb-1 text-slate-300 dark:text-slate-600"></i>
-                    <p class="font-medium text-slate-600 dark:text-slate-400">Chưa có đề thi nào được lưu</p>
-                    <p class="text-[11px] text-slate-400">Khi bạn tải file hoặc thử đề mẫu, đề thi sẽ tự động được lưu tại đây để lần sau mở làm lại ngay mà không cần tải lại file.</p>
+                <div class="text-center py-10 px-4 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-400 text-xs space-y-2">
+                    <i data-lucide="folder-open" class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600"></i>
+                    <p class="font-bold text-slate-700 dark:text-slate-300 text-sm">Chưa có đề thi nào trên Server</p>
+                    <p class="text-[11px] text-slate-400">Khi bạn tải file hoặc làm bài, đề thi sẽ tự động được lưu trữ và hiển thị tại đây.</p>
                 </div>
             `;
             lucide.createIcons();
             return;
         }
 
-        if (clearBtn) clearBtn.classList.remove('hidden');
         container.innerHTML = '';
-
-        saved.forEach(quiz => {
-            const isCurrentActive = (activeId === quiz.id || currentActiveQuizId === quiz.id);
+        quizzes.forEach(q => {
             const item = document.createElement('div');
-            item.className = `p-4 rounded-2xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isCurrentActive ? 'border-2 border-violet-600 bg-violet-50/40 dark:bg-violet-950/20 shadow-sm' : 'border-slate-200 dark:border-slate-800 hover:border-violet-300 dark:hover:border-violet-700 bg-slate-50/50 dark:bg-slate-800/30'}`;
-
+            item.className = 'p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-violet-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3';
             item.innerHTML = `
-                <div class="space-y-1 flex-1 min-w-0">
-                    <div class="flex items-center gap-2">
-                        <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate" title="${escapeHtml(quiz.title)}">
-                            ${escapeHtml(quiz.title)}
-                        </h4>
-                        <span class="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 flex-shrink-0">
-                            ${quiz.total_questions} câu
-                        </span>
+                <div class="space-y-1 min-w-0 flex-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300">${escapeHtml(q.code)}</span>
+                        <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate" title="${escapeHtml(q.title)}">${escapeHtml(q.title)}</h4>
                     </div>
                     <div class="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 flex-wrap">
-                        <span class="flex items-center gap-1">
-                            <i data-lucide="calendar" class="w-3 h-3 text-slate-400"></i> ${quiz.created_at}
+                        <span>${q.total_questions} câu</span>
+                        <span>•</span>
+                        <span>${q.attempts_count} lượt làm</span>
+                        <span>•</span>
+                        <span>${q.created_at}</span>
+                        <span>•</span>
+                        <span class="font-semibold ${q.is_public ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}">
+                            ${q.is_public ? '🌐 Công Khai' : '🔒 Riêng Tư'}
                         </span>
-                        ${quiz.last_score ? `
-                            <span class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
-                                <i data-lucide="award" class="w-3 h-3"></i> Điểm: ${quiz.last_score} ${quiz.last_rank ? '(' + quiz.last_rank + ')' : ''}
-                            </span>
-                        ` : '<span class="text-slate-400 italic">Chưa làm bài</span>'}
                     </div>
                 </div>
-                <div class="flex items-center gap-2 flex-shrink-0">
-                    <button type="button" onclick="loadSavedExam('${quiz.id}', true)" class="px-3.5 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                        <i data-lucide="play" class="w-3.5 h-3.5"></i> Làm Lại Đề Này
+                <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                    <button type="button" onclick="loadMyQuiz('${q.code}')" class="px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition flex items-center gap-1">
+                        <i data-lucide="play" class="w-3.5 h-3.5"></i> Mở Đề
                     </button>
-                    <button type="button" onclick="loadSavedExam('${quiz.id}', false)" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition" title="Nạp vào cài đặt để tùy chỉnh số câu & thời gian">
-                        Cài đặt
+                    <button type="button" onclick="openShareModal('${q.code}', '${escapeHtml(q.title)}', ${q.is_public})" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-semibold transition" title="Xem mã & link chia sẻ">
+                        <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
                     </button>
-                    <button type="button" onclick="deleteSavedExam('${quiz.id}', event)" class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition" title="Xóa đề này khỏi danh sách">
+                    <button type="button" onclick="deleteMyQuiz('${q.code}')" class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition" title="Xóa đề này khỏi server">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -784,11 +1271,38 @@
         lucide.createIcons();
     }
 
-    // On Load
-    document.addEventListener('DOMContentLoaded', () => {
-        lucide.createIcons();
-        renderSavedExamsList();
-    });
+    async function loadMyQuiz(code) {
+        closeMyQuizzesModal();
+        await handleLoadQuizByCode(code);
+    }
+
+    async function deleteMyQuiz(code) {
+        if (!confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn đề thi "${code}" khỏi Server?`)) return;
+
+        try {
+            const resp = await fetch(DELETE_QUIZ_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN
+                },
+                body: JSON.stringify({ code: code })
+            });
+
+            const data = await resp.json();
+            if (data.success) {
+                alert('Đã xóa đề thi thành công.');
+                openMyQuizzesModal();
+            } else {
+                alert(data.error || 'Không thể xóa đề thi.');
+            }
+        } catch (e) {
+            alert('Lỗi: ' + e.message);
+        }
+    }
+
+
 
     function switchInputTab(tab) {
         if (tab === 'file') {
@@ -851,6 +1365,7 @@
                     badge.classList.remove('hidden');
                 }
                 setParseLoading(false);
+                saveQuizToServer();
                 startExamSession();
             } else {
                 throw new Error(data.error || 'Không tải được đề mẫu');
@@ -908,12 +1423,14 @@
                 badge.classList.remove('hidden');
             }
             setParseLoading(false);
+            saveQuizToServer();
             startExamSession();
 
         } catch (err) {
             setParseLoading(false);
             alert('Lỗi: ' + err.message);
         }
+
     }
 
     function setParseLoading(isLoading, text = '') {
@@ -1027,6 +1544,12 @@
         document.getElementById('examPanel').classList.remove('hidden');
 
         document.getElementById('activeExamTitle').innerText = currentExamTitle;
+
+        // Update Quiz Code in sticky header
+        const headerCode = document.getElementById('activeQuizCodeBadge');
+        if (headerCode) {
+            headerCode.innerText = currentQuizCode || 'ZT-...';
+        }
 
         // Update mode badge & buttons in header
         const modeBadge = document.getElementById('activeModeBadge');

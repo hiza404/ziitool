@@ -30,6 +30,11 @@ Route::post('/tool/tai-video-tiktok/parse', [ToolController::class, 'parseVideo'
 Route::get('/tool/video/download', [ToolController::class, 'downloadVideo'])->name('tool.video.download');
 Route::post('/tool/trac-nghiem/parse', [ToolController::class, 'parseQuiz'])->name('tool.quiz.parse');
 Route::get('/tool/trac-nghiem/sample', [ToolController::class, 'sampleQuiz'])->name('tool.quiz.sample');
+Route::post('/tool/trac-nghiem/save', [ToolController::class, 'saveQuiz'])->name('tool.quiz.save');
+Route::get('/tool/trac-nghiem/load/{code}', [ToolController::class, 'loadQuizByCode'])->name('tool.quiz.load');
+Route::post('/tool/trac-nghiem/visibility', [ToolController::class, 'toggleQuizVisibility'])->name('tool.quiz.visibility');
+Route::get('/tool/trac-nghiem/my-quizzes', [ToolController::class, 'myQuizzes'])->name('tool.quiz.my_quizzes');
+Route::post('/tool/trac-nghiem/delete', [ToolController::class, 'deleteQuiz'])->name('tool.quiz.delete');
 
 // Chuyển đổi ngôn ngữ Tiếng Việt & Tiếng Anh
 Route::get('/lang/{locale}', function (Request $request, string $locale) {

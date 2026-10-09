@@ -384,4 +384,132 @@ class MicroToolsPlatformTest extends TestCase
         $this->assertStringNotContainsString('gmail.com', $allText);
         $this->assertStringNotContainsString('Trang 1', $allText);
     }
+
+    /**
+     * Test saving public quiz generates unique code and shareable URL.
+     */
+    public function test_save_public_quiz_generates_code_and_share_url(): void
+    {
+        $payload = [
+            'title' => 'Đề Thi Thử Địa Lý',
+            'is_public' => true,
+            'questions' => [
+                [
+                    'id' => 1,
+                    'question' => 'Thủ đô của Pháp là gì?',
+                    'options' => ['A' => 'Paris', 'B' => 'London', 'C' => 'Berlin', 'D' => 'Rome'],
+                    'correct' => 'A',
+                ],
+            ],
+        ];
+
+        $response = $this->postJson('/tool/trac-nghiem/save', $payload);
+        $response->assertStatus(200);
+        $data = $response->json();
+
+        $this->assertTrue($data['success']);
+        $this->assertStringStartsWith('ZT-', $data['code']);
+        $this->assertTrue($data['is_public']);
+        $this->assertStringContainsString($data['code'], $data['share_url']);
+
+        // Load quiz by code as guest
+        $loadResp = $this->getJson('/tool/trac-nghiem/load/'.$data['code']);
+        $loadResp->assertStatus(200);
+        $loadData = $loadResp->json();
+        $this->assertEquals('Đề Thi Thử Địa Lý', $loadData['title']);
+        $this->assertCount(1, $loadData['questions']);
+    }
+
+    /**
+     * Test saving private quiz requires authentication and enforces access control.
+     */
+    public function test_private_quiz_requires_auth_and_enforces_permissions(): void
+    {
+        $payload = [
+            'title' => 'Đề Thi Riêng Tư Khách Sạn',
+            'is_public' => false,
+            'questions' => [
+                [
+                    'id' => 1,
+                    'question' => 'Câu hỏi bí mật?',
+                    'options' => ['A' => 'Đúng', 'B' => 'Sai'],
+                    'correct' => 'A',
+                ],
+            ],
+        ];
+
+        // Guest cannot save private quiz
+        $guestSave = $this->postJson('/tool/trac-nghiem/save', $payload);
+        $guestSave->assertStatus(401);
+        $guestSave->assertJson(['require_login' => true]);
+
+        // Create user and save private quiz
+        $user = User::factory()->create();
+        $userSave = $this->actingAs($user)->postJson('/tool/trac-nghiem/save', $payload);
+        $userSave->assertStatus(200);
+        $code = $userSave->json('code');
+        $this->assertNotEmpty($code);
+
+        // Guest cannot load private quiz
+        $this->app['auth']->logout();
+        $guestLoad = $this->getJson('/tool/trac-nghiem/load/'.$code);
+        $guestLoad->assertStatus(403);
+        $guestLoad->assertJson(['require_login' => true]);
+
+        // Another user cannot load private quiz
+        $otherUser = User::factory()->create();
+        $otherLoad = $this->actingAs($otherUser)->getJson('/tool/trac-nghiem/load/'.$code);
+        $otherLoad->assertStatus(403);
+
+        // Owner can load private quiz
+        $ownerLoad = $this->actingAs($user)->getJson('/tool/trac-nghiem/load/'.$code);
+        $ownerLoad->assertStatus(200);
+        $ownerData = $ownerLoad->json();
+        $this->assertTrue($ownerData['is_owner']);
+        $this->assertFalse($ownerData['is_public']);
+
+        // Owner can toggle visibility to public
+        $toggleResp = $this->actingAs($user)->postJson('/tool/trac-nghiem/visibility', [
+            'code' => $code,
+            'is_public' => true,
+        ]);
+        $toggleResp->assertStatus(200);
+        $this->assertTrue($toggleResp->json('is_public'));
+
+        // Now guest can load it
+        $this->app['auth']->logout();
+        $guestLoadAfter = $this->getJson('/tool/trac-nghiem/load/'.$code);
+        $guestLoadAfter->assertStatus(200);
+    }
+
+    /**
+     * Test authenticated user can list their quizzes and delete them.
+     */
+    public function test_user_my_quizzes_and_deletion(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->postJson('/tool/trac-nghiem/save', [
+            'title' => 'Đề Toán Học Đại Số',
+            'is_public' => true,
+            'questions' => [
+                ['id' => 1, 'question' => '1 + 1 = ?', 'options' => ['A' => '2', 'B' => '3'], 'correct' => 'A'],
+            ],
+        ]);
+
+        $listResp = $this->actingAs($user)->getJson('/tool/trac-nghiem/my-quizzes');
+        $listResp->assertStatus(200);
+        $quizzes = $listResp->json('quizzes');
+        $this->assertCount(1, $quizzes);
+        $code = $quizzes[0]['code'];
+
+        // Delete quiz
+        $delResp = $this->actingAs($user)->postJson('/tool/trac-nghiem/delete', ['code' => $code]);
+        $delResp->assertStatus(200);
+        $this->assertTrue($delResp->json('success'));
+
+        // Verify quiz is deleted
+        $afterList = $this->actingAs($user)->getJson('/tool/trac-nghiem/my-quizzes');
+        $this->assertCount(0, $afterList->json('quizzes'));
+    }
 }
