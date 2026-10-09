@@ -541,4 +541,79 @@ class MicroToolsPlatformTest extends TestCase
         $afterList = $this->actingAs($user)->getJson('/tool/trac-nghiem/my-quizzes');
         $this->assertCount(0, $afterList->json('quizzes'));
     }
+
+    /**
+     * Test unowned quiz created by guest can be claimed and toggled by user upon logging in.
+     */
+    public function test_unowned_quiz_created_by_guest_can_be_claimed_and_toggled_by_logged_in_user(): void
+    {
+        // 1. Guest creates a public quiz
+        $guestSave = $this->postJson('/tool/trac-nghiem/save', [
+            'title' => 'Đề Thi Lịch Sử Đảng',
+            'is_public' => true,
+            'questions' => [
+                ['id' => 1, 'question' => 'Đảng ra đời năm nào?', 'options' => ['A' => '1930', 'B' => '1945'], 'correct' => 'A'],
+            ],
+        ]);
+        $guestSave->assertStatus(200);
+        $code = $guestSave->json('code');
+
+        // 2. User registers/logs in and sets this unowned quiz to private
+        $user = User::factory()->create();
+        $toggleResp = $this->actingAs($user)->postJson('/tool/trac-nghiem/visibility', [
+            'code' => $code,
+            'is_public' => false,
+        ]);
+        $toggleResp->assertStatus(200);
+        $this->assertFalse($toggleResp->json('is_public'));
+
+        // 3. Verify it is now claimed by this user and shows up in my-quizzes
+        $listResp = $this->actingAs($user)->getJson('/tool/trac-nghiem/my-quizzes');
+        $listResp->assertStatus(200);
+        $quizzes = $listResp->json('quizzes');
+        $this->assertCount(1, $quizzes);
+        $this->assertSame($code, $quizzes[0]['code']);
+        $this->assertFalse($quizzes[0]['is_public']);
+    }
+
+    /**
+     * Test toggling visibility on someone else's quiz creates a personal cloned copy without error.
+     */
+    public function test_toggling_visibility_on_other_users_quiz_creates_cloned_copy(): void
+    {
+        $userA = User::factory()->create();
+        $userB = User::factory()->create();
+
+        // User A creates a public quiz
+        $saveA = $this->actingAs($userA)->postJson('/tool/trac-nghiem/save', [
+            'title' => 'Đề Của User A',
+            'is_public' => true,
+            'questions' => [
+                ['id' => 1, 'question' => 'Câu hỏi của A', 'options' => ['A' => '1', 'B' => '2'], 'correct' => 'A'],
+            ],
+        ]);
+        $saveA->assertStatus(200);
+        $codeA = $saveA->json('code');
+
+        // User B tries to set User A's quiz to private
+        $toggleB = $this->actingAs($userB)->postJson('/tool/trac-nghiem/visibility', [
+            'code' => $codeA,
+            'is_public' => false,
+        ]);
+        $toggleB->assertStatus(200);
+        $this->assertTrue($toggleB->json('cloned'));
+        $codeB = $toggleB->json('code');
+        $this->assertNotSame($codeA, $codeB);
+
+        // Verify User A's quiz remains public and owned by A
+        $loadA = $this->actingAs($userA)->getJson('/tool/trac-nghiem/load/'.$codeA);
+        $loadA->assertStatus(200);
+        $this->assertTrue($loadA->json('is_public'));
+
+        // Verify User B's new quiz is private and owned by B
+        $loadB = $this->actingAs($userB)->getJson('/tool/trac-nghiem/load/'.$codeB);
+        $loadB->assertStatus(200);
+        $this->assertFalse($loadB->json('is_public'));
+        $this->assertTrue($loadB->json('is_owner'));
+    }
 }

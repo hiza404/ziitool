@@ -161,6 +161,8 @@ class ToolController extends Controller
             $quizCode = trim((string) request()->query('code'));
             $foundQuiz = Quiz::where('code', $quizCode)->first();
             if ($foundQuiz) {
+                $this->claimSessionQuizzes($foundQuiz);
+
                 if ($foundQuiz->is_public || (Auth::check() && Auth::id() === $foundQuiz->user_id)) {
                     $foundQuiz->increment('attempts_count');
                     $initialQuiz = [
@@ -758,6 +760,31 @@ class ToolController extends Controller
     }
 
     /**
+     * Claim unowned quizzes created in this session or unowned target quiz for the authenticated user.
+     */
+    private function claimSessionQuizzes(?Quiz $quiz = null): void
+    {
+        if (! Auth::check()) {
+            return;
+        }
+
+        $userId = Auth::id();
+
+        if ($quiz && $quiz->user_id === null) {
+            $quiz->user_id = $userId;
+            $quiz->save();
+        }
+
+        $sessionCodes = session()->get('my_quiz_codes', []);
+        if (! empty($sessionCodes)) {
+            Quiz::whereIn('code', $sessionCodes)
+                ->whereNull('user_id')
+                ->update(['user_id' => $userId]);
+            session()->forget('my_quiz_codes');
+        }
+    }
+
+    /**
      * Save quiz to database with shareable code and public/private visibility.
      */
     public function saveQuiz(Request $request): JsonResponse
@@ -780,13 +807,22 @@ class ToolController extends Controller
             ], 401);
         }
 
-        $code = $request->input('code');
+        $this->claimSessionQuizzes();
+
+        $code = $request->input('code') ? trim(strtoupper($request->input('code'))) : null;
         $quiz = null;
 
         if ($code) {
             $quiz = Quiz::where('code', $code)->first();
-            if ($quiz && $quiz->user_id && (! Auth::check() || Auth::id() !== $quiz->user_id)) {
-                $quiz = null;
+            if ($quiz) {
+                // If quiz is unowned and user is logged in: claim it!
+                if ($quiz->user_id === null && Auth::check()) {
+                    $quiz->user_id = Auth::id();
+                } elseif ($quiz->user_id !== null && (! Auth::check() || Auth::id() !== $quiz->user_id)) {
+                    // Quiz belongs to another user: DO NOT overwrite someone else's quiz.
+                    // Instead, fork / clone as a new quiz for the current user!
+                    $quiz = null;
+                }
             }
         }
 
@@ -796,18 +832,27 @@ class ToolController extends Controller
             $quiz->code = $code;
         }
 
-        $quiz->user_id = $user?->id;
+        if ($user) {
+            $quiz->user_id = $user->id;
+        }
+
         $quiz->title = $request->input('title');
         $quiz->is_public = $isPublic;
         $quiz->total_questions = count($request->input('questions'));
         $quiz->questions = $request->input('questions');
         $quiz->save();
 
+        // Track session codes so if guest later logs in, they are claimed automatically
+        $sessionCodes = session()->get('my_quiz_codes', []);
+        $sessionCodes[] = $quiz->code;
+        session()->put('my_quiz_codes', array_unique($sessionCodes));
+
         $shareUrl = route('tool.show', ['slug' => 'tao-de-trac-nghiem-tu-file']).'?code='.$quiz->code;
 
         return response()->json([
             'success' => true,
             'code' => $quiz->code,
+            'title' => $quiz->title,
             'is_public' => $quiz->is_public,
             'is_owner' => Auth::check() && Auth::id() === $quiz->user_id,
             'share_url' => $shareUrl,
@@ -831,6 +876,9 @@ class ToolController extends Controller
                 'error' => __('Không tìm thấy đề thi với mã: :code', ['code' => $code]),
             ], 404);
         }
+
+        // If unowned and user is logged in, claim ownership!
+        $this->claimSessionQuizzes($quiz);
 
         if (! $quiz->is_public) {
             if (! Auth::check()) {
@@ -880,13 +928,39 @@ class ToolController extends Controller
             ], 401);
         }
 
-        $quiz = Quiz::where('code', $request->input('code'))->first();
+        $code = trim(strtoupper($request->input('code')));
+        $quiz = Quiz::where('code', $code)->first();
         if (! $quiz) {
             return response()->json(['success' => false, 'error' => __('Không tìm thấy đề thi.')], 404);
         }
 
+        // If the quiz is unowned (e.g. created as guest or sample), claim it for the current logged-in user!
+        if ($quiz->user_id === null) {
+            $quiz->user_id = Auth::id();
+            $quiz->save();
+        }
+
+        // If the quiz belongs to another user, auto-clone as a personal copy with requested visibility
         if ($quiz->user_id !== Auth::id()) {
-            return response()->json(['success' => false, 'error' => __('Bạn không phải chủ sở hữu đề thi này.')], 403);
+            $clonedQuiz = new Quiz;
+            $clonedQuiz->code = Quiz::generateCode();
+            $clonedQuiz->user_id = Auth::id();
+            $clonedQuiz->title = $quiz->title;
+            $clonedQuiz->description = $quiz->description;
+            $clonedQuiz->is_public = $request->boolean('is_public');
+            $clonedQuiz->total_questions = $quiz->total_questions;
+            $clonedQuiz->questions = $quiz->questions;
+            $clonedQuiz->save();
+
+            return response()->json([
+                'success' => true,
+                'cloned' => true,
+                'code' => $clonedQuiz->code,
+                'is_owner' => true,
+                'is_public' => $clonedQuiz->is_public,
+                'share_url' => route('tool.show', ['slug' => 'tao-de-trac-nghiem-tu-file']).'?code='.$clonedQuiz->code,
+                'message' => __('Đề thi gốc thuộc về người khác. Hệ thống đã lưu một bản sao mới (Mã: :code) vào tài khoản của bạn!', ['code' => $clonedQuiz->code]),
+            ]);
         }
 
         $quiz->is_public = $request->boolean('is_public');
@@ -894,7 +968,10 @@ class ToolController extends Controller
 
         return response()->json([
             'success' => true,
+            'code' => $quiz->code,
+            'is_owner' => true,
             'is_public' => $quiz->is_public,
+            'share_url' => route('tool.show', ['slug' => 'tao-de-trac-nghiem-tu-file']).'?code='.$quiz->code,
             'message' => $quiz->is_public ? __('Đã chuyển sang chế độ Công Khai (Public).') : __('Đã chuyển sang chế độ Riêng Tư (Private).'),
         ]);
     }
@@ -908,9 +985,11 @@ class ToolController extends Controller
             return response()->json(['success' => true, 'quizzes' => []]);
         }
 
+        $this->claimSessionQuizzes();
+
         $quizzes = Quiz::where('user_id', Auth::id())
             ->orderByDesc('id')
-            ->limit(30)
+            ->limit(50)
             ->get(['id', 'code', 'title', 'is_public', 'total_questions', 'attempts_count', 'created_at']);
 
         return response()->json([
@@ -945,9 +1024,23 @@ class ToolController extends Controller
             ], 401);
         }
 
-        $quiz = Quiz::where('code', $request->input('code'))->first();
+        $code = trim(strtoupper($request->input('code')));
+        $quiz = Quiz::where('code', $code)->first();
         if (! $quiz) {
-            return response()->json(['success' => false, 'error' => __('Không tìm thấy đề thi.')], 404);
+            return response()->json([
+                'success' => true,
+                'message' => __('Đã xóa đề thi thành công.'),
+            ]);
+        }
+
+        // If quiz is unowned, allow logged-in user who has the code to delete it
+        if ($quiz->user_id === null) {
+            $quiz->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Đã xóa đề thi thành công.'),
+            ]);
         }
 
         if ($quiz->user_id !== Auth::id()) {

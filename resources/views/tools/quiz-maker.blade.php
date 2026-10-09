@@ -372,16 +372,22 @@
                         </p>
                     </div>
 
-                    <!-- Nút Bắt đầu làm bài & Lấy link chia sẻ -->
+                    <!-- Nút Bắt đầu làm bài, Lấy link chia sẻ & Lưu lên Server -->
                     <div class="pt-3 space-y-2">
                         <button type="button" id="startExamBtn" onclick="handleStartExam()" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-violet-500/25 transition flex items-center justify-center gap-2">
                             <i data-lucide="play-circle" class="w-5 h-5"></i>
                             <span id="startExamBtnText">{{ __('Bắt Đầu Làm Bài Thi') }}</span>
                         </button>
-                        <button type="button" id="shareQuizSetupBtn" onclick="openShareModal()" class="w-full py-2.5 px-4 rounded-xl border border-violet-200 dark:border-violet-800 hover:bg-violet-50 dark:hover:bg-violet-950/40 text-violet-700 dark:text-violet-300 font-semibold text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
-                            <i data-lucide="share-2" class="w-4 h-4"></i>
-                            <span>{{ __('Lấy Mã Đề & Link Chia Sẻ') }}</span>
-                        </button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" id="shareQuizSetupBtn" onclick="openShareModal()" class="py-2.5 px-3 rounded-xl border border-violet-200 dark:border-violet-800 hover:bg-violet-50 dark:hover:bg-violet-950/40 text-violet-700 dark:text-violet-300 font-semibold text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+                                <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                                <span>{{ __('Mã Đề & Link') }}</span>
+                            </button>
+                            <button type="button" id="manualSaveServerBtn" onclick="manualSaveCurrentQuizToServer()" class="py-2.5 px-3 rounded-xl bg-violet-50 dark:bg-violet-950/40 hover:bg-violet-100 dark:hover:bg-violet-900/50 border border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-300 font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+                                <i data-lucide="cloud-upload" class="w-3.5 h-3.5 text-violet-600"></i>
+                                <span id="manualSaveServerBtnText">{{ __('Lưu Lên Server') }}</span>
+                            </button>
+                        </div>
                     </div>
 
 
@@ -727,16 +733,22 @@
             </div>
         </div>
 
-        <!-- Khu vực chuyển đổi quyền riêng tư -->
-        <div id="shareModalOwnerActions" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between gap-3">
-            <div class="space-y-0.5">
-                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ __('Quyền riêng tư đề thi') }}</span>
-                <p id="shareModalVisDesc" class="text-[11px] text-slate-500">{{ __('Đang ở chế độ Công Khai (Bất kỳ ai có mã đều xem được).') }}</p>
+        <!-- Khu vực chuyển đổi quyền riêng tư / Lưu bản sao -->
+        <div id="shareModalOwnerActions" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="space-y-0.5 min-w-0 flex-1">
+                <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block" id="shareModalOwnerTitle">{{ __('Quyền riêng tư đề thi') }}</span>
+                <p id="shareModalVisDesc" class="text-[11px] text-slate-500 leading-tight">{{ __('Đang ở chế độ Công Khai (Bất kỳ ai có mã đều xem được).') }}</p>
             </div>
-            <button type="button" onclick="toggleCurrentQuizVisibility()" id="btnToggleVisInModal" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1.5 flex-shrink-0">
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                <span id="btnToggleVisText">{{ __('Đổi sang Riêng Tư') }}</span>
-            </button>
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <button type="button" onclick="toggleCurrentQuizVisibility()" id="btnToggleVisInModal" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1.5 flex-shrink-0 shadow-sm">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span id="btnToggleVisText">{{ __('Đổi sang Riêng Tư') }}</span>
+                </button>
+                <button type="button" onclick="saveQuizCopyToServer()" id="btnCloneQuizInModal" class="hidden px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition flex items-center gap-1.5 flex-shrink-0 shadow-sm">
+                    <i data-lucide="bookmark-plus" class="w-3.5 h-3.5"></i>
+                    <span>{{ __('Lưu Bản Sao Vào Server') }}</span>
+                </button>
+            </div>
         </div>
 
         <div class="flex justify-end pt-2">
@@ -903,6 +915,12 @@
         sampleExamLoading: @json(__('Đang nạp đề mẫu 40 câu Tư tưởng Hồ Chí Minh...')),
         sampleExamError: @json(__('Lỗi nạp đề mẫu: ')),
         quizzesSuffix: @json(__('đề')),
+        saveServerSuccess: @json(__('Đã lưu đề thi thành công vào Bộ Đề Của Tôi trên máy chủ (Mã: :code)!')),
+        saveServerBtnText: @json(__('Lưu Lên Server')),
+        savingText: @json(__('Đang lưu...')),
+        pleaseUploadBeforeSave: @json(__('Vui lòng chọn hoặc tải đề thi trước khi lưu lên Server.')),
+        confirmLoginToSaveServer: @json(__('Đăng nhập tài khoản để lưu đề thi vĩnh viễn trên Server và đồng bộ trên mọi thiết bị. Bạn có muốn đăng nhập ngay?')),
+        quizSavedToAccountSuccess: @json(__('Đã lưu bản sao đề thi vào tài khoản của bạn thành công!')),
     };
 
     // State management
@@ -1159,7 +1177,12 @@
     }
 
     // Share modal handlers
-    async function openShareModal(specificCode = null, specificTitle = null, specificPublic = null) {
+    async function openShareModal(specificCode = null, specificTitle = null, specificPublic = null, specificIsOwner = null) {
+        if (specificCode) currentQuizCode = specificCode;
+        if (specificTitle) currentExamTitle = specificTitle;
+        if (specificPublic !== null) currentQuizIsPublic = specificPublic;
+        if (specificIsOwner !== null) currentQuizIsOwner = specificIsOwner;
+
         let code = specificCode || currentQuizCode;
         let title = specificTitle || currentExamTitle;
         let isPublic = (specificPublic !== null) ? specificPublic : currentQuizIsPublic;
@@ -1169,6 +1192,7 @@
             if (saved && saved.code) {
                 code = saved.code;
                 isPublic = saved.is_public;
+                currentQuizIsOwner = saved.is_owner;
             }
         }
 
@@ -1184,7 +1208,10 @@
         const visBadge = document.getElementById('shareModalVisibilityBadge');
         const visDesc = document.getElementById('shareModalVisDesc');
         const btnToggleVis = document.getElementById('btnToggleVisText');
+        const btnToggleVisBtn = document.getElementById('btnToggleVisInModal');
+        const btnCloneBtn = document.getElementById('btnCloneQuizInModal');
         const ownerActions = document.getElementById('shareModalOwnerActions');
+        const ownerTitle = document.getElementById('shareModalOwnerTitle');
 
         if (codeDisplay) codeDisplay.innerText = code;
         if (titleDisplay) titleDisplay.innerText = title || I18N.defaultExamTitle;
@@ -1209,6 +1236,16 @@
 
         if (ownerActions) {
             ownerActions.classList.toggle('hidden', !IS_LOGGED_IN);
+            if (currentQuizIsOwner) {
+                if (ownerTitle) ownerTitle.innerText = @json(__('Quyền riêng tư đề thi'));
+                if (btnToggleVisBtn) btnToggleVisBtn.classList.remove('hidden');
+                if (btnCloneBtn) btnCloneBtn.classList.add('hidden');
+            } else {
+                if (ownerTitle) ownerTitle.innerText = @json(__('Lưu bản sao về tài khoản'));
+                if (visDesc) visDesc.innerText = @json(__('Bạn đang xem đề thi của người khác. Bạn có thể lưu một bản sao riêng vào Bộ Đề Của Tôi để toàn quyền quản lý.'));
+                if (btnToggleVisBtn) btnToggleVisBtn.classList.add('hidden');
+                if (btnCloneBtn) btnCloneBtn.classList.remove('hidden');
+            }
         }
 
         if (modal) {
@@ -1272,11 +1309,134 @@
             const data = await resp.json();
             if (data.success) {
                 currentQuizIsPublic = data.is_public;
+                if (data.cloned && data.code) {
+                    currentQuizCode = data.code;
+                    currentQuizIsOwner = true;
+                    updateQuizCodeUI(currentQuizCode);
+                    saveExamToHistory(currentExamTitle, rawQuestions, currentQuizCode);
+                }
                 setQuizVisibility(currentQuizIsPublic);
-                openShareModal(currentQuizCode, currentExamTitle, currentQuizIsPublic);
+                openShareModal(currentQuizCode, currentExamTitle, currentQuizIsPublic, true);
                 alert(data.message);
             } else {
                 alert(data.error || I18N.cannotChangeVis);
+            }
+        } catch (e) {
+            alert(I18N.errorPrefix + e.message);
+        }
+    }
+
+    // Save a separate copy of a shared quiz to current user's account
+    async function saveQuizCopyToServer() {
+        if (!rawQuestions || rawQuestions.length === 0) return;
+        if (!IS_LOGGED_IN) {
+            window.location.href = LOGIN_URL;
+            return;
+        }
+
+        try {
+            const resp = await fetch(SAVE_QUIZ_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN
+                },
+                body: JSON.stringify({
+                    title: currentExamTitle || 'Bài Thi Trắc Nghiệm',
+                    questions: rawQuestions,
+                    is_public: true,
+                    code: null // Forces creation of personal copy
+                })
+            });
+
+            const data = await resp.json();
+            if (data.success && data.code) {
+                currentQuizCode = data.code;
+                currentQuizIsOwner = true;
+                currentQuizIsPublic = data.is_public;
+                updateQuizCodeUI(currentQuizCode);
+                saveExamToHistory(currentExamTitle, rawQuestions, currentQuizCode);
+                openShareModal(currentQuizCode, currentExamTitle, currentQuizIsPublic, true);
+                alert(I18N.quizSavedToAccountSuccess);
+            } else {
+                alert(data.error || 'Không thể lưu bản sao.');
+            }
+        } catch (e) {
+            alert(I18N.errorPrefix + e.message);
+        }
+    }
+
+    // Explicit manual save of currently active exam to server
+    async function manualSaveCurrentQuizToServer() {
+        if (!rawQuestions || rawQuestions.length === 0) {
+            alert(I18N.pleaseUploadBeforeSave);
+            return;
+        }
+
+        if (!IS_LOGGED_IN) {
+            if (confirm(I18N.confirmLoginToSaveServer)) {
+                window.location.href = LOGIN_URL;
+                return;
+            }
+        }
+
+        const btnText = document.getElementById('manualSaveServerBtnText');
+        const origText = btnText ? btnText.innerText : '';
+        if (btnText) btnText.innerText = I18N.savingText;
+
+        try {
+            const saved = await saveQuizToServer();
+            if (saved && saved.code) {
+                alert(I18N.saveServerSuccess.replace(':code', saved.code));
+            }
+        } finally {
+            if (btnText) btnText.innerText = origText;
+        }
+    }
+
+    // Save an item from LocalStorage saved list directly to server
+    async function saveSavedExamToServer(id) {
+        const list = getSavedExams();
+        const quiz = list.find(item => item.id === id);
+        if (!quiz || !quiz.questions || quiz.questions.length === 0) return;
+
+        if (!IS_LOGGED_IN) {
+            if (confirm(I18N.confirmLoginToSaveServer)) {
+                window.location.href = LOGIN_URL;
+                return;
+            }
+        }
+
+        try {
+            const resp = await fetch(SAVE_QUIZ_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN
+                },
+                body: JSON.stringify({
+                    title: quiz.title,
+                    questions: quiz.questions,
+                    is_public: true,
+                    code: quiz.code || null
+                })
+            });
+
+            const data = await resp.json();
+            if (data.success && data.code) {
+                quiz.code = data.code;
+                localStorage.setItem('ziitool_saved_quizzes', JSON.stringify(list));
+                if (currentActiveQuizId === id) {
+                    currentQuizCode = data.code;
+                    currentQuizIsOwner = data.is_owner;
+                    updateQuizCodeUI(data.code);
+                }
+                renderSavedExamsList();
+                alert(I18N.saveServerSuccess.replace(':code', data.code));
+            } else {
+                alert(data.error || 'Không thể lưu đề thi lên server.');
             }
         } catch (e) {
             alert(I18N.errorPrefix + e.message);
@@ -1369,7 +1529,7 @@
                     <button type="button" onclick="loadMyQuiz('${q.code}')" class="px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition flex items-center gap-1">
                         <i data-lucide="play" class="w-3.5 h-3.5"></i> ${I18N.openQuiz}
                     </button>
-                    <button type="button" onclick="openShareModal('${q.code}', '${escapeHtml(q.title)}', ${q.is_public})" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-semibold transition" title="${I18N.viewShareCodeLink}">
+                    <button type="button" onclick="openShareModal('${q.code}', '${escapeHtml(q.title)}', ${q.is_public}, true)" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-semibold transition" title="${I18N.viewShareCodeLink}">
                         <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
                     </button>
                     <button type="button" onclick="deleteMyQuiz('${q.code}')" class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition" title="${I18N.deleteQuizFromServer}">
@@ -1385,6 +1545,7 @@
 
     async function loadMyQuiz(code) {
         closeMyQuizzesModal();
+        currentQuizIsOwner = true;
         await handleLoadQuizByCode(code);
     }
 
@@ -1404,6 +1565,18 @@
 
             const data = await resp.json();
             if (data.success) {
+                try {
+                    let saved = getSavedExams();
+                    saved = saved.filter(item => item.code !== code);
+                    localStorage.setItem('ziitool_saved_quizzes', JSON.stringify(saved));
+                    renderSavedExamsList();
+                } catch (ignore) {}
+
+                if (currentQuizCode === code) {
+                    currentQuizCode = null;
+                    updateQuizCodeUI('');
+                }
+
                 alert(I18N.quizDeletedSuccess);
                 openMyQuizzesModal();
             } else {
@@ -1483,17 +1656,33 @@
         }
     }
 
-    function deleteSavedExam(id, e) {
+    async function deleteSavedExam(id, e) {
         if (e) e.stopPropagation();
         if (!confirm(I18N.confirmDeleteSavedExam)) return;
         try {
             let saved = getSavedExams();
+            const item = saved.find(q => q.id === id);
             saved = saved.filter(item => item.id !== id);
             localStorage.setItem('ziitool_saved_quizzes', JSON.stringify(saved));
             if (currentActiveQuizId === id) {
                 currentActiveQuizId = null;
             }
             renderSavedExamsList();
+
+            // If item had a server code and user is logged in, optionally also delete on server
+            if (item && item.code && IS_LOGGED_IN) {
+                try {
+                    await fetch(DELETE_QUIZ_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': CSRF_TOKEN
+                        },
+                        body: JSON.stringify({ code: item.code })
+                    });
+                } catch (ignore) {}
+            }
         } catch (e) {
             console.warn(e);
         }
@@ -1519,6 +1708,7 @@
         currentExamTitle = quiz.title;
         currentActiveQuizId = quiz.id;
         currentQuizCode = quiz.code || null;
+        currentQuizIsOwner = IS_LOGGED_IN;
         selectedUploadFile = null;
         hasNewUnparsedInput = false;
         const fileInput = document.getElementById('fileInput');
@@ -1600,8 +1790,11 @@
                     <button type="button" onclick="loadSavedExam('${quiz.id}', true)" class="px-3.5 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                         <i data-lucide="play" class="w-3.5 h-3.5"></i> ${I18N.retakeThisExam}
                     </button>
+                    <button type="button" onclick="saveSavedExamToServer('${quiz.id}')" class="p-1.5 rounded-xl bg-violet-50 dark:bg-violet-950/40 hover:bg-violet-100 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 transition" title="${I18N.saveServerBtnText}">
+                        <i data-lucide="cloud-upload" class="w-4 h-4"></i>
+                    </button>
                     ${quiz.code ? `
-                        <button type="button" onclick="openShareModal('${quiz.code}', '${escapeHtml(quiz.title)}', true)" class="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 transition" title="${I18N.viewShareCodeLink}">
+                        <button type="button" onclick="openShareModal('${quiz.code}', '${escapeHtml(quiz.title)}', true, true)" class="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 transition" title="${I18N.viewShareCodeLink}">
                             <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
                         </button>
                     ` : ''}
