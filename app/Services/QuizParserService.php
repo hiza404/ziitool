@@ -65,9 +65,10 @@ class QuizParserService
         if ($canUseAi) {
             $candidateModels = array_values(array_unique([
                 $primaryModel,
+                'gemini-flash-latest',
                 'gemini-3.8-flash',
-                'gemini-2.0-flash',
-                'gemini-1.5-flash',
+                'gemini-3.7-flash',
+                'gemini-3.5-flash',
             ]));
 
             foreach ($candidateModels as $currentModel) {
@@ -535,6 +536,22 @@ PROMPT;
         $path = $file->getRealPath();
 
         if ($ext === 'pdf') {
+            // Ensure Smalot\PdfParser classes can be loaded even if composer autoloader hasn't dumped
+            if (! class_exists(Parser::class)) {
+                $smalotBase = base_path('vendor/smalot/pdfparser/src/Smalot/PdfParser');
+                if (is_dir($smalotBase)) {
+                    spl_autoload_register(function ($class) {
+                        $prefix = 'Smalot\\PdfParser\\';
+                        if (str_starts_with($class, $prefix)) {
+                            $file = base_path('vendor/smalot/pdfparser/src/'.str_replace('\\', '/', $class).'.php');
+                            if (file_exists($file)) {
+                                require_once $file;
+                            }
+                        }
+                    });
+                }
+            }
+
             // 1. Try Smalot\PdfParser (Pure PHP, works everywhere including cPanel, super fast 0.5s)
             try {
                 if (class_exists(Parser::class)) {
