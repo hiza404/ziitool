@@ -391,7 +391,7 @@
                             <i data-lucide="loader-2" class="w-7 h-7"></i>
                         </div>
                         <p id="parseLoadingText" class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ __('Đang đọc tài liệu...') }}</p>
-                        <p class="text-[11px] text-slate-400">{{ __('Quá trình phân tích câu hỏi và đáp án có thể mất từ 5-15 giây.') }}</p>
+                        <p class="text-[11px] text-slate-400">{{ __('Quá trình phân tích câu hỏi và đáp án có thể mất từ 30-60 giây.') }}</p>
                     </div>
 
                 </div>
