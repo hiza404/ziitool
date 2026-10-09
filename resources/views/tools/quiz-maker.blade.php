@@ -111,80 +111,39 @@
 
                 </div>
 
-                <!-- Cấu hình Gemini AI -->
+                <!-- Động cơ AI Gemini tích hợp sẵn trên hệ thống -->
                 <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                                <i data-lucide="bot" class="w-5 h-5"></i>
+                            <div class="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+                                <i data-lucide="sparkles" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">2. Kết Nối AI Gemini Pro & 2.0 Flash (Max Ping)</h2>
-                                <p class="text-xs text-slate-500">Tự động nhận diện màu sắc, in đậm và giải đề nếu chưa có đáp án</p>
+                                <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">2. Động Cơ AI Gemini 2.0 Flash (Tích Hợp Sẵn)</h2>
+                                <p class="text-xs text-slate-500">Tự động nhận diện chữ in đậm, bôi màu, bảng đáp án & suy luận giải đề</p>
                             </div>
                         </div>
-                        <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold">Tối Ưu Siêu Tốc</span>
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold flex items-center gap-1">
+                            <i data-lucide="zap" class="w-3.5 h-3.5"></i> Max Ping Siêu Tốc
+                        </span>
                     </div>
 
-                    @if(!empty($hasSystemGeminiKey))
-                        <!-- Thông báo hệ thống đã có sẵn key -->
-                        <div class="p-4 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-200 font-semibold">
-                                <i data-lucide="zap" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
-                                <span>Hệ thống máy chủ đã kích hoạt sẵn AI Gemini Pro siêu tốc. Bạn chỉ cần tải file và làm bài thi, không cần nhập key!</span>
-                            </div>
-                            <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100 whitespace-nowrap">Max Ping Sẵn Sàng</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Mô hình AI:</label>
+                            <select id="geminiModel" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
+                                <option value="gemini-2.0-flash" selected>Gemini 2.0 Flash (⚡ Max Ping - Phản hồi 1-2s)</option>
+                                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Tối ưu tài liệu lớn)</option>
+                                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Suy luận sâu)</option>
+                            </select>
                         </div>
-                    @endif
-
-                    <div class="space-y-3 pt-1">
-                        <!-- Chi tiết nhập key (Tùy chọn nếu muốn đổi sang key riêng) -->
-                        <details class="group" @if(empty($hasSystemGeminiKey)) open @endif>
-                            <summary class="text-xs font-semibold text-slate-600 dark:text-slate-400 cursor-pointer hover:text-violet-600 flex items-center gap-1.5 list-none select-none">
-                                <i data-lucide="key" class="w-3.5 h-3.5 text-violet-600"></i>
-                                <span>@if(!empty($hasSystemGeminiKey)) Sử dụng Google Gemini API Key riêng của bạn (Tùy chọn) @else Nhập Google Gemini API Key của bạn @endif</span>
-                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 ml-auto transition-transform group-open:rotate-180"></i>
-                            </summary>
-
-                            <div class="pt-3 space-y-2.5">
-                                <div class="flex flex-col sm:flex-row gap-3">
-                                    <div class="relative flex-1">
-                                        <input type="password" id="geminiApiKey" placeholder="Dán Gemini API Key dạng AIzaSy... vào đây..." class="w-full text-xs sm:text-sm pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
-                                        <button type="button" onclick="toggleApiKeyVisibility()" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
-                                            <i id="apiKeyEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
-                                        </button>
-                                    </div>
-                                    <button type="button" onclick="saveApiKey()" class="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold transition flex items-center justify-center gap-1.5 whitespace-nowrap shadow-sm">
-                                        <i data-lucide="save" class="w-3.5 h-3.5"></i> Lưu Key
-                                    </button>
-                                </div>
-
-                                <div class="flex flex-wrap items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 gap-2">
-                                    <span>Key được lưu bảo mật trong trình duyệt của bạn (LocalStorage).</span>
-                                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1 font-medium">
-                                        Lấy Gemini API Key miễn phí tại Google AI Studio <i data-lucide="external-link" class="w-3 h-3"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </details>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Mô hình AI:</label>
-                                <select id="geminiModel" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
-                                    <option value="gemini-2.0-flash" selected>Gemini 2.0 Flash (⚡ Max Ping - Tốc độ cao nhất 2026)</option>
-                                    <option value="gemini-1.5-flash">Gemini 1.5 Flash (Tốc độ siêu nhanh, tài liệu lớn)</option>
-                                    <option value="gemini-1.5-pro">Gemini 1.5 Pro (Thông minh, giải bài phức tạp)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Chế độ xử lý:</label>
-                                <select id="parseMode" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
-                                    <option value="auto">Tự động (Ưu tiên AI, dự phòng bộ bóc tách nhanh)</option>
-                                    <option value="ai">Bắt buộc AI Gemini (Nhận diện màu, bold & suy luận)</option>
-                                    <option value="local">Chỉ dùng bộ lọc nội bộ (Không cần API Key)</option>
-                                </select>
-                            </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Chế độ phân tích:</label>
+                            <select id="parseMode" class="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
+                                <option value="auto" selected>Tự động thông minh (Ưu tiên AI, dự phòng bộ bóc tách)</option>
+                                <option value="ai">Bắt buộc AI (Đọc màu sắc, chữ in đậm & giải đề)</option>
+                                <option value="local">Bộ lọc nội bộ (Xử lý tức thì không tốn token)</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -549,37 +508,8 @@
 
     // On Load
     document.addEventListener('DOMContentLoaded', () => {
-        // Load saved Gemini API Key
-        const savedKey = localStorage.getItem('ziitool_gemini_api_key');
-        if (savedKey) {
-            document.getElementById('geminiApiKey').value = savedKey;
-        }
         lucide.createIcons();
     });
-
-    function toggleApiKeyVisibility() {
-        const input = document.getElementById('geminiApiKey');
-        const icon = document.getElementById('apiKeyEyeIcon');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.setAttribute('data-lucide', 'eye-off');
-        } else {
-            input.type = 'password';
-            icon.setAttribute('data-lucide', 'eye');
-        }
-        lucide.createIcons();
-    }
-
-    function saveApiKey() {
-        const key = document.getElementById('geminiApiKey').value.trim();
-        if (key) {
-            localStorage.setItem('ziitool_gemini_api_key', key);
-            alert('Đã lưu Gemini API Key vào trình duyệt của bạn!');
-        } else {
-            localStorage.removeItem('ziitool_gemini_api_key');
-            alert('Đã xóa Gemini API Key khỏi trình duyệt.');
-        }
-    }
 
     function switchInputTab(tab) {
         if (tab === 'file') {
@@ -654,7 +584,6 @@
     // Start exam button handler
     async function handleStartExam() {
         const textContent = document.getElementById('rawTextContent').value.trim();
-        const apiKey = document.getElementById('geminiApiKey').value.trim();
         const model = document.getElementById('geminiModel').value;
         const mode = document.getElementById('parseMode').value;
 
@@ -670,7 +599,6 @@
             formData.append('text', textContent);
         }
 
-        if (apiKey) formData.append('api_key', apiKey);
         formData.append('model', model);
         formData.append('mode', mode);
 
