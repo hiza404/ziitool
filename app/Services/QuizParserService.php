@@ -225,11 +225,21 @@ PROMPT;
             return ['questions' => []];
         }
 
-        // Check if the document has chapters (e.g., 'CHƯƠNG 1:', 'Phần 1:')
-        $hasChapters = preg_match('/(?:^|\n)\s*(?:CHƯƠNG|PHẦN)\s+\d+[:\s]+/iu', $text);
+        // Global answer map and explanations from answer table or solutions
+        $answersMap = $this->extractAnswerTable($text);
+        $explanationsMap = $this->extractExplanations($text);
+
+        // Separate question text from answer table / solutions section to avoid treating solutions as questions
+        $qText = $text;
+        if (preg_match('/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|LỜI\s*GIẢI\s*CHI\s*TIẾT|HƯỚNG\s*DẪN\s*GIẢI)/iu', $text, $ansPos, PREG_OFFSET_CAPTURE)) {
+            $qText = trim(substr($text, 0, $ansPos[0][1]));
+        }
+
+        // Check if the document has chapters (e.g., 'CHƯƠNG 1:', 'Phần I:', 'Phần 1:')
+        $hasChapters = preg_match('/(?:^|\n)\s*(?:CHƯƠNG|PHẦN)\s+(?:\d+|[IVXLCDM]+)[:\s\.]+/iu', $qText);
 
         if ($hasChapters) {
-            $segments = preg_split('/(?:^|\n)\s*((?:CHƯƠNG|PHẦN)\s+\d+[:\s]+[^\n]+)/iu', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+            $segments = preg_split('/(?:^|\n)\s*((?:CHƯƠNG|PHẦN)\s+(?:\d+|[IVXLCDM]+)[:\s\.]+[^\n]+)/iu', $qText, -1, PREG_SPLIT_DELIM_CAPTURE);
             $allQuestions = [];
             $globalId = 1;
 
@@ -237,7 +247,7 @@ PROMPT;
                 $chapHeading = trim($segments[$i]);
                 $chapBody = $segments[$i + 1] ?? '';
 
-                $chapQuestions = $this->parseTextSection($chapBody, $chapHeading, $globalId);
+                $chapQuestions = $this->parseTextSection($chapBody, $chapHeading, $globalId, $answersMap, $explanationsMap);
                 foreach ($chapQuestions as $q) {
                     $allQuestions[] = $q;
                     $globalId++;
@@ -253,7 +263,7 @@ PROMPT;
         }
 
         // Single section parsing
-        $questions = $this->parseTextSection($text, null, 1);
+        $questions = $this->parseTextSection($qText, null, 1, $answersMap, $explanationsMap);
 
         return [
             'title' => $title,
@@ -264,21 +274,28 @@ PROMPT;
     /**
      * Parse a single text section/chapter for questions and answer tables.
      *
+     * @param  array<int, string>  $answersMap
+     * @param  array<int, string>  $explanationsMap
      * @return array<int, array<string, mixed>>
      */
-    protected function parseTextSection(string $text, ?string $sectionPrefix = null, int $startId = 1): array
+    protected function parseTextSection(string $text, ?string $sectionPrefix = null, int $startId = 1, array $answersMap = [], array $explanationsMap = []): array
     {
-        // 1. Check for answer key tables in this section
-        $answersMap = $this->extractAnswerTable($text);
+        // 1. Check for answer key tables in this section if not already passed
+        if (empty($answersMap)) {
+            $answersMap = $this->extractAnswerTable($text);
+        }
+        if (empty($explanationsMap)) {
+            $explanationsMap = $this->extractExplanations($text);
+        }
 
         // 2. Separate question text from answer table text
         $qText = trim($text)."\n";
-        if (preg_match('/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN)/iu', $text, $ansPos, PREG_OFFSET_CAPTURE)) {
+        if (preg_match('/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|LỜI\s*GIẢI\s*CHI\s*TIẾT)/iu', $text, $ansPos, PREG_OFFSET_CAPTURE)) {
             $qText = trim(substr($text, 0, $ansPos[0][1]))."\n";
         }
 
         $questions = [];
-        $qPattern = '/(?:^|\n)\s*(?:Câu\s+(\d+)[\s*:\.-]+|(\d+)[\.\)]\s+)([\s\S]*?)(?=(?:\n\s*(?:Câu\s+\d+[\s*:\.-]+|\d+[\.\)]\s+)|\s*\Z))/u';
+        $qPattern = '/(?:^|\n)\s*(?:\[bold\]\s*)*(?:(?:Câu|C)\s*(\d+)[\s*:\.-]+|(\d+)[\.\)]\s+)([\s\S]*?)(?=(?:\n\s*(?:\[bold\]\s*)*(?:(?:Câu|C)\s*\d+[\s*:\.-]+|\d+[\.\)]\s+)|\s*\Z))/iu';
 
         if (preg_match_all($qPattern, $qText, $matches, PREG_SET_ORDER)) {
             $currentId = $startId;
@@ -287,11 +304,22 @@ PROMPT;
                 $content = trim($match[3]);
 
                 // Extract options A, B, C, D (and E)
-                $optPattern = '/(?:^|\n|\s+)([A-E])[\.\)]\s*([\s\S]*?)(?=(?:^|\n|\s+)[A-E][\.\)]|\n\s*(?:Đáp\s*án|Key|Đ\/a)\s*[:\.]|\Z)/u';
+                // Note: negative lookbehind ensures mathematical constants like '+ C.' or '= C.' are not matched as option C
+                $optPattern = '/(?:^|(?<![\+\-\=\/\*\(\^])[\s\t]+)(?:\[bold\]\s*)?([A-E])[\.\)]\s*([\s\S]*?)(?=(?<![\+\-\=\/\*\(\^])[\s\t]+(?:\[bold\]\s*)?[A-E][\.\)]|\n\s*(?:Đáp\s*án|Key|Đ\/a)\s*[:\.]|\Z)/u';
 
-                if (preg_match_all($optPattern, $content, $optMatches, PREG_SET_ORDER)) {
+                $optMatches = [];
+                preg_match_all($optPattern, $content, $optMatches, PREG_SET_ORDER);
+
+                // Fallback for lowercase a), b), c), d) if fewer than 2 uppercase options found
+                if (count($optMatches) < 2) {
+                    $lowerOptPattern = '/(?:^|(?<![\+\-\=\/\*\(\^])[\s\t]+)(?:\[bold\]\s*)?([a-e])[\.\)]\s*([\s\S]*?)(?=(?<![\+\-\=\/\*\(\^])[\s\t]+(?:\[bold\]\s*)?[a-e][\.\)]|\n\s*(?:Đáp\s*án|Key|Đ\/a)\s*[:\.]|\Z)/u';
+                    preg_match_all($lowerOptPattern, $content, $optMatches, PREG_SET_ORDER);
+                }
+
+                if (count($optMatches) >= 2) {
                     $firstOptPos = mb_strpos($content, $optMatches[0][0]);
                     $questionStem = $firstOptPos !== false ? trim(mb_substr($content, 0, $firstOptPos)) : $content;
+                    $questionStem = str_replace('[bold]', '', $questionStem);
                     $questionStem = $this->cleanTextSnippet($questionStem);
 
                     $options = [];
@@ -306,6 +334,7 @@ PROMPT;
                             $optText = trim(str_replace(['*', '✓', '[x]', '[X]'], '', $optText));
                         }
 
+                        $optText = str_replace('[bold]', '', $optText);
                         $optText = $this->cleanTextSnippet($optText);
 
                         $options[$key] = $optText;
@@ -321,13 +350,15 @@ PROMPT;
                         $correct = strtoupper($inlineAns[1]);
                     }
 
+                    $explanation = $explanationsMap[$qNumber] ?? "Đáp án chính xác là {$correct}.";
+
                     $prefix = $sectionPrefix ? "[$sectionPrefix] " : '';
                     $questions[] = [
                         'id' => $currentId,
                         'question' => "{$prefix}Câu {$qNumber}: {$questionStem}",
                         'options' => $options,
                         'correct' => $correct,
-                        'explanation' => "Đáp án chính xác là {$correct}.",
+                        'explanation' => $explanation,
                     ];
 
                     $currentId++;
@@ -347,12 +378,12 @@ PROMPT;
     {
         $answers = [];
 
-        // Check for "GỢI Ý ĐÁP ÁN" or "ĐÁP ÁN" blocks
-        if (preg_match('/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN)([\s\S]*?)(?:CHƯƠNG|\Z)/u', $text, $ansBlock)) {
+        // 1. Check for "GỢI Ý ĐÁP ÁN" or "BẢNG ĐÁP ÁN" blocks
+        if (preg_match('/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|BẢNG\s*TRA\s*ĐÁP\s*ÁN)([\s\S]*?)(?:HƯỚNG\s*DẪN|LỜI\s*GIẢI|CHƯƠNG|\Z)/iu', $text, $ansBlock)) {
             $blockText = $ansBlock[1];
 
-            // Match 'Câu 1 C' or 'Câu 1: C' or '1. C'
-            if (preg_match_all('/(?:Câu\s+)?(\d+)[\s*:\.-]+([A-D])\b/u', $blockText, $matches, PREG_SET_ORDER)) {
+            // Match 'Câu 1 C' or 'Câu 1: C' or '1. C' or table format '1 \t C \t 11 \t D'
+            if (preg_match_all('/(?:(?:Câu|C)\s*)?(\d+)[\s*:\.\|\t\n-]+(?:\[bold\]\s*)?([A-Da-d])\b/u', $blockText, $matches, PREG_SET_ORDER)) {
                 foreach ($matches as $m) {
                     $qNum = (int) $m[1];
                     $ans = strtoupper($m[2]);
@@ -361,7 +392,45 @@ PROMPT;
             }
         }
 
+        // 2. Also check if explanations section contains "Câu X ... Đáp án / Chọn [A-D]"
+        if (count($answers) < 5) {
+            if (preg_match_all('/(?:^|\n)\s*(?:\[bold\]\s*)*(?:Câu|C)\s*(\d+)[\s\S]*?(?:Đáp\s*án|Chọn)\s*[:\.]?\s*([A-Da-d])\b/iu', $text, $solMatches, PREG_SET_ORDER)) {
+                foreach ($solMatches as $sm) {
+                    $qNum = (int) $sm[1];
+                    if (! isset($answers[$qNum])) {
+                        $answers[$qNum] = strtoupper($sm[2]);
+                    }
+                }
+            }
+        }
+
         return $answers;
+    }
+
+    /**
+     * Extract step-by-step explanations from "LỜI GIẢI CHI TIẾT" or "HƯỚNG DẪN GIẢI".
+     *
+     * @return array<int, string>
+     */
+    protected function extractExplanations(string $text): array
+    {
+        $explanations = [];
+
+        if (preg_match('/(?:LỜI\s*GIẢI\s*CHI\s*TIẾT|HƯỚNG\s*DẪN\s*GIẢI)([\s\S]*)/iu', $text, $solBlock)) {
+            $blockText = $solBlock[1];
+            $pattern = '/(?:^|\n)\s*(?:\[bold\]\s*)*(?:Câu|C)\s*(\d+)[\s\S]*?(?:\[bold\]\s*)*Lời\s*giải\s*\n([\s\S]*?)(?=(?:\n\s*(?:\[bold\]\s*)*(?:Câu|C)\s*\d+|\Z))/iu';
+            if (preg_match_all($pattern, $blockText, $m, PREG_SET_ORDER)) {
+                foreach ($m as $item) {
+                    $qNum = (int) $item[1];
+                    $exp = preg_replace('/\s+/', ' ', trim(str_replace('[bold]', '', $item[2])));
+                    if (! empty($exp)) {
+                        $explanations[$qNum] = $exp;
+                    }
+                }
+            }
+        }
+
+        return $explanations;
     }
 
     /**
@@ -378,28 +447,40 @@ PROMPT;
             $code = 0;
             exec('pdftotext -layout '.escapeshellarg($path).' - 2>/dev/null', $output, $code);
             if ($code === 0 && ! empty($output)) {
-                return implode("\n", $output);
+                return $this->cleanDocumentWatermarks(implode("\n", $output));
             }
 
             // Fallback plain pdftotext
             exec('pdftotext '.escapeshellarg($path).' - 2>/dev/null', $output2, $code2);
             if ($code2 === 0 && ! empty($output2)) {
-                return implode("\n", $output2);
+                return $this->cleanDocumentWatermarks(implode("\n", $output2));
             }
         }
 
         if ($ext === 'docx') {
+            // 1. Try python3 extractor for MathType OLE equations
+            $pythonText = $this->extractDocxWithPython($path);
+            if (! empty($pythonText)) {
+                return $this->cleanDocumentWatermarks($pythonText);
+            }
+
+            // 2. Fallback to ZipArchive pure PHP extraction
             $zip = new ZipArchive;
             if ($zip->open($path) === true) {
                 $xml = $zip->getFromName('word/document.xml');
                 $zip->close();
                 if ($xml) {
-                    // Replace <w:p> with newlines, mark <w:b/> with bold hint
-                    $clean = preg_replace('/<w:b(?:\s+[^>]*)?\/>/i', ' [bold] ', $xml);
-                    $clean = preg_replace('/<\/w:p>/i', "\n", $clean);
-                    $clean = strip_tags($clean);
+                    $xml = preg_replace('/<w:tab(?:\s+[^>]*)?\/?>/i', "\t", $xml);
+                    $xml = preg_replace('/<w:(?:br|cr)(?:\s+[^>]*)?\/?>/i', "\n", $xml);
+                    $xml = preg_replace('/<\/w:tc>/i', "\t", $xml);
+                    $xml = preg_replace('/<\/w:tr>/i', "\n", $xml);
+                    $xml = preg_replace('/<\/w:p>/i', "\n", $xml);
+                    $xml = preg_replace('/<w:b(?:\s+[^>]*)?\/>/i', ' [bold] ', $xml);
+                    $xml = preg_replace('/<w:(?:color|highlight)(?:\s+[^>]*)?\/>/i', ' [bold] ', $xml);
+                    $clean = strip_tags($xml);
+                    $clean = html_entity_decode($clean, ENT_QUOTES, 'UTF-8');
 
-                    return html_entity_decode($clean, ENT_QUOTES, 'UTF-8');
+                    return $this->cleanDocumentWatermarks($clean);
                 }
             }
         }
@@ -408,6 +489,86 @@ PROMPT;
         $raw = File::get($path) ?: '';
 
         return $this->cleanDocumentWatermarks($raw);
+    }
+
+    /**
+     * Extract DOCX text and MathType OLE formulas using python3 and olefile.
+     */
+    protected function extractDocxWithPython(string $path): ?string
+    {
+        $pythonScript = <<<'PY'
+import sys, zipfile, io, re, html
+
+try:
+    import olefile
+except ImportError:
+    sys.exit(1)
+
+path = sys.argv[1]
+try:
+    with zipfile.ZipFile(path) as zf:
+        rels = {}
+        try:
+            rels_xml = zf.read("word/_rels/document.xml.rels").decode("utf-8", errors="ignore")
+            rels = dict(re.findall(r'Id="(\w+)"[^>]*Target="([^"]+)"', rels_xml))
+        except Exception:
+            pass
+
+        def get_formula(ole_bytes):
+            try:
+                ole = olefile.OleFileIO(io.BytesIO(ole_bytes))
+                content = ole.openstream("Equation Native").read()
+                hdr_len = int.from_bytes(content[:4], "little")
+                mtef = content[hdr_len:]
+                idx = mtef.find(b"MT Extra\x00")
+                payload = mtef[idx + len(b"MT Extra\x00"):] if idx != -1 else mtef[50:]
+                chars = re.findall(rb"([\x20-\x7e])\x00", payload)
+                s = b"".join(chars).decode("latin1", errors="ignore")
+                s = re.sub(r"^[A-E]+", "", s)
+                return s.strip()
+            except Exception:
+                return ""
+
+        cache = {}
+        for rid, target in rels.items():
+            if "embeddings/" in target:
+                try:
+                    cache[rid] = get_formula(zf.read("word/" + target))
+                except Exception:
+                    pass
+
+        doc_xml = zf.read("word/document.xml").decode("utf-8", errors="ignore")
+
+        def replace_obj(m):
+            obj_xml = m.group(0)
+            rid_m = re.search(r'<o:OLEObject[^>]+r:id="([^"]+)"', obj_xml)
+            if rid_m and rid_m.group(1) in cache and cache[rid_m.group(1)]:
+                return " " + cache[rid_m.group(1)] + " "
+            return " "
+
+        doc_xml = re.sub(r"<w:object[\s\S]*?<\/w:object>", replace_obj, doc_xml)
+        doc_xml = re.sub(r"<w:tab(?:\s+[^>]*)?\/?>", "\t", doc_xml)
+        doc_xml = re.sub(r"<w:(?:br|cr)(?:\s+[^>]*)?\/?>", "\n", doc_xml)
+        doc_xml = re.sub(r"<\/w:tc>", "\t", doc_xml)
+        doc_xml = re.sub(r"<\/w:tr>", "\n", doc_xml)
+        doc_xml = re.sub(r"<\/w:p>", "\n", doc_xml)
+        doc_xml = re.sub(r"<w:b(?:\s+[^>]*)?\/>", " [bold] ", doc_xml)
+        text = html.unescape(re.sub(r"<[^>]+>", "", doc_xml))
+        sys.stdout.write(text)
+except Exception:
+    sys.exit(2)
+PY;
+
+        $cmd = 'python3 -c '.escapeshellarg($pythonScript).' '.escapeshellarg($path).' 2>/dev/null';
+        $output = null;
+        $code = 0;
+        exec($cmd, $output, $code);
+
+        if ($code === 0 && ! empty($output)) {
+            return implode("\n", $output);
+        }
+
+        return null;
     }
 
     /**

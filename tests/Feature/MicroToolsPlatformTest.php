@@ -386,6 +386,27 @@ class MicroToolsPlatformTest extends TestCase
     }
 
     /**
+     * Test Quiz parse handles answer tables and protects math integration constants.
+     */
+    public function test_quiz_parse_with_answer_table_and_math_constant(): void
+    {
+        $text = "Câu 1. Cho hàm số có nguyên hàm F(x) + C. Khẳng định đúng là:\n A. F(x) + 1\n B. F(x) + 2\n C. F(x) + 3\n D. F(x) + 4\n\nCâu 2. Giá trị biểu thức bằng:\n A. 1\n B. 2\n C. 3\n D. 4\n\nBẢNG ĐÁP ÁN\n1 | C\n2 | B\n";
+
+        $response = $this->post('/tool/trac-nghiem/parse', [
+            'text' => $text,
+            'mode' => 'local',
+        ]);
+
+        $response->assertStatus(200);
+        $data = $response->json();
+        $this->assertEquals(2, $data['total_questions']);
+        $this->assertEquals('C', $data['questions'][0]['correct']);
+        $this->assertEquals('B', $data['questions'][1]['correct']);
+        $this->assertEquals('F(x) + 1', $data['questions'][0]['options']['A']);
+        $this->assertEquals('F(x) + 3', $data['questions'][0]['options']['C']);
+    }
+
+    /**
      * Test saving public quiz generates unique code and shareable URL.
      */
     public function test_save_public_quiz_generates_code_and_share_url(): void
