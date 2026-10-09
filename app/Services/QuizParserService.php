@@ -20,7 +20,7 @@ class QuizParserService
     public function parse(UploadedFile|string $input, array $options = []): array
     {
         $apiKey = ! empty($options['api_key']) ? $options['api_key'] : config('services.gemini.key');
-        $primaryModel = ! empty($options['model']) ? $options['model'] : config('services.gemini.model', 'gemini-3.5-flash');
+        $primaryModel = ! empty($options['model']) ? $options['model'] : config('services.gemini.model', 'gemini-3.8-flash');
         $mode = $options['mode'] ?? 'auto';
 
         if ($input instanceof UploadedFile) {
@@ -65,9 +65,9 @@ class QuizParserService
         if ($canUseAi) {
             $candidateModels = array_values(array_unique([
                 $primaryModel,
+                'gemini-3.8-flash',
                 'gemini-2.0-flash',
                 'gemini-1.5-flash',
-                'gemini-2.5-flash',
             ]));
 
             foreach ($candidateModels as $currentModel) {
@@ -539,7 +539,13 @@ PROMPT;
             try {
                 if (class_exists(Parser::class)) {
                     $pdfParser = new Parser;
-                    $parsedPdf = $pdfParser->parseFile($path);
+                    $content = @file_get_contents($path);
+                    if ($content === false || empty($content)) {
+                        $content = @file_get_contents($file->getPathname());
+                    }
+                    $parsedPdf = ($content !== false && ! empty($content))
+                        ? $pdfParser->parseContent($content)
+                        : $pdfParser->parseFile($path);
                     $pdfText = $parsedPdf->getText();
                     if (! empty(trim($pdfText))) {
                         return $this->cleanDocumentWatermarks($pdfText);

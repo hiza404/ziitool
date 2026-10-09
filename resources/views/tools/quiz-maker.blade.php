@@ -1702,7 +1702,7 @@
     // Start exam button handler
     async function handleStartExam() {
         const textContent = document.getElementById('rawTextContent').value.trim();
-        const model = 'gemini-2.0-flash';
+        const model = 'gemini-3.8-flash';
         const mode = 'auto';
 
         if (!selectedUploadFile && !textContent) {
