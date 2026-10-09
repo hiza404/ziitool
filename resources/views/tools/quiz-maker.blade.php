@@ -111,11 +111,39 @@
 
                 </div>
 
+                <!-- Card: Bộ Đề Đã Lưu & Lịch Sử Đã Đẩy (Saved Exams History) -->
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                                <i data-lucide="bookmark-check" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">Bộ Đề Đã Lưu & Lịch Sử</h2>
+                                <p class="text-xs text-slate-500">Mở lại đề cũ để làm ngay mà không cần tải lại file</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="savedExamsCountBadge" class="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold">
+                                0 đề
+                            </span>
+                            <button type="button" onclick="clearAllSavedExams()" id="clearAllExamsBtn" class="hidden text-xs text-rose-500 hover:text-rose-600 hover:underline transition">
+                                Xóa tất cả
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách các đề -->
+                    <div id="savedExamsList" class="space-y-3">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
             </div>
 
             <!-- Cột phải: Cài đặt đề thi & Bắt đầu (1 col) -->
             <div class="space-y-6">
-                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+                <div id="examSettingsCard" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
                     <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
                         <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                             <i data-lucide="sliders" class="w-5 h-5"></i>
@@ -565,9 +593,201 @@
         lucide.createIcons();
     }
 
+    let currentActiveQuizId = null;
+
+    // LocalStorage management for saved exams
+    function getSavedExams() {
+        try {
+            const data = localStorage.getItem('ziitool_saved_quizzes');
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            console.warn('Cannot read localStorage:', e);
+            return [];
+        }
+    }
+
+    function saveExamToHistory(title, questions) {
+        if (!questions || questions.length === 0) return null;
+        try {
+            const saved = getSavedExams();
+            const existingIdx = saved.findIndex(item => item.title === title && item.total_questions === questions.length);
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+            const examItem = {
+                id: existingIdx >= 0 ? saved[existingIdx].id : 'quiz_' + Date.now(),
+                title: title || 'Đề Thi Trắc Nghiệm',
+                total_questions: questions.length,
+                created_at: existingIdx >= 0 ? saved[existingIdx].created_at : dateStr,
+                updated_at: dateStr,
+                last_score: existingIdx >= 0 ? saved[existingIdx].last_score : null,
+                last_rank: existingIdx >= 0 ? saved[existingIdx].last_rank : null,
+                questions: questions
+            };
+
+            if (existingIdx >= 0) {
+                saved.splice(existingIdx, 1);
+            }
+            saved.unshift(examItem);
+
+            // Cap at 15 items
+            if (saved.length > 15) {
+                saved.pop();
+            }
+
+            localStorage.setItem('ziitool_saved_quizzes', JSON.stringify(saved));
+            renderSavedExamsList();
+            return examItem.id;
+        } catch (e) {
+            console.warn('Cannot save exam to localStorage:', e);
+            return null;
+        }
+    }
+
+    function updateExamScoreInHistory(title, scoreTen, rank) {
+        try {
+            const saved = getSavedExams();
+            const item = saved.find(q => q.title === title || q.id === currentActiveQuizId);
+            if (item) {
+                item.last_score = `${scoreTen}/10`;
+                item.last_rank = rank;
+                const now = new Date();
+                item.updated_at = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                localStorage.setItem('ziitool_saved_quizzes', JSON.stringify(saved));
+                renderSavedExamsList();
+            }
+        } catch (e) {
+            console.warn('Cannot update score in localStorage:', e);
+        }
+    }
+
+    function deleteSavedExam(id, e) {
+        if (e) e.stopPropagation();
+        if (!confirm('Bạn có chắc chắn muốn xóa đề thi này khỏi danh sách đã lưu?')) return;
+        try {
+            let saved = getSavedExams();
+            saved = saved.filter(item => item.id !== id);
+            localStorage.setItem('ziitool_saved_quizzes', JSON.stringify(saved));
+            if (currentActiveQuizId === id) {
+                currentActiveQuizId = null;
+            }
+            renderSavedExamsList();
+        } catch (e) {
+            console.warn(e);
+        }
+    }
+
+    function clearAllSavedExams() {
+        if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách đề thi đã lưu?')) return;
+        try {
+            localStorage.removeItem('ziitool_saved_quizzes');
+            currentActiveQuizId = null;
+            renderSavedExamsList();
+        } catch (e) {
+            console.warn(e);
+        }
+    }
+
+    function loadSavedExam(id, startImmediately = false) {
+        const list = getSavedExams();
+        const quiz = list.find(item => item.id === id);
+        if (!quiz) return;
+
+        rawQuestions = quiz.questions;
+        currentExamTitle = quiz.title;
+        currentActiveQuizId = quiz.id;
+
+        const badge = document.getElementById('detectedQuestionsBadge');
+        if (badge) {
+            badge.innerText = `(Đã nạp ${rawQuestions.length} câu từ đề đã lưu)`;
+            badge.classList.remove('hidden');
+        }
+
+        renderSavedExamsList(id);
+
+        if (startImmediately) {
+            startExamSession();
+        } else {
+            const settingsCard = document.getElementById('examSettingsCard');
+            if (settingsCard) {
+                settingsCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }
+
+    function renderSavedExamsList(activeId = null) {
+        const container = document.getElementById('savedExamsList');
+        const badge = document.getElementById('savedExamsCountBadge');
+        const clearBtn = document.getElementById('clearAllExamsBtn');
+        if (!container) return;
+
+        const saved = getSavedExams();
+        if (badge) badge.innerText = `${saved.length} đề`;
+
+        if (saved.length === 0) {
+            if (clearBtn) clearBtn.classList.add('hidden');
+            container.innerHTML = `
+                <div class="text-center py-6 px-4 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-400 text-xs space-y-1">
+                    <i data-lucide="inbox" class="w-6 h-6 mx-auto mb-1 text-slate-300 dark:text-slate-600"></i>
+                    <p class="font-medium text-slate-600 dark:text-slate-400">Chưa có đề thi nào được lưu</p>
+                    <p class="text-[11px] text-slate-400">Khi bạn tải file hoặc thử đề mẫu, đề thi sẽ tự động được lưu tại đây để lần sau mở làm lại ngay mà không cần tải lại file.</p>
+                </div>
+            `;
+            lucide.createIcons();
+            return;
+        }
+
+        if (clearBtn) clearBtn.classList.remove('hidden');
+        container.innerHTML = '';
+
+        saved.forEach(quiz => {
+            const isCurrentActive = (activeId === quiz.id || currentActiveQuizId === quiz.id);
+            const item = document.createElement('div');
+            item.className = `p-4 rounded-2xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isCurrentActive ? 'border-2 border-violet-600 bg-violet-50/40 dark:bg-violet-950/20 shadow-sm' : 'border-slate-200 dark:border-slate-800 hover:border-violet-300 dark:hover:border-violet-700 bg-slate-50/50 dark:bg-slate-800/30'}`;
+
+            item.innerHTML = `
+                <div class="space-y-1 flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                        <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate" title="${escapeHtml(quiz.title)}">
+                            ${escapeHtml(quiz.title)}
+                        </h4>
+                        <span class="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 flex-shrink-0">
+                            ${quiz.total_questions} câu
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 flex-wrap">
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="calendar" class="w-3 h-3 text-slate-400"></i> ${quiz.created_at}
+                        </span>
+                        ${quiz.last_score ? `
+                            <span class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
+                                <i data-lucide="award" class="w-3 h-3"></i> Điểm: ${quiz.last_score} ${quiz.last_rank ? '(' + quiz.last_rank + ')' : ''}
+                            </span>
+                        ` : '<span class="text-slate-400 italic">Chưa làm bài</span>'}
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <button type="button" onclick="loadSavedExam('${quiz.id}', true)" class="px-3.5 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="play" class="w-3.5 h-3.5"></i> Làm Lại Đề Này
+                    </button>
+                    <button type="button" onclick="loadSavedExam('${quiz.id}', false)" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition" title="Nạp vào cài đặt để tùy chỉnh số câu & thời gian">
+                        Cài đặt
+                    </button>
+                    <button type="button" onclick="deleteSavedExam('${quiz.id}', event)" class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition" title="Xóa đề này khỏi danh sách">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+
+        lucide.createIcons();
+    }
+
     // On Load
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
+        renderSavedExamsList();
     });
 
     function switchInputTab(tab) {
@@ -624,6 +844,7 @@
             if (data.success && data.questions && data.questions.length > 0) {
                 rawQuestions = data.questions;
                 currentExamTitle = data.title || '300 Câu Trắc Nghiệm Tư Tưởng Hồ Chí Minh';
+                currentActiveQuizId = saveExamToHistory(currentExamTitle, rawQuestions);
                 const badge = document.getElementById('detectedQuestionsBadge');
                 if (badge) {
                     badge.innerText = `(Tài liệu có ${rawQuestions.length} câu)`;
@@ -680,6 +901,7 @@
 
             rawQuestions = data.questions;
             currentExamTitle = data.title || (selectedUploadFile ? selectedUploadFile.name : 'Bài Thi Trắc Nghiệm');
+            currentActiveQuizId = saveExamToHistory(currentExamTitle, rawQuestions);
             const badge = document.getElementById('detectedQuestionsBadge');
             if (badge) {
                 badge.innerText = `(Tài liệu có ${rawQuestions.length} câu)`;
@@ -1222,6 +1444,9 @@
         document.getElementById('filterWrongCount').innerText = wrongCount;
         document.getElementById('filterCorrectCount').innerText = correctCount;
 
+        // Update score in saved history
+        updateExamScoreInHistory(currentExamTitle, scoreTen, rank);
+
         // Render review cards
         renderReviewQuestions();
 
@@ -1403,6 +1628,7 @@
         document.getElementById('resultPanel').classList.add('hidden');
         document.getElementById('examPanel').classList.add('hidden');
         document.getElementById('setupPanel').classList.remove('hidden');
+        renderSavedExamsList();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
