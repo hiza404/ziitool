@@ -6,6 +6,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Smalot\PdfParser\Parser;
 use ZipArchive;
 
 class QuizParserService
@@ -534,7 +535,21 @@ PROMPT;
         $path = $file->getRealPath();
 
         if ($ext === 'pdf') {
-            // Try pdftotext with layout preserving
+            // 1. Try Smalot\PdfParser (Pure PHP, works everywhere including cPanel, super fast 0.5s)
+            try {
+                if (class_exists(Parser::class)) {
+                    $pdfParser = new Parser;
+                    $parsedPdf = $pdfParser->parseFile($path);
+                    $pdfText = $parsedPdf->getText();
+                    if (! empty(trim($pdfText))) {
+                        return $this->cleanDocumentWatermarks($pdfText);
+                    }
+                }
+            } catch (\Throwable $pdfEx) {
+                Log::warning('Smalot PdfParser failed, falling back: '.$pdfEx->getMessage());
+            }
+
+            // 2. Try pdftotext with layout preserving
             $output = null;
             $code = 0;
             exec('pdftotext -layout '.escapeshellarg($path).' - 2>/dev/null', $output, $code);
@@ -542,13 +557,13 @@ PROMPT;
                 return $this->cleanDocumentWatermarks(implode("\n", $output));
             }
 
-            // Fallback plain pdftotext
+            // 3. Fallback plain pdftotext
             exec('pdftotext '.escapeshellarg($path).' - 2>/dev/null', $output2, $code2);
             if ($code2 === 0 && ! empty($output2)) {
                 return $this->cleanDocumentWatermarks(implode("\n", $output2));
             }
 
-            // Fallback pure PHP stream extraction
+            // 4. Fallback pure PHP stream extraction
             $streamText = $this->extractPdfStreams($path);
             if (! empty(trim($streamText))) {
                 return $this->cleanDocumentWatermarks($streamText);
