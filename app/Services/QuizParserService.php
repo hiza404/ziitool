@@ -141,7 +141,7 @@ QUY TẮC NHẬN DIỆN ĐÁP ÁN ĐÚNG QUAN TRỌNG:
    - Đánh dấu sao (*) hoặc tích (✓)
 2. BẢNG ĐÁP ÁN: Kiểm tra xem có bảng "GỢI Ý ĐÁP ÁN" / "ĐÁP ÁN" ở cuối trang, cuối chương hoặc cuối tài liệu hay không (ví dụ: Câu 1: C, Câu 2: B...). Hãy đối chiếu chính xác số thứ tự câu hỏi với đáp án trong bảng.
 3. NẾU KHÔNG CÓ ĐÁP ÁN ĐÁNH DẤU: Hãy tự suy luận và giải để đưa ra đáp án chính xác nhất.
-4. Mỗi câu hỏi hãy cung cấp giải thích ngắn gọn, súc tích vì sao đáp án đó đúng.
+4. Mỗi câu hỏi chỉ giải thích ngắn gọn trong 1 câu (dưới 20 từ) để tối ưu thời gian phản hồi.
 5. TUYỆT ĐỐI LOẠI BỎ CHÂN TRANG (FOOTER): Không lấy bất kỳ thông tin chân trang, watermark, thông tin người tải (Downloaded by...), email, số trang (Trang 1/10), tên website (Studocu...) vào câu hỏi hoặc đáp án.
 
 ĐỊNH DẠNG ĐẦU RA BẮT BUỘC (JSON THUẦN TÚY):
@@ -194,6 +194,16 @@ PROMPT;
 
         $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
 
+        $generationConfig = [
+            'responseMimeType' => 'application/json',
+            'temperature' => 0.1,
+        ];
+        if (str_contains($model, 'flash') && ! str_contains($model, 'lite')) {
+            $generationConfig['thinkingConfig'] = [
+                'thinkingBudget' => 0,
+            ];
+        }
+
         $response = Http::timeout(90)->withHeaders([
             'Content-Type' => 'application/json',
         ])->post($apiUrl, [
@@ -202,10 +212,7 @@ PROMPT;
                     'parts' => $parts,
                 ],
             ],
-            'generationConfig' => [
-                'responseMimeType' => 'application/json',
-                'temperature' => 0.2,
-            ],
+            'generationConfig' => $generationConfig,
         ]);
 
         if (! $response->successful()) {

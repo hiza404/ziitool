@@ -844,6 +844,9 @@
         sessionExpired: @json(__('Phiên làm việc đã hết hạn. Vui lòng làm mới trang (F5) và thử lại.')),
         serverError: @json(__('Máy chủ phản hồi mã :status. Vui lòng thử lại.')),
         cannotExtract: @json(__('Không thể trích xuất câu hỏi từ tài liệu này.')),
+        stepDetectingQuestions: @json(__('Đang nhận diện các câu hỏi trắc nghiệm...')),
+        stepMatchingAnswers: @json(__('Đang đối chiếu đáp án & giải thích...')),
+        stepFinalizingExam: @json(__('Đang hoàn tất chuẩn bị bài thi...')),
         completedProgress: @json(__('Đã làm: :answered/:total câu (:percent%)')),
         timeUpAlert: @json(__('Hết giờ làm bài! Hệ thống sẽ tự động nộp bài và chấm điểm.')),
         confirmSubmitPracticeTitle: @json(__('Kết thúc ôn tập & xem bảng điểm?')),
@@ -1760,15 +1763,34 @@
 
     }
 
+    let parseLoadingInterval = null;
     function setParseLoading(isLoading, text = '') {
         const btn = document.getElementById('startExamBtn');
         const loader = document.getElementById('parseLoadingStatus');
         const loaderText = document.getElementById('parseLoadingText');
 
+        if (parseLoadingInterval) {
+            clearInterval(parseLoadingInterval);
+            parseLoadingInterval = null;
+        }
+
         if (isLoading) {
             btn.classList.add('hidden');
             loader.classList.remove('hidden');
-            loaderText.innerText = text;
+            const initialText = text || I18N.loadingParsing;
+            loaderText.innerText = initialText;
+
+            const steps = [
+                initialText,
+                I18N.stepDetectingQuestions,
+                I18N.stepMatchingAnswers,
+                I18N.stepFinalizingExam
+            ];
+            let stepIndex = 0;
+            parseLoadingInterval = setInterval(() => {
+                stepIndex = (stepIndex + 1) % steps.length;
+                loaderText.innerText = steps[stepIndex];
+            }, 5000);
         } else {
             btn.classList.remove('hidden');
             loader.classList.add('hidden');
