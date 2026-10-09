@@ -33,17 +33,20 @@ class QuizParserService
             }
         }
 
-        // 1. FAST PATH: Instant local parsing (0.05s) if document has clear questions and answers
+        @ini_set('max_execution_time', '300');
+        @set_time_limit(300);
+
+        // 1. FAST PATH: Instant local parsing (0.05s) if document has clear questions
         $localResult = null;
         if ($mode === 'auto' || $mode === 'local') {
             $localResult = $this->parseWithLocal($input);
-            if (! empty($localResult['questions']) && count($localResult['questions']) >= 2) {
+            if (! empty($localResult['questions']) && count($localResult['questions']) >= 1) {
                 $uniqueAnswers = [];
                 foreach ($localResult['questions'] as $q) {
                     $uniqueAnswers[$q['correct']] = true;
                 }
-                // If local parser found multiple distinct answers (meaning real answers were matched, not all defaulting to A)
-                if (count($uniqueAnswers) >= 2 || count($localResult['questions']) === 1) {
+                // If local parser found multiple distinct answers OR if it extracted 5+ questions
+                if (count($uniqueAnswers) >= 2 || count($localResult['questions']) >= 5 || count($localResult['questions']) === 1) {
                     return [
                         'success' => true,
                         'source' => 'local',
@@ -55,19 +58,16 @@ class QuizParserService
             }
         }
 
-        // 2. INTELLIGENT AI PATH: If local parser could not extract or couldn't identify distinct answers
+        // 2. INTELLIGENT AI PATH: If local parser could not extract
         $canUseAi = ! empty($apiKey) && ($mode === 'ai' || $mode === 'auto');
 
         $lastAiError = null;
         if ($canUseAi) {
             $candidateModels = array_values(array_unique([
                 $primaryModel,
-                'gemini-3.5-flash',
-                'gemini-3.6-flash',
-                'gemini-3.7-flash',
-                'gemini-3-flash-preview',
-                'gemini-3.1-flash-lite',
-                'gemini-3.5-flash-lite',
+                'gemini-2.0-flash',
+                'gemini-1.5-flash',
+                'gemini-2.5-flash',
             ]));
 
             foreach ($candidateModels as $currentModel) {

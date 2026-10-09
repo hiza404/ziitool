@@ -716,6 +716,10 @@ class ToolController extends Controller
      */
     public function parseQuiz(Request $request, QuizParserService $parser): JsonResponse
     {
+        @ini_set('max_execution_time', '300');
+        @set_time_limit(300);
+        @ini_set('memory_limit', '512M');
+
         $request->validate([
             'file' => 'nullable|file|mimes:pdf|max:51200', // 50MB max PDF
             'text' => 'nullable|string',
