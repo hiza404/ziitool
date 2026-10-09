@@ -126,10 +126,38 @@
                         </div>
                     </div>
 
-                    <!-- 1. Số lượng câu hỏi để ôn tập -->
+                    <!-- 1. Hình thức thực hiện: Ôn tập vs Thi thử -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Hình thức thực hiện:</label>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <button type="button" id="modePracticeBtn" onclick="setQuizMode('practice')" class="p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 text-left transition relative group">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div id="modePracticeIcon" class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs">
+                                        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span id="modePracticeTitle" class="text-xs font-bold text-slate-900 dark:text-white">Ôn Tập</span>
+                                    <span id="modePracticeCheck" class="ml-auto w-2 h-2 rounded-full bg-emerald-500"></span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Hiện đáp án đúng ngay khi chọn</p>
+                            </button>
+
+                            <button type="button" id="modeExamBtn" onclick="setQuizMode('exam')" class="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-left hover:border-slate-300 dark:hover:border-slate-700 transition relative group">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div id="modeExamIcon" class="w-6 h-6 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs">
+                                        <i data-lucide="timer" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span id="modeExamTitle" class="text-xs font-bold text-slate-700 dark:text-slate-300">Thi Thử</span>
+                                    <span id="modeExamCheck" class="ml-auto w-2 h-2 rounded-full bg-violet-600 hidden"></span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Bấm giờ, nộp bài mới chấm điểm</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Số lượng câu hỏi để ôn tập -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
-                            <span>Số lượng câu hỏi ôn tập:</span>
+                            <span>Số lượng câu hỏi:</span>
                             <span id="detectedQuestionsBadge" class="hidden text-[11px] text-violet-600 dark:text-violet-400 font-bold"></span>
                         </label>
                         <select id="questionLimit" onchange="toggleCustomQuestionInput(this.value)" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
@@ -150,13 +178,13 @@
                         </div>
                     </div>
 
-                    <!-- 2. Thời gian làm bài -->
+                    <!-- 3. Thời gian làm bài -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Thời gian làm bài:</label>
                         <select id="examDuration" onchange="toggleCustomDurationInput(this.value)" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
-                            <option value="0">Không giới hạn thời gian (Tự do ôn tập)</option>
+                            <option value="0" selected>Không giới hạn thời gian (Tự do ôn tập)</option>
                             <option value="15">15 phút</option>
-                            <option value="30" selected>30 phút</option>
+                            <option value="30">30 phút (Tiêu chuẩn)</option>
                             <option value="45">45 phút</option>
                             <option value="60">60 phút (1 tiếng)</option>
                             <option value="90">90 phút</option>
@@ -168,7 +196,7 @@
                         </div>
                     </div>
 
-                    <!-- 3. Tùy chọn xáo câu & đảo đáp án -->
+                    <!-- 4. Tùy chọn xáo câu & đảo đáp án -->
                     <div class="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
                         <label class="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
                             <input type="checkbox" id="shuffleQuestions" checked class="w-4 h-4 rounded text-violet-600 focus:ring-violet-500 border-slate-300 dark:border-slate-700">
@@ -190,7 +218,7 @@
                     <div class="pt-3">
                         <button type="button" id="startExamBtn" onclick="handleStartExam()" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-violet-500/25 transition flex items-center justify-center gap-2">
                             <i data-lucide="play-circle" class="w-5 h-5"></i>
-                            <span>Bắt Đầu Làm Bài Thi</span>
+                            <span id="startExamBtnText">Bắt Đầu Làm Bài Thi</span>
                         </button>
                     </div>
 
@@ -222,7 +250,12 @@
                     <i data-lucide="edit-3" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h2 id="activeExamTitle" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate max-w-xs sm:max-w-md">Đề Thi Trắc Nghiệm</h2>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h2 id="activeExamTitle" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate max-w-xs sm:max-w-md">Đề Thi Trắc Nghiệm</h2>
+                        <span id="activeModeBadge" class="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
+                            <i data-lucide="book-open" class="w-3 h-3"></i> Ôn Tập
+                        </span>
+                    </div>
                     <div class="flex items-center gap-2 text-xs text-slate-500">
                         <span id="progressText">Đã làm: 0/0 câu (0%)</span>
                     </div>
@@ -238,9 +271,9 @@
                 </div>
 
                 <!-- Nút nộp bài -->
-                <button type="button" onclick="confirmSubmitExam()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-rose-600/20 transition flex items-center gap-1.5">
+                <button type="button" id="submitExamBtnHeader" onclick="confirmSubmitExam()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-rose-600/20 transition flex items-center gap-1.5">
                     <i data-lucide="check-square" class="w-4 h-4"></i>
-                    <span>Nộp Bài</span>
+                    <span id="submitExamBtnText">Kết Thúc Ôn Tập</span>
                 </button>
             </div>
         </div>
@@ -261,7 +294,21 @@
                     </div>
 
                     <!-- Chú thích màu sắc -->
-                    <div class="grid grid-cols-3 gap-2 text-[11px] text-slate-500 pb-2">
+                    <div id="paletteLegendPractice" class="grid grid-cols-3 gap-2 text-[11px] text-slate-500 pb-2">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 inline-block"></span>
+                            <span>Chưa làm</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-md bg-emerald-500 text-white inline-block"></span>
+                            <span>Đúng</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-md bg-rose-500 text-white inline-block"></span>
+                            <span>Sai</span>
+                        </div>
+                    </div>
+                    <div id="paletteLegendExam" class="hidden grid grid-cols-3 gap-2 text-[11px] text-slate-500 pb-2">
                         <div class="flex items-center gap-1.5">
                             <span class="w-3 h-3 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 inline-block"></span>
                             <span>Chưa làm</span>
@@ -284,7 +331,7 @@
                     <!-- Nút nộp bài phụ -->
                     <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
                         <button type="button" onclick="confirmSubmitExam()" class="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition flex items-center justify-center gap-2">
-                            <i data-lucide="send" class="w-4 h-4"></i> Nộp Bài & Xem Điểm
+                            <i data-lucide="send" class="w-4 h-4"></i> <span id="paletteSubmitText">Xem Bảng Điểm</span>
                         </button>
                     </div>
                 </div>
@@ -441,14 +488,14 @@
             <i data-lucide="alert-triangle" class="w-6 h-6"></i>
         </div>
         <div class="text-center space-y-1">
-            <h3 class="text-base font-bold text-slate-900 dark:text-white">Bạn có chắc muốn nộp bài?</h3>
+            <h3 id="submitModalTitle" class="text-base font-bold text-slate-900 dark:text-white">Bạn có chắc muốn nộp bài?</h3>
             <p id="unansweredWarningText" class="text-xs text-slate-500">Bạn đã hoàn thành 0/0 câu hỏi.</p>
         </div>
         <div class="grid grid-cols-2 gap-3 pt-2">
             <button type="button" onclick="closeSubmitModal()" class="py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-200 transition">
                 Tiếp tục làm
             </button>
-            <button type="button" onclick="submitExamFinal()" class="py-2.5 rounded-xl bg-violet-600 text-white text-xs font-bold hover:bg-violet-700 transition">
+            <button type="button" onclick="submitExamFinal()" id="submitModalBtn" class="py-2.5 rounded-xl bg-violet-600 text-white text-xs font-bold hover:bg-violet-700 transition">
                 Nộp bài ngay
             </button>
         </div>
@@ -468,6 +515,55 @@
     let remainingSeconds = 0;
     let timeElapsed = 0;
     let currentFilter = 'all';
+    let currentQuizMode = 'practice'; // 'practice' (Ôn tập) or 'exam' (Thi thử)
+
+    // Switch Quiz Mode: Ôn tập vs Thi thử
+    function setQuizMode(mode) {
+        currentQuizMode = mode;
+        const practiceBtn = document.getElementById('modePracticeBtn');
+        const examBtn = document.getElementById('modeExamBtn');
+        const practiceIcon = document.getElementById('modePracticeIcon');
+        const examIcon = document.getElementById('modeExamIcon');
+        const practiceTitle = document.getElementById('modePracticeTitle');
+        const examTitle = document.getElementById('modeExamTitle');
+        const practiceCheck = document.getElementById('modePracticeCheck');
+        const examCheck = document.getElementById('modeExamCheck');
+        const startBtnText = document.getElementById('startExamBtnText');
+        const examDuration = document.getElementById('examDuration');
+
+        if (mode === 'practice') {
+            if (practiceBtn) practiceBtn.className = 'p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 text-left transition relative group';
+            if (practiceIcon) practiceIcon.className = 'w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs';
+            if (practiceTitle) practiceTitle.className = 'text-xs font-bold text-slate-900 dark:text-white';
+            if (practiceCheck) practiceCheck.classList.remove('hidden');
+
+            if (examBtn) examBtn.className = 'p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-left hover:border-slate-300 dark:hover:border-slate-700 transition relative group';
+            if (examIcon) examIcon.className = 'w-6 h-6 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs';
+            if (examTitle) examTitle.className = 'text-xs font-bold text-slate-700 dark:text-slate-300';
+            if (examCheck) examCheck.classList.add('hidden');
+
+            if (startBtnText) startBtnText.innerText = 'Bắt Đầu Ôn Tập';
+            if (examDuration && (examDuration.value === '30' || examDuration.value === '45')) {
+                examDuration.value = '0';
+            }
+        } else {
+            if (examBtn) examBtn.className = 'p-3 rounded-2xl border-2 border-violet-600 bg-violet-50/70 dark:bg-violet-950/40 text-left transition relative group';
+            if (examIcon) examIcon.className = 'w-6 h-6 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs';
+            if (examTitle) examTitle.className = 'text-xs font-bold text-slate-900 dark:text-white';
+            if (examCheck) examCheck.classList.remove('hidden');
+
+            if (practiceBtn) practiceBtn.className = 'p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-left hover:border-slate-300 dark:hover:border-slate-700 transition relative group';
+            if (practiceIcon) practiceIcon.className = 'w-6 h-6 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs';
+            if (practiceTitle) practiceTitle.className = 'text-xs font-bold text-slate-700 dark:text-slate-300';
+            if (practiceCheck) practiceCheck.classList.add('hidden');
+
+            if (startBtnText) startBtnText.innerText = 'Bắt Đầu Thi Thử';
+            if (examDuration && examDuration.value === '0') {
+                examDuration.value = '30';
+            }
+        }
+        lucide.createIcons();
+    }
 
     // On Load
     document.addEventListener('DOMContentLoaded', () => {
@@ -710,6 +806,33 @@
 
         document.getElementById('activeExamTitle').innerText = currentExamTitle;
 
+        // Update mode badge & buttons in header
+        const modeBadge = document.getElementById('activeModeBadge');
+        const submitBtnText = document.getElementById('submitExamBtnText');
+        const paletteSubmitText = document.getElementById('paletteSubmitText');
+        const legendPractice = document.getElementById('paletteLegendPractice');
+        const legendExam = document.getElementById('paletteLegendExam');
+
+        if (currentQuizMode === 'practice') {
+            if (modeBadge) {
+                modeBadge.className = 'text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center gap-1';
+                modeBadge.innerHTML = '<i data-lucide="book-open" class="w-3 h-3"></i> Ôn Tập';
+            }
+            if (submitBtnText) submitBtnText.innerText = 'Kết Thúc Ôn Tập';
+            if (paletteSubmitText) paletteSubmitText.innerText = 'Xem Bảng Điểm';
+            if (legendPractice) legendPractice.classList.remove('hidden');
+            if (legendExam) legendExam.classList.add('hidden');
+        } else {
+            if (modeBadge) {
+                modeBadge.className = 'text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 flex items-center gap-1';
+                modeBadge.innerHTML = '<i data-lucide="timer" class="w-3 h-3"></i> Thi Thử';
+            }
+            if (submitBtnText) submitBtnText.innerText = 'Nộp Bài';
+            if (paletteSubmitText) paletteSubmitText.innerText = 'Nộp Bài & Xem Điểm';
+            if (legendPractice) legendPractice.classList.add('hidden');
+            if (legendExam) legendExam.classList.remove('hidden');
+        }
+
         // Render questions & palette
         renderQuestionsList();
         renderQuestionPalette();
@@ -760,6 +883,7 @@
 
             // Options List
             const optList = document.createElement('div');
+            optList.id = `optList_${q.id}`;
             optList.className = 'grid grid-cols-1 gap-2.5 pt-1';
 
             Object.keys(q.options).forEach(optKey => {
@@ -767,20 +891,30 @@
                 const optBtn = document.createElement('div');
                 optBtn.id = `opt_${q.id}_${optKey}`;
                 optBtn.onclick = () => selectOption(q.id, optKey);
-                optBtn.className = 'flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-violet-400 dark:hover:border-violet-600 bg-slate-50/50 dark:bg-slate-800/40 cursor-pointer transition group';
+                optBtn.className = 'flex items-center justify-between gap-3.5 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-violet-400 dark:hover:border-violet-600 bg-slate-50/50 dark:bg-slate-800/40 cursor-pointer transition group';
 
                 optBtn.innerHTML = `
-                    <span class="w-7 h-7 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center flex-shrink-0 group-hover:bg-violet-600 group-hover:text-white group-hover:border-violet-600 transition">
-                        ${optKey}
-                    </span>
-                    <span class="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-snug">
-                        ${escapeHtml(optText)}
-                    </span>
+                    <div class="flex items-center gap-3.5 flex-1 min-w-0">
+                        <span class="w-7 h-7 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center flex-shrink-0 group-hover:bg-violet-600 group-hover:text-white group-hover:border-violet-600 transition">
+                            ${optKey}
+                        </span>
+                        <span class="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-snug">
+                            ${escapeHtml(optText)}
+                        </span>
+                    </div>
+                    <div id="badge_${q.id}_${optKey}" class="flex-shrink-0"></div>
                 `;
                 optList.appendChild(optBtn);
             });
 
             card.appendChild(optList);
+
+            // Placeholder for practice mode immediate explanation box
+            const explainBox = document.createElement('div');
+            explainBox.id = `explainBox_${q.id}`;
+            explainBox.className = 'hidden';
+            card.appendChild(explainBox);
+
             container.appendChild(card);
         });
     }
@@ -804,19 +938,80 @@
     function selectOption(qId, selectedKey) {
         userAnswers[qId] = selectedKey;
 
-        // Update UI of the question options
         const q = currentQuestions.find(item => item.id === qId);
-        if (q) {
+        if (!q) return;
+
+        const isPractice = (currentQuizMode === 'practice');
+
+        if (isPractice) {
+            // PRACTICE MODE: Reveal correct answer immediately!
+            const isUserCorrect = (selectedKey.toUpperCase() === q.correct.toUpperCase());
+
+            Object.keys(q.options).forEach(optKey => {
+                const el = document.getElementById(`opt_${qId}_${optKey}`);
+                if (!el) return;
+                const circle = el.querySelector('span');
+                const badgeContainer = document.getElementById(`badge_${qId}_${optKey}`);
+                const isThisOptOfficialCorrect = (optKey.toUpperCase() === q.correct.toUpperCase());
+                const isThisOptSelected = (optKey === selectedKey);
+
+                if (isThisOptSelected && isUserCorrect) {
+                    // Selected and Correct!
+                    el.className = 'flex items-center justify-between gap-3.5 p-3.5 sm:p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 cursor-pointer transition';
+                    circle.className = 'w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center flex-shrink-0';
+                    if (badgeContainer) {
+                        badgeContainer.innerHTML = '<span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><i data-lucide="check" class="w-4 h-4"></i> Chính xác</span>';
+                    }
+                } else if (isThisOptSelected && !isUserCorrect) {
+                    // Selected and Wrong!
+                    el.className = 'flex items-center justify-between gap-3.5 p-3.5 sm:p-4 rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/40 cursor-pointer transition';
+                    circle.className = 'w-7 h-7 rounded-lg bg-rose-600 text-white font-bold text-xs flex items-center justify-center flex-shrink-0';
+                    if (badgeContainer) {
+                        badgeContainer.innerHTML = '<span class="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1"><i data-lucide="x" class="w-4 h-4"></i> Bạn chọn</span>';
+                    }
+                } else if (isThisOptOfficialCorrect) {
+                    // Not selected by user, but this IS the official correct answer! Reveal it!
+                    el.className = 'flex items-center justify-between gap-3.5 p-3.5 sm:p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 cursor-pointer transition';
+                    circle.className = 'w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center flex-shrink-0';
+                    if (badgeContainer) {
+                        badgeContainer.innerHTML = '<span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4"></i> Đáp án đúng</span>';
+                    }
+                } else {
+                    // Other options
+                    el.className = 'flex items-center justify-between gap-3.5 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20 opacity-60 cursor-pointer transition';
+                    circle.className = 'w-7 h-7 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 font-bold text-xs flex items-center justify-center flex-shrink-0';
+                    if (badgeContainer) badgeContainer.innerHTML = '';
+                }
+            });
+
+            // Show explanation box immediately
+            const explainBox = document.getElementById(`explainBox_${qId}`);
+            if (explainBox) {
+                explainBox.className = `p-4 rounded-2xl ${isUserCorrect ? 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200' : 'bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-950 dark:text-rose-200'} text-xs leading-relaxed space-y-2 mt-2 transition`;
+                explainBox.innerHTML = `
+                    <div class="flex items-center gap-2 font-bold text-xs sm:text-sm ${isUserCorrect ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'}">
+                        <i data-lucide="${isUserCorrect ? 'check-circle' : 'alert-circle'}" class="w-4 h-4"></i>
+                        <span>${isUserCorrect ? 'Bạn đã trả lời chính xác!' : `Chưa chính xác! Đáp án đúng là: ${q.correct}`}</span>
+                    </div>
+                    <div class="text-slate-700 dark:text-slate-300 pt-1">
+                        <p><strong class="text-slate-900 dark:text-white">Đáp án đúng:</strong> <strong>${q.correct}.</strong> ${escapeHtml(q.options[q.correct] || '')}</p>
+                        ${q.explanation ? `<p class="mt-1 text-slate-600 dark:text-slate-400 italic"><strong class="not-italic text-slate-800 dark:text-slate-200">💡 Giải thích:</strong> ${escapeHtml(q.explanation)}</p>` : ''}
+                    </div>
+                `;
+            }
+
+        } else {
+            // EXAM MODE: Standard selection, do not reveal correct answer
             Object.keys(q.options).forEach(optKey => {
                 const el = document.getElementById(`opt_${qId}_${optKey}`);
                 if (!el) return;
                 const circle = el.querySelector('span');
 
                 if (optKey === selectedKey) {
-                    el.className = 'flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl border-2 border-violet-600 bg-violet-50/80 dark:bg-violet-950/40 cursor-pointer transition';
+                    el.className = 'flex items-center justify-between gap-3.5 p-3.5 sm:p-4 rounded-2xl border-2 border-violet-600 bg-violet-50/80 dark:bg-violet-950/40 cursor-pointer transition';
                     circle.className = 'w-7 h-7 rounded-lg bg-violet-600 text-white font-bold text-xs flex items-center justify-center flex-shrink-0';
                 } else {
-                    el.className = 'flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-violet-400 dark:hover:border-violet-600 bg-slate-50/50 dark:bg-slate-800/40 cursor-pointer transition group';
+                    el.className = 'flex items-center justify-between gap-3.5 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-violet-400 dark:hover:border-violet-600 bg-slate-50/50 dark:bg-slate-800/40 cursor-pointer transition group';
                     circle.className = 'w-7 h-7 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center flex-shrink-0 group-hover:bg-violet-600 group-hover:text-white group-hover:border-violet-600 transition';
                 }
             });
@@ -825,6 +1020,7 @@
         // Update palette button
         updatePaletteButton(qId);
         updateExamProgress();
+        lucide.createIcons();
     }
 
     function toggleFlagQuestion(qId) {
@@ -845,11 +1041,24 @@
 
         const isAnswered = !!userAnswers[qId];
         const isFlagged = flaggedQuestions.has(qId);
+        const q = currentQuestions.find(item => item.id === qId);
 
         if (isFlagged) {
             btn.className = 'w-full aspect-square rounded-xl text-xs font-bold transition flex items-center justify-center bg-amber-500 text-white shadow-sm';
-        } else if (isAnswered) {
-            btn.className = 'w-full aspect-square rounded-xl text-xs font-bold transition flex items-center justify-center bg-violet-600 text-white shadow-sm';
+            return;
+        }
+
+        if (isAnswered) {
+            if (currentQuizMode === 'practice' && q) {
+                const isCorrect = (userAnswers[qId].toUpperCase() === q.correct.toUpperCase());
+                if (isCorrect) {
+                    btn.className = 'w-full aspect-square rounded-xl text-xs font-bold transition flex items-center justify-center bg-emerald-500 text-white shadow-sm';
+                } else {
+                    btn.className = 'w-full aspect-square rounded-xl text-xs font-bold transition flex items-center justify-center bg-rose-500 text-white shadow-sm';
+                }
+            } else {
+                btn.className = 'w-full aspect-square rounded-xl text-xs font-bold transition flex items-center justify-center bg-violet-600 text-white shadow-sm';
+            }
         } else {
             btn.className = 'w-full aspect-square rounded-xl text-xs font-bold transition flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700';
         }
@@ -928,6 +1137,18 @@
         const total = currentQuestions.length;
         const answered = Object.keys(userAnswers).length;
         const unanswered = total - answered;
+
+        const isPractice = (currentQuizMode === 'practice');
+        const modalTitle = document.getElementById('submitModalTitle');
+        const modalBtn = document.getElementById('submitModalBtn');
+
+        if (isPractice) {
+            if (modalTitle) modalTitle.innerText = 'Kết thúc ôn tập & xem bảng điểm?';
+            if (modalBtn) modalBtn.innerText = 'Xem bảng điểm ngay';
+        } else {
+            if (modalTitle) modalTitle.innerText = 'Bạn có chắc muốn nộp bài?';
+            if (modalBtn) modalBtn.innerText = 'Nộp bài ngay';
+        }
 
         let warning = `Bạn đã hoàn thành ${answered}/${total} câu hỏi.`;
         if (unanswered > 0) {
@@ -1167,6 +1388,7 @@
         }
 
         currentExamTitle = `[Ôn Luyện Lại] Các Câu Làm Sai (${wrongIds.length} Câu)`;
+        setQuizMode('practice');
         startExamSession(wrongIds);
     }
 
