@@ -182,41 +182,63 @@
                         </div>
                     </div>
 
-                    <!-- Thời gian làm bài -->
+                    <!-- 1. Số lượng câu hỏi để ôn tập -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                            <span>Số lượng câu hỏi ôn tập:</span>
+                            <span id="detectedQuestionsBadge" class="hidden text-[11px] text-violet-600 dark:text-violet-400 font-bold"></span>
+                        </label>
+                        <select id="questionLimit" onchange="toggleCustomQuestionInput(this.value)" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
+                            <option value="0" selected>Toàn bộ câu hỏi trong tài liệu</option>
+                            <option value="10">10 câu</option>
+                            <option value="20">20 câu</option>
+                            <option value="30">30 câu</option>
+                            <option value="40">40 câu (Tiêu chuẩn)</option>
+                            <option value="50">50 câu</option>
+                            <option value="60">60 câu</option>
+                            <option value="100">100 câu</option>
+                            <option value="150">150 câu</option>
+                            <option value="200">200 câu</option>
+                            <option value="custom">✍️ Tùy chỉnh số lượng câu...</option>
+                        </select>
+                        <div id="customQuestionCountBox" class="hidden mt-2">
+                            <input type="number" id="customQuestionCount" min="1" max="1000" placeholder="Nhập số câu (Ví dụ: 75 câu)..." class="w-full text-xs sm:text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- 2. Thời gian làm bài -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Thời gian làm bài:</label>
-                        <select id="examDuration" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
-                            <option value="0">Không giới hạn thời gian (Tự do)</option>
+                        <select id="examDuration" onchange="toggleCustomDurationInput(this.value)" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
+                            <option value="0">Không giới hạn thời gian (Tự do ôn tập)</option>
                             <option value="15">15 phút</option>
                             <option value="30" selected>30 phút</option>
                             <option value="45">45 phút</option>
-                            <option value="60">60 phút</option>
+                            <option value="60">60 phút (1 tiếng)</option>
                             <option value="90">90 phút</option>
+                            <option value="120">120 phút (2 tiếng)</option>
+                            <option value="custom">✍️ Tùy chỉnh số phút...</option>
                         </select>
+                        <div id="customDurationBox" class="hidden mt-2">
+                            <input type="number" id="customDurationInput" min="1" max="600" placeholder="Nhập số phút (Ví dụ: 50 phút)..." class="w-full text-xs sm:text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
+                        </div>
                     </div>
 
-                    <!-- Giới hạn số câu -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Số lượng câu hỏi:</label>
-                        <select id="questionLimit" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
-                            <option value="0" selected>Tất cả câu hỏi trong tài liệu</option>
-                            <option value="10">10 câu ngẫu nhiên</option>
-                            <option value="20">20 câu ngẫu nhiên</option>
-                            <option value="30">30 câu ngẫu nhiên</option>
-                            <option value="40">40 câu ngẫu nhiên</option>
-                            <option value="50">50 câu ngẫu nhiên</option>
-                        </select>
-                    </div>
-
-                    <!-- Tùy chọn xáo trộn -->
-                    <div class="space-y-2.5 pt-2">
+                    <!-- 3. Tùy chọn xáo câu & đảo đáp án -->
+                    <div class="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
                         <label class="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
-                            <input type="checkbox" id="shuffleQuestions" class="w-4 h-4 rounded text-violet-600 focus:ring-violet-500 border-slate-300 dark:border-slate-700">
-                            <span>Trộn ngẫu nhiên thứ tự câu hỏi</span>
+                            <input type="checkbox" id="shuffleQuestions" checked class="w-4 h-4 rounded text-violet-600 focus:ring-violet-500 border-slate-300 dark:border-slate-700">
+                            <span class="font-medium flex items-center gap-1.5">
+                                <i data-lucide="shuffle" class="w-3.5 h-3.5 text-violet-600"></i>
+                                Trộn ngẫu nhiên câu hỏi (Xáo câu)
+                            </span>
                         </label>
                         <label class="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
                             <input type="checkbox" id="shuffleOptions" class="w-4 h-4 rounded text-violet-600 focus:ring-violet-500 border-slate-300 dark:border-slate-700">
-                            <span>Trộn ngẫu nhiên thứ tự đáp án (A, B, C, D)</span>
+                            <span class="font-medium flex items-center gap-1.5">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-violet-600"></i>
+                                Trộn ngẫu nhiên thứ tự đáp án (A, B, C, D)
+                            </span>
                         </label>
                     </div>
 
@@ -591,6 +613,11 @@
             if (data.success && data.questions && data.questions.length > 0) {
                 rawQuestions = data.questions;
                 currentExamTitle = data.title || '300 Câu Trắc Nghiệm Tư Tưởng Hồ Chí Minh';
+                const badge = document.getElementById('detectedQuestionsBadge');
+                if (badge) {
+                    badge.innerText = `(Tài liệu có ${rawQuestions.length} câu)`;
+                    badge.classList.remove('hidden');
+                }
                 setParseLoading(false);
                 startExamSession();
             } else {
@@ -644,6 +671,11 @@
 
             rawQuestions = data.questions;
             currentExamTitle = data.title || (selectedUploadFile ? selectedUploadFile.name : 'Bài Thi Trắc Nghiệm');
+            const badge = document.getElementById('detectedQuestionsBadge');
+            if (badge) {
+                badge.innerText = `(Tài liệu có ${rawQuestions.length} câu)`;
+                badge.classList.remove('hidden');
+            }
             setParseLoading(false);
             startExamSession();
 
@@ -668,6 +700,32 @@
         }
     }
 
+    function toggleCustomQuestionInput(val) {
+        const box = document.getElementById('customQuestionCountBox');
+        if (val === 'custom') {
+            box.classList.remove('hidden');
+            const input = document.getElementById('customQuestionCount');
+            if (!input.value && rawQuestions.length > 0) {
+                input.value = Math.min(40, rawQuestions.length);
+            }
+            input.focus();
+        } else {
+            box.classList.add('hidden');
+        }
+    }
+
+    function toggleCustomDurationInput(val) {
+        const box = document.getElementById('customDurationBox');
+        if (val === 'custom') {
+            box.classList.remove('hidden');
+            const input = document.getElementById('customDurationInput');
+            if (!input.value) input.value = 45;
+            input.focus();
+        } else {
+            box.classList.add('hidden');
+        }
+    }
+
     // Start exam session
     function startExamSession(filterQuestionIds = null) {
         if (!rawQuestions || rawQuestions.length === 0) return;
@@ -684,7 +742,14 @@
         }
 
         // Apply question limit
-        const limit = parseInt(document.getElementById('questionLimit').value) || 0;
+        let limit = 0;
+        const limitVal = document.getElementById('questionLimit').value;
+        if (limitVal === 'custom') {
+            limit = parseInt(document.getElementById('customQuestionCount').value) || 0;
+        } else {
+            limit = parseInt(limitVal) || 0;
+        }
+
         const doShuffleQ = document.getElementById('shuffleQuestions').checked;
         const doShuffleOpt = document.getElementById('shuffleOptions').checked;
 
@@ -738,7 +803,13 @@
         updateExamProgress();
 
         // Setup timer
-        const durationMin = parseInt(document.getElementById('examDuration').value) || 0;
+        let durationMin = 0;
+        const durVal = document.getElementById('examDuration').value;
+        if (durVal === 'custom') {
+            durationMin = parseInt(document.getElementById('customDurationInput').value) || 0;
+        } else {
+            durationMin = parseInt(durVal) || 0;
+        }
         setupExamTimer(durationMin);
 
         // Smooth scroll to top
@@ -1212,3 +1283,4 @@
 </script>
 @endpush
 @endsection
+

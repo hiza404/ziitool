@@ -352,4 +352,36 @@ class MicroToolsPlatformTest extends TestCase
         $this->assertEquals('B', $data['questions'][0]['correct']);
         $this->assertEquals('C', $data['questions'][1]['correct']);
     }
+
+    /**
+     * Test Quiz parse automatically removes footers, watermarks, emails, and page numbers.
+     */
+    public function test_quiz_parse_removes_footers_and_watermarks(): void
+    {
+        $dirtyText = "Câu 1: Thủ đô của Việt Nam là gì?\nA. Hà Nội\nB. Đà Nẵng\nDownloaded by Khanh Linh Vuong (vuongkhanhlinhcute@gmail.com)\nlOMoARcPSD|35141182\nScan to open on Studocu\nTrang 1 / 10\nC. TP Hồ Chí Minh\nD. Cần Thơ\nĐáp án: A";
+
+        $response = $this->post('/tool/trac-nghiem/parse', [
+            'text' => $dirtyText,
+            'mode' => 'local',
+        ]);
+
+        $response->assertStatus(200);
+        $data = $response->json();
+        $this->assertEquals(1, $data['total_questions']);
+
+        $q = $data['questions'][0];
+        $this->assertEquals('A', $q['correct']);
+        $this->assertEquals('Hà Nội', $q['options']['A']);
+        $this->assertEquals('Đà Nẵng', $q['options']['B']);
+        $this->assertEquals('TP Hồ Chí Minh', $q['options']['C']);
+        $this->assertEquals('Cần Thơ', $q['options']['D']);
+
+        // Assert no watermark leak in options or question
+        $allText = $q['question'].' '.implode(' ', $q['options']);
+        $this->assertStringNotContainsString('Downloaded', $allText);
+        $this->assertStringNotContainsString('Studocu', $allText);
+        $this->assertStringNotContainsString('lOMoARcPSD', $allText);
+        $this->assertStringNotContainsString('gmail.com', $allText);
+        $this->assertStringNotContainsString('Trang 1', $allText);
+    }
 }

@@ -88,6 +88,7 @@ QUY TẮC NHẬN DIỆN ĐÁP ÁN ĐÚNG QUAN TRỌNG:
 2. BẢNG ĐÁP ÁN: Kiểm tra xem có bảng "GỢI Ý ĐÁP ÁN" / "ĐÁP ÁN" ở cuối trang, cuối chương hoặc cuối tài liệu hay không (ví dụ: Câu 1: C, Câu 2: B...). Hãy đối chiếu chính xác số thứ tự câu hỏi với đáp án trong bảng.
 3. NẾU KHÔNG CÓ ĐÁP ÁN ĐÁNH DẤU: Hãy tự suy luận và giải để đưa ra đáp án chính xác nhất.
 4. Mỗi câu hỏi hãy cung cấp giải thích ngắn gọn, súc tích vì sao đáp án đó đúng.
+5. TUYỆT ĐỐI LOẠI BỎ CHÂN TRANG (FOOTER): Không lấy bất kỳ thông tin chân trang, watermark, thông tin người tải (Downloaded by...), email, số trang (Trang 1/10), tên website (Studocu...) vào câu hỏi hoặc đáp án.
 
 ĐỊNH DẠNG ĐẦU RA BẮT BUỘC (JSON THUẦN TÚY):
 Trả về duy nhất 1 JSON object với cấu trúc sau:
@@ -197,7 +198,7 @@ PROMPT;
             $origName = pathinfo($input->getClientOriginalName(), PATHINFO_FILENAME);
             $title = 'Đề Thi: '.str_replace(['_', '-'], ' ', $origName);
         } else {
-            $text = $input;
+            $text = $this->cleanDocumentWatermarks($input);
         }
 
         if (empty(trim($text))) {
@@ -271,11 +272,7 @@ PROMPT;
                 if (preg_match_all($optPattern, $content, $optMatches, PREG_SET_ORDER)) {
                     $firstOptPos = mb_strpos($content, $optMatches[0][0]);
                     $questionStem = $firstOptPos !== false ? trim(mb_substr($content, 0, $firstOptPos)) : $content;
-
-                    // Clean question stem from headers/watermarks
-                    $questionStem = preg_replace('/Downloaded by.*/iu', '', $questionStem);
-                    $questionStem = preg_replace('/lOMoARcPSD\|\d+/u', '', $questionStem);
-                    $questionStem = preg_replace('/\s+/u', ' ', trim($questionStem));
+                    $questionStem = $this->cleanTextSnippet($questionStem);
 
                     $options = [];
                     $boldOrMarkedCorrect = null;
@@ -289,9 +286,7 @@ PROMPT;
                             $optText = trim(str_replace(['*', '✓', '[x]', '[X]'], '', $optText));
                         }
 
-                        $optText = preg_replace('/Downloaded by.*/iu', '', $optText);
-                        $optText = preg_replace('/lOMoARcPSD\|\d+/u', '', $optText);
-                        $optText = preg_replace('/\s+/u', ' ', trim($optText));
+                        $optText = $this->cleanTextSnippet($optText);
 
                         $options[$key] = $optText;
                     }
@@ -390,7 +385,66 @@ PROMPT;
         }
 
         // Default text read
-        return File::get($path) ?: '';
+        $raw = File::get($path) ?: '';
+
+        return $this->cleanDocumentWatermarks($raw);
+    }
+
+    /**
+     * Clean footers, headers, watermarks, emails, and page numbers from document text.
+     */
+    public function cleanDocumentWatermarks(string $text): string
+    {
+        $lines = explode("\n", str_replace(["\x0c", "\r"], ["\n", ''], $text));
+        $cleanedLines = [];
+
+        foreach ($lines as $line) {
+            $trim = trim($line);
+
+            // 1. Skip watermark lines from Studocu / document aggregators
+            if (preg_match('/(?:lOMoARcPSD|Studocu|Downloaded\s+by|Downloaded\s+by\s+by|Scan\s+to\s+open)/iu', $trim)) {
+                continue;
+            }
+
+            // 2. Skip email lines
+            if (preg_match('/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/u', $trim)) {
+                continue;
+            }
+
+            // 3. Skip standalone watermark names from PDF footer
+            if (preg_match('/^(?:Downloaded|Vuong|Khanh|Anh\s+Linh|Nguy\?n|Khanh\s+Linh\s+Vuong)\b/iu', $trim) && ! preg_match('/(?:Câu|CHƯƠNG|PHẦN|[A-E]\.)/u', $trim)) {
+                continue;
+            }
+
+            // 4. Skip page number lines ("Trang 1 / 15", "Page 1 of 10", or single digits)
+            if (preg_match('/^(?:(?:Trang|Page)\s+\d+(?:\s*(?:\/|of)\s*\d+)?|\d+\s*\/\s*\d+|\d+)$/iu', $trim)) {
+                continue;
+            }
+
+            // 5. Skip website urls on own lines
+            if (preg_match('/^(?:https?:\/\/|www\.)[^\s]+$/iu', $trim)) {
+                continue;
+            }
+
+            $cleanedLines[] = $line;
+        }
+
+        return implode("\n", $cleanedLines);
+    }
+
+    /**
+     * Clean an individual question stem or option string.
+     */
+    public function cleanTextSnippet(string $str): string
+    {
+        $str = preg_replace('/(?:Downloaded\s*(?:by)?|lOMoARcPSD|Studocu|Scan\s*to\s*open).*$/iu', '', $str);
+        $str = preg_replace('/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/u', '', $str);
+        $str = preg_replace('/\([^\)]*@.*?\)/u', '', $str);
+        $str = preg_replace('/(?:Trang|Page)\s+\d+(?:\s*(?:\/|of)\s*\d+)?/iu', '', $str);
+        $str = preg_replace('/\b(?:Khanh|Vuong|Nguy\?n|Anh Linh)\b/iu', '', $str);
+        $str = preg_replace('/\s+/u', ' ', trim($str));
+
+        return $str;
     }
 
     /**
