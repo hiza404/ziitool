@@ -110,12 +110,6 @@
                 </p>
             </div>
         </div>
-
-        <!-- Quick Demo Note -->
-        <div class="mt-6 p-4 rounded-2xl bg-slate-100/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800/80 text-[11px] text-slate-500 dark:text-slate-400 text-center space-y-1">
-            <p><strong>Tài khoản Pro mẫu:</strong> <code class="font-mono text-indigo-600 dark:text-indigo-400">pro@ziitool.com</code> / Mật khẩu: <code class="font-mono">pro123</code></p>
-            <p><strong>Tài khoản Chuẩn mẫu:</strong> <code class="font-mono text-indigo-600 dark:text-indigo-400">user@ziitool.com</code> / Mật khẩu: <code class="font-mono">user123</code></p>
-        </div>
     </div>
 </div>
 

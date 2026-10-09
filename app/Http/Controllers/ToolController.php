@@ -717,17 +717,19 @@ class ToolController extends Controller
     public function parseQuiz(Request $request, QuizParserService $parser): JsonResponse
     {
         $request->validate([
-            'file' => 'nullable|file|max:20480', // 20MB max
+            'file' => 'nullable|file|mimes:pdf|max:51200', // 50MB max PDF
             'text' => 'nullable|string',
             'api_key' => 'nullable|string',
             'model' => 'nullable|string',
             'mode' => 'nullable|string',
+        ], [
+            'file.mimes' => 'Hệ thống chỉ hỗ trợ tải lên định dạng file PDF. Nếu bạn có file Word (.docx), vui lòng lưu sang file PDF (Save as PDF trong Word) hoặc dán trực tiếp nội dung đề thi vào ô văn bản.',
         ]);
 
         if (! $request->hasFile('file') && empty(trim((string) $request->input('text', '')))) {
             return response()->json([
                 'success' => false,
-                'error' => 'Vui lòng tải lên file tài liệu (PDF, Word, TXT) hoặc dán nội dung câu hỏi.',
+                'error' => 'Vui lòng tải lên file tài liệu PDF hoặc dán nội dung đề thi.',
             ], 422);
         }
 

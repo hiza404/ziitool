@@ -48,7 +48,7 @@
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Email Quản Trị</label>
                     <div class="relative flex items-center">
                         <i data-lucide="mail" class="w-4 h-4 text-slate-500 absolute left-3.5 pointer-events-none"></i>
-                        <input type="email" name="email" value="{{ old('email', 'admin@microtools.com') }}" required placeholder="admin@microtools.com" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="admin@example.com" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                 </div>
 
@@ -56,7 +56,7 @@
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Mật Khẩu</label>
                     <div class="relative flex items-center">
                         <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3.5 pointer-events-none"></i>
-                        <input type="password" name="password" required value="admin123" placeholder="••••••••" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <input type="password" name="password" required placeholder="••••••••" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                 </div>
 
@@ -72,13 +72,6 @@
                     <span>Đăng Nhập Quản Trị</span>
                 </button>
             </form>
-
-            <!-- Demo Credentials Box -->
-            <div class="p-3.5 rounded-xl bg-slate-800/60 border border-slate-800 text-[11px] text-slate-400 space-y-1">
-                <span class="font-bold text-amber-400 block mb-1">🔑 Tài khoản Admin mặc định:</span>
-                <div>Email: <strong class="text-white font-mono">admin@ziitool.com</strong></div>
-                <div>Mật khẩu: <strong class="text-white font-mono">admin123</strong></div>
-            </div>
 
             <div class="text-center pt-2">
                 <a href="{{ route('home') }}" class="text-xs text-slate-500 hover:text-white transition flex items-center justify-center gap-1">

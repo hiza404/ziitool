@@ -29,7 +29,7 @@
             </span>
         </div>
         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-3xl">
-            Tự động đọc file PDF, Word (DOCX) hoặc văn bản, nhận diện đáp án in đậm, bôi màu hoặc bảng đáp án. Tạo phòng thi trắc nghiệm trực tuyến có bấm giờ, chấm điểm tức thì và hỗ trợ ôn luyện lại các câu sai.
+            Tự động đọc file PDF hoặc văn bản đề thi, nhận diện đáp án in đậm, bôi màu hoặc bảng đáp án. Tạo phòng thi trắc nghiệm trực tuyến có bấm giờ, chấm điểm tức thì và hỗ trợ ôn luyện lại các câu sai.
         </p>
     </div>
 
@@ -84,6 +84,14 @@
                     <i data-lucide="folder-kanban" class="w-4 h-4 text-violet-600"></i>
                     <span>Bộ Đề Của Tôi (Server)</span>
                 </button>
+                <form action="{{ route('logout') }}" method="POST" class="inline" onsubmit="return confirm('Bạn có chắc chắn muốn đăng xuất tài khoản?');">
+                    @csrf
+                    <input type="hidden" name="redirect" value="{{ request()->getRequestUri() }}">
+                    <button type="submit" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 text-xs font-bold transition flex items-center gap-1.5" title="Đăng xuất tài khoản">
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                        <span>Đăng Xuất</span>
+                    </button>
+                </form>
             @else
                 <a href="{{ route('login', ['redirect' => request()->getRequestUri()]) }}" class="px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition shadow-sm flex items-center gap-1.5">
                     <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
@@ -142,14 +150,14 @@
                             </div>
                             <div>
                                 <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">1. Tải Lên Tài Liệu Đề Thi</h2>
-                                <p class="text-xs text-slate-500">Hỗ trợ file PDF, Word (.docx) hoặc dán văn bản trực tiếp</p>
+                                <p class="text-xs text-slate-500">Hỗ trợ file PDF (hoặc chuyển sang tab Dán Văn Bản)</p>
                             </div>
                         </div>
 
                         <!-- Switch tabs -->
                         <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-medium">
                             <button type="button" id="tabFileBtn" onclick="switchInputTab('file')" class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition">
-                                Tải File
+                                Tải File PDF
                             </button>
                             <button type="button" id="tabTextBtn" onclick="switchInputTab('text')" class="px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                 Dán Văn Bản
@@ -160,17 +168,17 @@
                     <!-- Khu vực tải file -->
                     <div id="inputTabFile">
                         <div id="dropZone" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" class="relative p-8 sm:p-10 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-violet-500 dark:hover:border-violet-500 bg-slate-50/50 dark:bg-slate-800/40 text-center cursor-pointer transition group">
-                            <input type="file" id="fileInput" accept=".pdf,.docx,.txt" class="hidden" onchange="handleFileSelected(this.files)">
+                            <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden" onchange="handleFileSelected(this.files)">
                             
                             <div class="w-14 h-14 rounded-2xl bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                                <i data-lucide="upload-cloud" class="w-7 h-7"></i>
+                                <i data-lucide="file-up" class="w-7 h-7"></i>
                             </div>
                             
                             <h3 id="fileLabelTitle" class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">
-                                Kéo thả file PDF, Word hoặc <span class="text-violet-600 dark:text-violet-400 underline">chọn từ thiết bị</span>
+                                Kéo thả file PDF hoặc <span class="text-violet-600 dark:text-violet-400 underline">chọn file PDF từ thiết bị</span>
                             </h3>
                             <p id="fileLabelDesc" class="text-xs text-slate-400 dark:text-slate-500">
-                                Dung lượng tối đa 20MB • Hỗ trợ nhận diện câu hỏi, đáp án bôi màu, in đậm
+                                Định dạng hỗ trợ: File PDF (tối đa 50MB) • Tự động nhận diện câu hỏi và đáp án
                             </p>
                         </div>
                     </div>
@@ -1544,8 +1552,17 @@
 
     function handleFileSelected(files) {
         if (!files || files.length === 0) return;
-        selectedUploadFile = files[0];
-        document.getElementById('fileLabelTitle').innerHTML = `Đã chọn file: <span class="text-violet-600 font-bold">${selectedUploadFile.name}</span>`;
+        const file = files[0];
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (ext !== 'pdf') {
+            alert('Hệ thống chỉ hỗ trợ tải lên file PDF. Nếu bạn có file Word (.docx), vui lòng lưu sang định dạng PDF (chọn File > Save as > PDF trong Word) hoặc chuyển sang tab "Dán Văn Bản" để dán trực tiếp nội dung đề thi.');
+            const input = document.getElementById('fileInput');
+            if (input) input.value = '';
+            selectedUploadFile = null;
+            return;
+        }
+        selectedUploadFile = file;
+        document.getElementById('fileLabelTitle').innerHTML = `Đã chọn file PDF: <span class="text-violet-600 font-bold">${selectedUploadFile.name}</span>`;
         document.getElementById('fileLabelDesc').innerText = `Dung lượng: ${(selectedUploadFile.size / 1024 / 1024).toFixed(2)} MB • Sẵn sàng tạo đề thi`;
     }
 
@@ -1583,7 +1600,7 @@
         const mode = 'auto';
 
         if (!selectedUploadFile && !textContent) {
-            alert('Vui lòng chọn 1 file tài liệu (PDF, Word, TXT) hoặc dán văn bản câu hỏi, hoặc bấm "Thử Đề Mẫu Ngay".');
+            alert('Vui lòng chọn 1 file PDF đề thi hoặc dán văn bản câu hỏi vào tab "Dán Văn Bản", hoặc bấm "Thử Đề Mẫu Ngay".');
             return;
         }
 
@@ -1603,12 +1620,19 @@
             const resp = await fetch('{{ route("tool.quiz.parse") }}', {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
                 },
                 body: formData
             });
 
-            const data = await resp.json();
+            let data;
+            const contentType = resp.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                data = await resp.json();
+            } else {
+                throw new Error(resp.status === 413 ? 'Dung lượng file tải lên quá lớn, vui lòng chọn file nhỏ hơn.' : (resp.status === 419 ? 'Phiên làm việc đã hết hạn. Vui lòng làm mới trang (F5) và thử lại.' : `Máy chủ phản hồi mã ${resp.status}. Vui lòng thử lại.`));
+            }
 
             if (!resp.ok || !data.success) {
                 throw new Error(data.error || 'Không thể trích xuất câu hỏi từ tài liệu này.');

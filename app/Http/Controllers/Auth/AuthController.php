@@ -105,6 +105,11 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        $redirect = $request->input('redirect') ?: url()->previous();
+        if ($redirect && (str_starts_with($redirect, '/') || str_starts_with($redirect, config('app.url')))) {
+            return redirect($redirect)->with('info', 'Bạn đã đăng xuất tài khoản thành công.');
+        }
+
         return redirect()->route('home')->with('info', 'Bạn đã đăng xuất tài khoản thành công.');
     }
 }

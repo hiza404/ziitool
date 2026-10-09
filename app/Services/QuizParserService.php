@@ -22,6 +22,16 @@ class QuizParserService
         $model = ! empty($options['model']) ? $options['model'] : config('services.gemini.model', 'gemini-2.0-flash');
         $mode = $options['mode'] ?? 'auto';
 
+        if ($input instanceof UploadedFile) {
+            $ext = strtolower($input->getClientOriginalExtension());
+            if ($ext !== 'pdf') {
+                return [
+                    'success' => false,
+                    'error' => 'Hệ thống chỉ hỗ trợ tải lên định dạng file PDF. Nếu bạn có file Word (.docx), vui lòng lưu sang file PDF (Save as PDF trong Word) hoặc dán trực tiếp nội dung đề thi vào ô văn bản.',
+                ];
+            }
+        }
+
         // 1. Try Gemini AI if requested or available
         $canUseAi = ! empty($apiKey) && ($mode === 'ai' || $mode === 'auto');
 
@@ -233,6 +243,8 @@ PROMPT;
         $qText = $text;
         if (preg_match('/(?:GỢI\s*Ý\s*ĐÁP\s*ÁN|BẢNG\s*ĐÁP\s*ÁN|ĐÁP\s*ÁN\s*CHI\s*TIẾT|LỜI\s*GIẢI\s*CHI\s*TIẾT|HƯỚNG\s*DẪN\s*GIẢI)/iu', $text, $ansPos, PREG_OFFSET_CAPTURE)) {
             $qText = trim(substr($text, 0, $ansPos[0][1]));
+        } elseif (preg_match('/(?:\n\s*(?:(?:Câu|C)\s*)?1[\.\)]\s+[A-D]\s*\n\s*(?:(?:Câu|C)\s*)?2[\.\)]\s+[A-D]\s*\n)/u', $text, $seqPos, PREG_OFFSET_CAPTURE)) {
+            $qText = trim(substr($text, 0, $seqPos[0][1]));
         }
 
         // Check if the document has chapters (e.g., 'CHƯƠNG 1:', 'Phần I:', 'Phần 1:')
@@ -398,6 +410,18 @@ PROMPT;
                 foreach ($solMatches as $sm) {
                     $qNum = (int) $sm[1];
                     if (! isset($answers[$qNum])) {
+                        $answers[$qNum] = strtoupper($sm[2]);
+                    }
+                }
+            }
+        }
+
+        // 3. Check for standalone sequence of answers at the bottom: e.g. 1. A \n 2. C \n 3. B ...
+        if (count($answers) < 5) {
+            if (preg_match_all('/(?:^|\n)\s*(?:(?:Câu|C)\s*)?(\d+)[\.\)]\s+([A-D])\s*(?=\n|$)/iu', $text, $seqMatches, PREG_SET_ORDER)) {
+                if (count($seqMatches) >= 4) {
+                    foreach ($seqMatches as $sm) {
+                        $qNum = (int) $sm[1];
                         $answers[$qNum] = strtoupper($sm[2]);
                     }
                 }
@@ -618,6 +642,7 @@ PY;
      */
     public function cleanTextSnippet(string $str): string
     {
+        $str = preg_replace('/\n\s*(?:Circle|Mark|Read|Rewrite|PHẦN|CHƯƠNG|SECTION|Ghi\s*chú)[\s\S]*$/iu', '', $str);
         $str = preg_replace('/(?:Downloaded\s*(?:by)?|lOMoARcPSD|Studocu|Scan\s*to\s*open).*$/iu', '', $str);
         $str = preg_replace('/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/u', '', $str);
         $str = preg_replace('/\([^\)]*@.*?\)/u', '', $str);
