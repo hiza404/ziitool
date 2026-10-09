@@ -44,12 +44,12 @@ class QuizParserService
                         'source' => 'gemini',
                         'model' => $model,
                         'total_questions' => count($aiResult['questions']),
-                        'title' => $aiResult['title'] ?? 'Bài Thi Trắc Nghiệm (Tạo Bởi AI)',
+                        'title' => $aiResult['title'] ?? 'Bài Thi Trắc Nghiệm',
                         'questions' => $aiResult['questions'],
                     ];
                 }
             } catch (\Throwable $e) {
-                Log::warning('Gemini AI parsing with '.$model.' failed, trying fallback: '.$e->getMessage());
+                Log::warning('Gemini parsing with '.$model.' failed, trying fallback: '.$e->getMessage());
 
                 // Fallback attempt with gemini-1.5-flash if primary model was 2.0
                 if ($model !== 'gemini-1.5-flash') {
@@ -61,7 +61,7 @@ class QuizParserService
                                 'source' => 'gemini',
                                 'model' => 'gemini-1.5-flash',
                                 'total_questions' => count($aiResult['questions']),
-                                'title' => $aiResult['title'] ?? 'Bài Thi Trắc Nghiệm (Tạo Bởi AI)',
+                                'title' => $aiResult['title'] ?? 'Bài Thi Trắc Nghiệm',
                                 'questions' => $aiResult['questions'],
                             ];
                         }
@@ -73,7 +73,7 @@ class QuizParserService
                 if ($mode === 'ai') {
                     return [
                         'success' => false,
-                        'error' => 'Lỗi kết nối Gemini AI: '.$e->getMessage().'. Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau giây lát.',
+                        'error' => 'Lỗi kết nối phân tích tài liệu: '.$e->getMessage().'. Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau giây lát.',
                     ];
                 }
             }
@@ -94,7 +94,7 @@ class QuizParserService
 
         return [
             'success' => false,
-            'error' => 'Không tìm thấy câu hỏi trắc nghiệm hợp lệ trong tài liệu. Vui lòng kiểm tra file có định dạng Câu 1, A, B, C, D hoặc sử dụng chế độ AI Gemini Pro.',
+            'error' => 'Không tìm thấy câu hỏi trắc nghiệm hợp lệ trong tài liệu. Vui lòng kiểm tra file có định dạng câu hỏi rõ ràng (Câu 1, A, B, C, D).',
         ];
     }
 
@@ -200,7 +200,7 @@ PROMPT;
 
         $decoded = json_decode($cleanJson, true);
         if (! is_array($decoded)) {
-            throw new \RuntimeException('Gemini trả về dữ liệu không đúng định dạng JSON.');
+            throw new \RuntimeException('Hệ thống phân tích trả về dữ liệu không đúng định dạng JSON.');
         }
 
         // Support both direct list or object with questions key

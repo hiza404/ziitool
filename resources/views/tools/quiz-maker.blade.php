@@ -5,31 +5,31 @@
 
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6">
-        <a href="{{ route('home') }}" class="hover:text-indigo-600">Trang chủ</a>
+        <a href="{{ route('home') }}" class="hover:text-indigo-600">{{ __('Trang chủ') }}</a>
         <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-        <span>{{ $categoryInfo['name'] ?? 'Giáo dục & Ôn thi AI' }}</span>
+        <span>{{ __($categoryInfo['name'] ?? 'Giáo dục & Ôn thi') }}</span>
         <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-        <span class="text-slate-800 dark:text-slate-200 font-semibold">{{ $tool['title'] }}</span>
+        <span class="text-slate-800 dark:text-slate-200 font-semibold">{{ __($tool['title']) }}</span>
     </nav>
 
     <!-- Tool Header -->
     <div class="mb-8">
         <div class="flex flex-wrap items-center gap-2 mb-2">
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
-                {{ $tool['title'] }}
+                {{ __($tool['title']) }}
             </h1>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/60 text-violet-700 dark:text-violet-300 font-semibold flex items-center gap-1">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> AI Gemini Pro
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> {{ __('Trích Xuất Thông Minh') }}
             </span>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-semibold flex items-center gap-1">
-                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Chấm Điểm Tự Động
+                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> {{ __('Chấm Điểm Tự Động') }}
             </span>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 font-semibold flex items-center gap-1">
-                <i data-lucide="eye" class="w-3.5 h-3.5"></i> Lọc Xem Lại Câu Sai
+                <i data-lucide="eye" class="w-3.5 h-3.5"></i> {{ __('Lọc Xem Lại Câu Sai') }}
             </span>
         </div>
         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-3xl">
-            Tự động đọc file PDF hoặc văn bản đề thi, nhận diện đáp án in đậm, bôi màu hoặc bảng đáp án. Tạo phòng thi trắc nghiệm trực tuyến có bấm giờ, chấm điểm tức thì và hỗ trợ ôn luyện lại các câu sai.
+            {{ __('Tự động đọc file PDF hoặc văn bản đề thi, nhận diện đáp án in đậm, bôi màu hoặc bảng đáp án. Tạo phòng thi trắc nghiệm trực tuyến có bấm giờ, chấm điểm tức thì và hỗ trợ ôn luyện lại các câu sai.') }}
         </p>
     </div>
 
@@ -40,7 +40,7 @@
         <div class="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs sm:text-sm flex items-center justify-between gap-3 shadow-sm animate-pulse">
             <div class="flex items-center gap-2.5">
                 <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-600 flex-shrink-0"></i>
-                <span class="font-medium">{{ session('quiz_error') }}</span>
+                <span class="font-medium">{{ __(session('quiz_error')) }}</span>
             </div>
             <button type="button" onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700 p-1">
                 <i data-lucide="x" class="w-4 h-4"></i>
@@ -59,10 +59,10 @@
                     <div class="flex items-center gap-2">
                         <span class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">{{ Auth::user()->name }}</span>
                         <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold flex items-center gap-1">
-                            <i data-lucide="check" class="w-3 h-3"></i> Đã đăng nhập
+                            <i data-lucide="check" class="w-3 h-3"></i> {{ __('Đã đăng nhập') }}
                         </span>
                     </div>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Bạn có thể lưu đề thi vĩnh viễn trên Server và tùy chọn chế độ <b>Công Khai</b> hoặc <b>Riêng Tư</b>.</p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">{!! __('Bạn có thể lưu đề thi vĩnh viễn trên Server và tùy chọn chế độ <b>Công Khai</b> hoặc <b>Riêng Tư</b>.') !!}</p>
                 </div>
             @else
                 <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0">
@@ -70,10 +70,10 @@
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">Khách Vãng Lai</span>
-                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium">Chưa đăng nhập</span>
+                        <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">{{ __('Khách Vãng Lai') }}</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium">{{ __('Chưa đăng nhập') }}</span>
                     </div>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Đăng nhập để tự động đồng bộ đề thi lên tài khoản và tạo đề <b>Riêng Tư (Private)</b> chỉ mình bạn mở được.</p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">{!! __('Đăng nhập để tự động đồng bộ đề thi lên tài khoản và tạo đề <b>Riêng Tư (Private)</b> chỉ mình bạn mở được.') !!}</p>
                 </div>
             @endauth
         </div>
@@ -82,23 +82,23 @@
             @auth
                 <button type="button" onclick="openMyQuizzesModal()" class="px-3.5 py-2 rounded-xl bg-violet-50 dark:bg-violet-950/50 hover:bg-violet-100 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800/80 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                     <i data-lucide="folder-kanban" class="w-4 h-4 text-violet-600"></i>
-                    <span>Bộ Đề Của Tôi (Server)</span>
+                    <span>{{ __('Bộ Đề Của Tôi (Server)') }}</span>
                 </button>
-                <form action="{{ route('logout') }}" method="POST" class="inline" onsubmit="return confirm('Bạn có chắc chắn muốn đăng xuất tài khoản?');">
+                <form action="{{ route('logout') }}" method="POST" class="inline" onsubmit="return confirm('{{ __('Bạn có chắc chắn muốn đăng xuất tài khoản?') }}');">
                     @csrf
                     <input type="hidden" name="redirect" value="{{ request()->getRequestUri() }}">
-                    <button type="submit" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 text-xs font-bold transition flex items-center gap-1.5" title="Đăng xuất tài khoản">
+                    <button type="submit" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 text-xs font-bold transition flex items-center gap-1.5" title="{{ __('Đăng xuất tài khoản') }}">
                         <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-                        <span>Đăng Xuất</span>
+                        <span>{{ __('Đăng Xuất') }}</span>
                     </button>
                 </form>
             @else
                 <a href="{{ route('login', ['redirect' => request()->getRequestUri()]) }}" class="px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition shadow-sm flex items-center gap-1.5">
                     <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
-                    <span>Đăng Nhập</span>
+                    <span>{{ __('Đăng Nhập') }}</span>
                 </a>
                 <a href="{{ route('register', ['redirect' => request()->getRequestUri()]) }}" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition">
-                    Đăng Ký
+                    {{ __('Đăng Ký') }}
                 </a>
             @endauth
         </div>
@@ -112,10 +112,10 @@
             </div>
             <div>
                 <h3 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <span>Bạn Có Mã Đề Thi Được Chia Sẻ?</span>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 font-semibold">1 Giây Mở Đề</span>
+                    <span>{{ __('Bạn Có Mã Đề Thi Được Chia Sẻ?') }}</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 font-semibold">{{ __('1 Giây Mở Đề') }}</span>
                 </h3>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400">Nhập mã đề (Ví dụ: <code class="font-mono font-bold text-violet-600 dark:text-violet-400">ZT-A1B2C3</code>) để mở làm ngay trên bất kỳ máy nào mà không cần tải lại file.</p>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">{!! __('Nhập mã đề (Ví dụ: :sample) để mở làm ngay trên bất kỳ máy nào mà không cần tải lại file.', ['sample' => '<code class="font-mono font-bold text-violet-600 dark:text-violet-400">ZT-A1B2C3</code>']) !!}</p>
             </div>
         </div>
 
@@ -126,7 +126,7 @@
             </div>
             <button type="button" onclick="handleLoadQuizByCode()" id="btnQuickLoadCode" class="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-violet-500/20 transition flex items-center gap-1.5 flex-shrink-0">
                 <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
-                <span id="btnQuickLoadCodeText">Mở Đề Thi</span>
+                <span id="btnQuickLoadCodeText">{{ __('Mở Đề Thi') }}</span>
             </button>
         </div>
     </div>
@@ -149,18 +149,18 @@
                                 <i data-lucide="file-text" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">1. Tải Lên Tài Liệu Đề Thi</h2>
-                                <p class="text-xs text-slate-500">Hỗ trợ file PDF (hoặc chuyển sang tab Dán Văn Bản)</p>
+                                <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">{{ __('1. Tải Lên Tài Liệu Đề Thi') }}</h2>
+                                <p class="text-xs text-slate-500">{{ __('Hỗ trợ file PDF (hoặc chuyển sang tab Dán Văn Bản)') }}</p>
                             </div>
                         </div>
 
                         <!-- Switch tabs -->
                         <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-medium">
                             <button type="button" id="tabFileBtn" onclick="switchInputTab('file')" class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition">
-                                Tải File PDF
+                                {{ __('Tải File PDF') }}
                             </button>
                             <button type="button" id="tabTextBtn" onclick="switchInputTab('text')" class="px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
-                                Dán Văn Bản
+                                {{ __('Dán Văn Bản') }}
                             </button>
                         </div>
                     </div>
@@ -175,17 +175,17 @@
                             </div>
                             
                             <h3 id="fileLabelTitle" class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">
-                                Kéo thả file PDF hoặc <span class="text-violet-600 dark:text-violet-400 underline">chọn file PDF từ thiết bị</span>
+                                {!! __('Kéo thả file PDF hoặc :choose', ['choose' => '<span class="text-violet-600 dark:text-violet-400 underline">' . __('chọn file PDF từ thiết bị') . '</span>']) !!}
                             </h3>
                             <p id="fileLabelDesc" class="text-xs text-slate-400 dark:text-slate-500">
-                                Định dạng hỗ trợ: File PDF (tối đa 50MB) • Tự động nhận diện câu hỏi và đáp án
+                                {{ __('Định dạng hỗ trợ: File PDF (tối đa 50MB) • Tự động nhận diện câu hỏi và đáp án') }}
                             </p>
                         </div>
                     </div>
 
                     <!-- Khu vực dán văn bản -->
                     <div id="inputTabText" class="hidden space-y-3">
-                        <textarea id="rawTextContent" rows="7" placeholder="Dán nội dung câu hỏi trắc nghiệm vào đây...&#10;Ví dụ:&#10;Câu 1: Thủ đô của Việt Nam là gì?&#10;A. Đà Nẵng&#10;B. Hà Nội&#10;C. TP Hồ Chí Minh&#10;D. Cần Thơ&#10;Đáp án: B" class="w-full text-xs sm:text-sm p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none"></textarea>
+                        <textarea id="rawTextContent" rows="7" placeholder="{{ __('Dán nội dung câu hỏi trắc nghiệm vào đây...\nVí dụ:\nCâu 1: Thủ đô của Việt Nam là gì?\nA. Đà Nẵng\nB. Hà Nội\nC. TP Hồ Chí Minh\nD. Cần Thơ\nĐáp án: B') }}" class="w-full text-xs sm:text-sm p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none"></textarea>
                     </div>
 
                     <!-- Quick Sample Exam Banner -->
@@ -195,12 +195,12 @@
                                 <i data-lucide="book-open" class="w-4 h-4"></i>
                             </div>
                             <div>
-                                <h4 class="text-xs sm:text-sm font-bold text-violet-950 dark:text-violet-200">Đề mẫu có sẵn: 40 Câu Tư Tưởng Hồ Chí Minh</h4>
-                                <p class="text-[11px] text-violet-700 dark:text-violet-300">Bộ đề trích xuất từ tài liệu ôn thi Học viện Tài chính kèm đáp án chuẩn.</p>
+                                <h4 class="text-xs sm:text-sm font-bold text-violet-950 dark:text-violet-200">{{ __('Đề mẫu có sẵn: 40 Câu Tư Tưởng Hồ Chí Minh') }}</h4>
+                                <p class="text-[11px] text-violet-700 dark:text-violet-300">{{ __('Bộ đề trích xuất từ tài liệu ôn thi Học viện Tài chính kèm đáp án chuẩn.') }}</p>
                             </div>
                         </div>
                         <button type="button" onclick="loadSampleExam()" class="px-3.5 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5 whitespace-nowrap self-end sm:self-auto">
-                            <i data-lucide="play" class="w-3.5 h-3.5"></i> Thử Đề Mẫu Ngay
+                            <i data-lucide="play" class="w-3.5 h-3.5"></i> {{ __('Thử Đề Mẫu Ngay') }}
                         </button>
                     </div>
 
@@ -214,16 +214,16 @@
                                 <i data-lucide="bookmark-check" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">Bộ Đề Đã Lưu & Lịch Sử</h2>
-                                <p class="text-xs text-slate-500">Mở lại đề cũ để làm ngay mà không cần tải lại file</p>
+                                <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">{{ __('Bộ Đề Đã Lưu & Lịch Sử') }}</h2>
+                                <p class="text-xs text-slate-500">{{ __('Mở lại đề cũ để làm ngay mà không cần tải lại file') }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
                             <span id="savedExamsCountBadge" class="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold">
-                                0 đề
+                                {{ __('0 đề') }}
                             </span>
                             <button type="button" onclick="clearAllSavedExams()" id="clearAllExamsBtn" class="hidden text-xs text-rose-500 hover:text-rose-600 hover:underline transition">
-                                Xóa tất cả
+                                {{ __('Xóa tất cả') }}
                             </button>
                         </div>
                     </div>
@@ -244,24 +244,24 @@
                             <i data-lucide="sliders" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">2. Cài Đặt Bài Thi</h2>
-                            <p class="text-xs text-slate-500">Tùy chỉnh số câu & thời gian</p>
+                            <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">{{ __('2. Cài Đặt Bài Thi') }}</h2>
+                            <p class="text-xs text-slate-500">{{ __('Tùy chỉnh số câu & thời gian') }}</p>
                         </div>
                     </div>
 
                     <!-- 1. Hình thức thực hiện: Ôn tập vs Thi thử -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Hình thức thực hiện:</label>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">{{ __('Hình thức thực hiện:') }}</label>
                         <div class="grid grid-cols-2 gap-2.5">
                             <button type="button" id="modePracticeBtn" onclick="setQuizMode('practice')" class="p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 text-left transition relative group">
                                 <div class="flex items-center gap-2 mb-1">
                                     <div id="modePracticeIcon" class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs">
                                         <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
                                     </div>
-                                    <span id="modePracticeTitle" class="text-xs font-bold text-slate-900 dark:text-white">Ôn Tập</span>
+                                    <span id="modePracticeTitle" class="text-xs font-bold text-slate-900 dark:text-white">{{ __('Ôn Tập') }}</span>
                                     <span id="modePracticeCheck" class="ml-auto w-2 h-2 rounded-full bg-emerald-500"></span>
                                 </div>
-                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Hiện đáp án đúng ngay khi chọn</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">{{ __('Hiện đáp án đúng ngay khi chọn') }}</p>
                             </button>
 
                             <button type="button" id="modeExamBtn" onclick="setQuizMode('exam')" class="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-left hover:border-slate-300 dark:hover:border-slate-700 transition relative group">
@@ -269,10 +269,10 @@
                                     <div id="modeExamIcon" class="w-6 h-6 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs">
                                         <i data-lucide="timer" class="w-3.5 h-3.5"></i>
                                     </div>
-                                    <span id="modeExamTitle" class="text-xs font-bold text-slate-700 dark:text-slate-300">Thi Thử</span>
+                                    <span id="modeExamTitle" class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ __('Thi Thử') }}</span>
                                     <span id="modeExamCheck" class="ml-auto w-2 h-2 rounded-full bg-violet-600 hidden"></span>
                                 </div>
-                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Bấm giờ, nộp bài mới chấm điểm</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">{{ __('Bấm giờ, nộp bài mới chấm điểm') }}</p>
                             </button>
                         </div>
                     </div>
@@ -280,42 +280,42 @@
                     <!-- 2. Số lượng câu hỏi để ôn tập -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
-                            <span>Số lượng câu hỏi:</span>
+                            <span>{{ __('Số lượng câu hỏi:') }}</span>
                             <span id="detectedQuestionsBadge" class="hidden text-[11px] text-violet-600 dark:text-violet-400 font-bold"></span>
                         </label>
                         <select id="questionLimit" onchange="toggleCustomQuestionInput(this.value)" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
-                            <option value="0" selected>Toàn bộ câu hỏi trong tài liệu</option>
-                            <option value="10">10 câu</option>
-                            <option value="20">20 câu</option>
-                            <option value="30">30 câu</option>
-                            <option value="40">40 câu (Tiêu chuẩn)</option>
-                            <option value="50">50 câu</option>
-                            <option value="60">60 câu</option>
-                            <option value="100">100 câu</option>
-                            <option value="150">150 câu</option>
-                            <option value="200">200 câu</option>
-                            <option value="custom">✍️ Tùy chỉnh số lượng câu...</option>
+                            <option value="0" selected>{{ __('Toàn bộ câu hỏi trong tài liệu') }}</option>
+                            <option value="10">{{ __('10 câu') }}</option>
+                            <option value="20">{{ __('20 câu') }}</option>
+                            <option value="30">{{ __('30 câu') }}</option>
+                            <option value="40">{{ __('40 câu (Tiêu chuẩn)') }}</option>
+                            <option value="50">{{ __('50 câu') }}</option>
+                            <option value="60">{{ __('60 câu') }}</option>
+                            <option value="100">{{ __('100 câu') }}</option>
+                            <option value="150">{{ __('150 câu') }}</option>
+                            <option value="200">{{ __('200 câu') }}</option>
+                            <option value="custom">{{ __('✍️ Tùy chỉnh số lượng câu...') }}</option>
                         </select>
                         <div id="customQuestionCountBox" class="hidden mt-2">
-                            <input type="number" id="customQuestionCount" min="1" max="1000" placeholder="Nhập số câu (Ví dụ: 75 câu)..." class="w-full text-xs sm:text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
+                            <input type="number" id="customQuestionCount" min="1" max="1000" placeholder="{{ __('Nhập số câu (Ví dụ: 75 câu)...') }}" class="w-full text-xs sm:text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
                         </div>
                     </div>
 
                     <!-- 3. Thời gian làm bài -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Thời gian làm bài:</label>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">{{ __('Thời gian làm bài:') }}</label>
                         <select id="examDuration" onchange="toggleCustomDurationInput(this.value)" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
-                            <option value="0" selected>Không giới hạn thời gian (Tự do ôn tập)</option>
-                            <option value="15">15 phút</option>
-                            <option value="30">30 phút (Tiêu chuẩn)</option>
-                            <option value="45">45 phút</option>
-                            <option value="60">60 phút (1 tiếng)</option>
-                            <option value="90">90 phút</option>
-                            <option value="120">120 phút (2 tiếng)</option>
-                            <option value="custom">✍️ Tùy chỉnh số phút...</option>
+                            <option value="0" selected>{{ __('Không giới hạn thời gian (Tự do ôn tập)') }}</option>
+                            <option value="15">{{ __('15 phút') }}</option>
+                            <option value="30">{{ __('30 phút (Tiêu chuẩn)') }}</option>
+                            <option value="45">{{ __('45 phút') }}</option>
+                            <option value="60">{{ __('60 phút (1 tiếng)') }}</option>
+                            <option value="90">{{ __('90 phút') }}</option>
+                            <option value="120">{{ __('120 phút (2 tiếng)') }}</option>
+                            <option value="custom">{{ __('✍️ Tùy chỉnh số phút...') }}</option>
                         </select>
                         <div id="customDurationBox" class="hidden mt-2">
-                            <input type="number" id="customDurationInput" min="1" max="600" placeholder="Nhập số phút (Ví dụ: 50 phút)..." class="w-full text-xs sm:text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
+                            <input type="number" id="customDurationInput" min="1" max="600" placeholder="{{ __('Nhập số phút (Ví dụ: 50 phút)...') }}" class="w-full text-xs sm:text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-violet-500 outline-none">
                         </div>
                     </div>
 
@@ -325,14 +325,14 @@
                             <input type="checkbox" id="shuffleQuestions" checked class="w-4 h-4 rounded text-violet-600 focus:ring-violet-500 border-slate-300 dark:border-slate-700">
                             <span class="font-medium flex items-center gap-1.5">
                                 <i data-lucide="shuffle" class="w-3.5 h-3.5 text-violet-600"></i>
-                                Trộn ngẫu nhiên câu hỏi (Xáo câu)
+                                {{ __('Trộn ngẫu nhiên câu hỏi (Xáo câu)') }}
                             </span>
                         </label>
                         <label class="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
                             <input type="checkbox" id="shuffleOptions" class="w-4 h-4 rounded text-violet-600 focus:ring-violet-500 border-slate-300 dark:border-slate-700">
                             <span class="font-medium flex items-center gap-1.5">
                                 <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-violet-600"></i>
-                                Trộn ngẫu nhiên thứ tự đáp án (A, B, C, D)
+                                {{ __('Trộn ngẫu nhiên thứ tự đáp án (A, B, C, D)') }}
                             </span>
                         </label>
                     </div>
@@ -340,35 +340,35 @@
                     <!-- 5. Quyền riêng tư & Lưu trữ đề thi -->
                     <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                         <div class="flex items-center justify-between">
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Quyền riêng tư đề thi:</label>
-                            <span id="visStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 font-bold">Công Khai</span>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">{{ __('Quyền riêng tư đề thi:') }}</label>
+                            <span id="visStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 font-bold">{{ __('Công Khai') }}</span>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <button type="button" id="visPublicBtn" onclick="setQuizVisibility(true)" class="p-2.5 rounded-2xl border-2 border-violet-600 bg-violet-50/70 dark:bg-violet-950/40 text-left transition relative">
                                 <div class="flex items-center gap-1.5 mb-1">
                                     <div class="w-5 h-5 rounded-md bg-violet-600 text-white flex items-center justify-center text-[10px]">
-                                        <i data-lucide="globe" class="w-3 h-3"></i>
+                                        <i data-lucide="globe" class="w-3.5 h-3.5"></i>
                                     </div>
-                                    <span class="text-xs font-bold text-slate-900 dark:text-white">Công Khai</span>
+                                    <span class="text-xs font-bold text-slate-900 dark:text-white">{{ __('Công Khai') }}</span>
                                     <span id="visPublicCheck" class="ml-auto w-2 h-2 rounded-full bg-violet-600"></span>
                                 </div>
-                                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">Ai có mã/link đều có thể làm</p>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">{{ __('Mọi người có mã/link đều có thể làm') }}</p>
                             </button>
 
                             <button type="button" id="visPrivateBtn" onclick="setQuizVisibility(false)" class="p-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-left hover:border-slate-300 dark:hover:border-slate-700 transition relative">
                                 <div class="flex items-center gap-1.5 mb-1">
                                     <div class="w-5 h-5 rounded-md bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center text-[10px]">
-                                        <i data-lucide="lock" class="w-3 h-3"></i>
+                                        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
                                     </div>
-                                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Riêng Tư</span>
+                                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ __('Riêng Tư') }}</span>
                                     <span id="visPrivateCheck" class="ml-auto w-2 h-2 rounded-full bg-violet-600 hidden"></span>
                                 </div>
-                                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">Chỉ tài khoản bạn mới mở được</p>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">{{ __('Chỉ tài khoản bạn mới mở được') }}</p>
                             </button>
                         </div>
                         <p id="visGuestNotice" class="hidden text-[11px] text-amber-600 dark:text-amber-400 flex items-center gap-1 pt-1 bg-amber-50 dark:bg-amber-950/40 p-2 rounded-xl border border-amber-200 dark:border-amber-800/60">
                             <i data-lucide="alert-circle" class="w-3.5 h-3.5 flex-shrink-0"></i>
-                            <span>Bạn cần <a href="{{ route('login', ['redirect' => request()->getRequestUri()]) }}" class="underline font-bold">đăng nhập</a> để đặt đề ở chế độ Riêng tư.</span>
+                            <span>{!! __('Bạn cần :login để đặt đề ở chế độ Riêng tư.', ['login' => '<a href="' . route('login', ['redirect' => request()->getRequestUri()]) . '" class="underline font-bold">' . __('đăng nhập') . '</a>']) !!}</span>
                         </p>
                     </div>
 
@@ -376,11 +376,11 @@
                     <div class="pt-3 space-y-2">
                         <button type="button" id="startExamBtn" onclick="handleStartExam()" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-violet-500/25 transition flex items-center justify-center gap-2">
                             <i data-lucide="play-circle" class="w-5 h-5"></i>
-                            <span id="startExamBtnText">Bắt Đầu Làm Bài Thi</span>
+                            <span id="startExamBtnText">{{ __('Bắt Đầu Làm Bài Thi') }}</span>
                         </button>
                         <button type="button" id="shareQuizSetupBtn" onclick="openShareModal()" class="w-full py-2.5 px-4 rounded-xl border border-violet-200 dark:border-violet-800 hover:bg-violet-50 dark:hover:bg-violet-950/40 text-violet-700 dark:text-violet-300 font-semibold text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
                             <i data-lucide="share-2" class="w-4 h-4"></i>
-                            <span>Lấy Mã Đề & Link Chia Sẻ</span>
+                            <span>{{ __('Lấy Mã Đề & Link Chia Sẻ') }}</span>
                         </button>
                     </div>
 
@@ -390,8 +390,8 @@
                         <div class="inline-block animate-spin text-violet-600">
                             <i data-lucide="loader-2" class="w-7 h-7"></i>
                         </div>
-                        <p id="parseLoadingText" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Đang đọc tài liệu...</p>
-                        <p class="text-[11px] text-slate-400">Quá trình phân tích câu hỏi và đáp án có thể mất từ 5-15 giây.</p>
+                        <p id="parseLoadingText" class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ __('Đang đọc tài liệu...') }}</p>
+                        <p class="text-[11px] text-slate-400">{{ __('Quá trình phân tích câu hỏi và đáp án có thể mất từ 5-15 giây.') }}</p>
                     </div>
 
                 </div>
@@ -414,13 +414,13 @@
                 </div>
                 <div>
                     <div class="flex items-center gap-2 flex-wrap">
-                        <h2 id="activeExamTitle" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate max-w-xs sm:max-w-md">Đề Thi Trắc Nghiệm</h2>
+                        <h2 id="activeExamTitle" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate max-w-xs sm:max-w-md">{{ __('Đề Thi Trắc Nghiệm') }}</h2>
                         <span id="activeModeBadge" class="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
-                            <i data-lucide="book-open" class="w-3 h-3"></i> Ôn Tập
+                            <i data-lucide="book-open" class="w-3 h-3"></i> {{ __('Ôn Tập') }}
                         </span>
                     </div>
                     <div class="flex items-center gap-2 text-xs text-slate-500">
-                        <span id="progressText">Đã làm: 0/0 câu (0%)</span>
+                        <span id="progressText">{{ __('Đã làm: 0/0 câu (0%)') }}</span>
                     </div>
                 </div>
             </div>
@@ -428,9 +428,9 @@
             <!-- Timer & Actions -->
             <div class="flex items-center gap-2.5">
                 <!-- Mã đề & Nút chia sẻ nhanh -->
-                <button type="button" onclick="openShareModal()" id="examHeaderShareBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-950/60 hover:bg-violet-100 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-xs font-bold border border-violet-200 dark:border-violet-800 transition shadow-sm" title="Bấm để xem mã đề & sao chép link chia sẻ">
+                <button type="button" onclick="openShareModal()" id="examHeaderShareBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-950/60 hover:bg-violet-100 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-xs font-bold border border-violet-200 dark:border-violet-800 transition shadow-sm" title="{{ __('Xem mã & link chia sẻ') }}">
                     <i data-lucide="share-2" class="w-3.5 h-3.5 text-violet-600 dark:text-violet-400"></i>
-                    <span class="hidden sm:inline">Mã:</span>
+                    <span class="hidden sm:inline">{{ __('Mã:') }}</span>
                     <span id="activeQuizCodeBadge" class="font-mono">---</span>
                 </button>
 
@@ -443,7 +443,7 @@
                 <!-- Nút nộp bài -->
                 <button type="button" id="submitExamBtnHeader" onclick="confirmSubmitExam()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-rose-600/20 transition flex items-center gap-1.5">
                     <i data-lucide="check-square" class="w-4 h-4"></i>
-                    <span id="submitExamBtnText">Kết Thúc Ôn Tập</span>
+                    <span id="submitExamBtnText">{{ __('Kết Thúc Ôn Tập') }}</span>
                 </button>
             </div>
 
@@ -460,7 +460,7 @@
             <div class="lg:col-span-1">
                 <div class="sticky top-36 bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                        <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Danh Sách Câu Hỏi</h3>
+                        <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">{{ __('Danh Sách Câu Hỏi') }}</h3>
                         <span id="gridProgressRatio" class="text-xs text-violet-600 font-semibold">0/0</span>
                     </div>
 
@@ -468,29 +468,29 @@
                     <div id="paletteLegendPractice" class="grid grid-cols-3 gap-2 text-[11px] text-slate-500 pb-2">
                         <div class="flex items-center gap-1.5">
                             <span class="w-3 h-3 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 inline-block"></span>
-                            <span>Chưa làm</span>
+                            <span>{{ __('Chưa làm') }}</span>
                         </div>
                         <div class="flex items-center gap-1.5">
                             <span class="w-3 h-3 rounded-md bg-emerald-500 text-white inline-block"></span>
-                            <span>Đúng</span>
+                            <span>{{ __('Đúng') }}</span>
                         </div>
                         <div class="flex items-center gap-1.5">
                             <span class="w-3 h-3 rounded-md bg-rose-500 text-white inline-block"></span>
-                            <span>Sai</span>
+                            <span>{{ __('Sai') }}</span>
                         </div>
                     </div>
                     <div id="paletteLegendExam" class="hidden grid grid-cols-3 gap-2 text-[11px] text-slate-500 pb-2">
                         <div class="flex items-center gap-1.5">
                             <span class="w-3 h-3 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 inline-block"></span>
-                            <span>Chưa làm</span>
+                            <span>{{ __('Chưa làm') }}</span>
                         </div>
                         <div class="flex items-center gap-1.5">
                             <span class="w-3 h-3 rounded-md bg-violet-600 text-white inline-block"></span>
-                            <span>Đã chọn</span>
+                            <span>{{ __('Đã chọn') }}</span>
                         </div>
                         <div class="flex items-center gap-1.5">
                             <span class="w-3 h-3 rounded-md bg-amber-500 text-white inline-block"></span>
-                            <span>Đánh dấu</span>
+                            <span>{{ __('Đánh dấu') }}</span>
                         </div>
                     </div>
 
@@ -502,7 +502,7 @@
                     <!-- Nút nộp bài phụ -->
                     <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
                         <button type="button" onclick="confirmSubmitExam()" class="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition flex items-center justify-center gap-2">
-                            <i data-lucide="send" class="w-4 h-4"></i> <span id="paletteSubmitText">Xem Bảng Điểm</span>
+                            <i data-lucide="send" class="w-4 h-4"></i> <span id="paletteSubmitText">{{ __('Xem Bảng Điểm') }}</span>
                         </button>
                     </div>
                 </div>
@@ -524,13 +524,13 @@
             <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                 <!-- Điểm số lớn -->
                 <div class="text-center md:text-left space-y-1">
-                    <span class="text-xs font-bold uppercase tracking-widest text-violet-300">Kết Quả Bài Kiểm Tra</span>
+                    <span class="text-xs font-bold uppercase tracking-widest text-violet-300">{{ __('Kết Quả Bài Kiểm Tra') }}</span>
                     <div class="flex items-baseline justify-center md:justify-start gap-2">
                         <span id="scoreTenScale" class="text-5xl sm:text-6xl font-black text-amber-400">8.5</span>
                         <span class="text-2xl text-violet-300 font-bold">/ 10</span>
                     </div>
                     <p id="rankBadge" class="inline-block px-3 py-1 rounded-full bg-white/10 text-xs font-bold uppercase text-white mt-2">
-                        XUẤT SẮC
+                        {{ __('XUẤT SẮC 🏆') }}
                     </p>
                 </div>
 
@@ -541,21 +541,21 @@
                             <i data-lucide="check" class="w-5 h-5"></i>
                             <span id="correctCountDisplay">0</span>
                         </div>
-                        <span class="text-[11px] text-slate-300">Câu Đúng</span>
+                        <span class="text-[11px] text-slate-300">{{ __('Câu Đúng') }}</span>
                     </div>
                     <div class="p-3 sm:p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
                         <div class="text-rose-400 font-bold text-xl sm:text-2xl flex items-center justify-center gap-1">
                             <i data-lucide="x" class="w-5 h-5"></i>
                             <span id="wrongCountDisplay">0</span>
                         </div>
-                        <span class="text-[11px] text-slate-300">Câu Sai</span>
+                        <span class="text-[11px] text-slate-300">{{ __('Câu Sai') }}</span>
                     </div>
                     <div class="p-3 sm:p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
                         <div class="text-amber-400 font-bold text-xl sm:text-2xl flex items-center justify-center gap-1">
                             <i data-lucide="clock" class="w-5 h-5"></i>
                             <span id="timeSpentDisplay">00:00</span>
                         </div>
-                        <span class="text-[11px] text-slate-300">Thời Gian</span>
+                        <span class="text-[11px] text-slate-300">{{ __('Thời Gian') }}</span>
                     </div>
                 </div>
             </div>
@@ -563,16 +563,16 @@
             <!-- Nút hành động nhanh -->
             <div class="relative z-10 flex flex-wrap items-center gap-3 pt-6 mt-6 border-t border-white/10">
                 <button type="button" onclick="openShareModal()" class="px-4 py-2.5 rounded-xl bg-white text-violet-900 hover:bg-slate-100 font-bold text-xs transition flex items-center gap-2 shadow-sm">
-                    <i data-lucide="share-2" class="w-4 h-4 text-violet-600"></i> Chia Sẻ Đề Này (Mã Đề)
+                    <i data-lucide="share-2" class="w-4 h-4 text-violet-600"></i> {{ __('Chia Sẻ Đề Này (Mã Đề)') }}
                 </button>
                 <button type="button" onclick="retakeWrongOnly()" id="retakeWrongBtn" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center gap-2 shadow-sm">
-                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Ôn Luyện Lại Riêng Các Câu Sai
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> {{ __('Ôn Luyện Lại Riêng Các Câu Sai') }}
                 </button>
                 <button type="button" onclick="retakeAll()" class="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition flex items-center gap-2">
-                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Làm Lại Toàn Bộ Đề
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> {{ __('Làm Lại Toàn Bộ Đề') }}
                 </button>
                 <button type="button" onclick="resetToSetup()" class="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition flex items-center gap-2">
-                    <i data-lucide="file-plus" class="w-4 h-4"></i> Tạo Đề Mới Từ File Khác
+                    <i data-lucide="file-plus" class="w-4 h-4"></i> {{ __('Tạo Đề Mới Từ File Khác') }}
                 </button>
             </div>
 
@@ -584,21 +584,21 @@
                 <div>
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                         <i data-lucide="check-check" class="w-5 h-5 text-violet-600"></i>
-                        <span>Chi Tiết Đáp Án & Giải Thích</span>
+                        <span>{{ __('Chi Tiết Đáp Án & Giải Thích') }}</span>
                     </h3>
-                    <p class="text-xs text-slate-500">Xem lại câu bạn đã chọn so với đáp án chính xác</p>
+                    <p class="text-xs text-slate-500">{{ __('Xem lại câu bạn đã chọn so với đáp án chính xác') }}</p>
                 </div>
 
                 <!-- 3 Nút lọc -->
                 <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl text-xs font-semibold">
                     <button type="button" id="filterAllBtn" onclick="filterReviewList('all')" class="px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition">
-                        Tất cả (<span id="filterAllCount">0</span>)
+                        {{ __('Tất cả') }} (<span id="filterAllCount">0</span>)
                     </button>
                     <button type="button" id="filterWrongBtn" onclick="filterReviewList('wrong')" class="px-3.5 py-1.5 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition flex items-center gap-1 font-bold">
-                        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Chỉ câu sai (<span id="filterWrongCount">0</span>)
+                        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> {{ __('Chỉ câu sai') }} (<span id="filterWrongCount">0</span>)
                     </button>
                     <button type="button" id="filterCorrectBtn" onclick="filterReviewList('correct')" class="px-3.5 py-1.5 rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition flex items-center gap-1 font-bold">
-                        <i data-lucide="check" class="w-3.5 h-3.5"></i> Chỉ câu đúng (<span id="filterCorrectCount">0</span>)
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i> {{ __('Chỉ câu đúng') }} (<span id="filterCorrectCount">0</span>)
                     </button>
                 </div>
             </div>
@@ -620,7 +620,7 @@
             <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                 <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                     <i data-lucide="help-circle" class="w-5 h-5 text-violet-500"></i>
-                    <span>Hướng Dẫn Sử Dụng Công Cụ</span>
+                    <span>{{ __('Hướng Dẫn Sử Dụng Công Cụ') }}</span>
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     @foreach($tool['how_to'] as $idx => $step)
@@ -628,7 +628,7 @@
                             <span class="w-7 h-7 rounded-full bg-violet-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
                                 {{ $idx + 1 }}
                             </span>
-                            <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed pt-0.5">{{ $step }}</p>
+                            <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed pt-0.5">{{ __($step) }}</p>
                         </div>
                     @endforeach
                 </div>
@@ -640,13 +640,13 @@
             <div>
                 <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                     <i data-lucide="message-square" class="w-5 h-5 text-violet-500"></i>
-                    <span>Câu Hỏi Thường Gặp (FAQ)</span>
+                    <span>{{ __('Câu Hỏi Thường Gặp (FAQ)') }}</span>
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     @foreach($tool['faq'] as $faqItem)
                         <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-2">{{ $faqItem['q'] }}</h3>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{{ $faqItem['a'] }}</p>
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-2">{{ __($faqItem['q']) }}</h3>
+                            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{{ __($faqItem['a']) }}</p>
                         </div>
                     @endforeach
                 </div>
@@ -663,15 +663,15 @@
             <i data-lucide="alert-triangle" class="w-6 h-6"></i>
         </div>
         <div class="text-center space-y-1">
-            <h3 id="submitModalTitle" class="text-base font-bold text-slate-900 dark:text-white">Bạn có chắc muốn nộp bài?</h3>
-            <p id="unansweredWarningText" class="text-xs text-slate-500">Bạn đã hoàn thành 0/0 câu hỏi.</p>
+            <h3 id="submitModalTitle" class="text-base font-bold text-slate-900 dark:text-white">{{ __('Bạn có chắc muốn nộp bài?') }}</h3>
+            <p id="unansweredWarningText" class="text-xs text-slate-500">{{ __('Bạn đã hoàn thành :answered/:total câu hỏi.', ['answered' => 0, 'total' => 0]) }}</p>
         </div>
         <div class="grid grid-cols-2 gap-3 pt-2">
             <button type="button" onclick="closeSubmitModal()" class="py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-200 transition">
-                Tiếp tục làm
+                {{ __('Tiếp tục làm') }}
             </button>
             <button type="button" onclick="submitExamFinal()" id="submitModalBtn" class="py-2.5 rounded-xl bg-violet-600 text-white text-xs font-bold hover:bg-violet-700 transition">
-                Nộp bài ngay
+                {{ __('Nộp bài ngay') }}
             </button>
         </div>
     </div>
@@ -686,8 +686,8 @@
                     <i data-lucide="share-2" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Chia Sẻ & Mã Đề Thi</h3>
-                    <p class="text-xs text-slate-500">Mã đề giúp người khác mở làm trên mọi thiết bị</p>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ __('Chia Sẻ & Mã Đề Thi') }}</h3>
+                    <p class="text-xs text-slate-500">{{ __('Mã đề giúp người khác mở làm trên mọi thiết bị') }}</p>
                 </div>
             </div>
             <button type="button" onclick="closeShareModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
@@ -697,32 +697,32 @@
 
         <!-- Tiêu đề đề thi đang chia sẻ -->
         <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between gap-2">
-            <span class="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate" id="shareModalExamTitle">Đề Thi Trắc Nghiệm</span>
+            <span class="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate" id="shareModalExamTitle">{{ __('Đề Thi Trắc Nghiệm') }}</span>
             <span id="shareModalVisibilityBadge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex-shrink-0">
-                Công Khai
+                {{ __('Công Khai') }}
             </span>
         </div>
 
         <!-- Hộp hiển thị Mã Đề to rõ -->
         <div class="p-5 rounded-2xl bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-950/40 dark:to-indigo-950/40 border border-violet-200 dark:border-violet-800 text-center space-y-2">
-            <span class="text-xs font-bold tracking-wider text-violet-700 dark:text-violet-300 uppercase">Mã Đề Thi (Quiz Code)</span>
+            <span class="text-xs font-bold tracking-wider text-violet-700 dark:text-violet-300 uppercase">{{ __('Mã Đề Thi (Quiz Code)') }}</span>
             <div class="flex items-center justify-center gap-3">
                 <span id="shareModalCodeDisplay" class="text-3xl sm:text-4xl font-black font-mono tracking-widest text-violet-600 dark:text-violet-400 select-all">ZT-XXXXXX</span>
-                <button type="button" onclick="copyShareCode()" class="p-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white transition shadow-sm" title="Sao chép mã">
+                <button type="button" onclick="copyShareCode()" class="p-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white transition shadow-sm" title="{{ __('Sao chép mã đề:') }}">
                     <i data-lucide="copy" class="w-4 h-4"></i>
                 </button>
             </div>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Người nhận chỉ cần nhập mã này vào ô tìm mã đề ở đầu trang để làm.</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ __('Người nhận chỉ cần nhập mã này vào ô tìm mã đề ở đầu trang để làm.') }}</p>
         </div>
 
         <!-- Hộp Link chia sẻ trực tiếp -->
         <div class="space-y-1.5">
-            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Link mở trực tiếp bài thi:</label>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">{{ __('Link mở trực tiếp bài thi:') }}</label>
             <div class="flex items-center gap-2">
                 <input type="text" id="shareModalUrlInput" readonly class="flex-1 text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-mono outline-none select-all">
                 <button type="button" onclick="copyShareLink()" id="btnCopyShareLink" class="px-3.5 py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition flex items-center gap-1.5 flex-shrink-0 shadow-sm">
                     <i data-lucide="copy" class="w-4 h-4"></i>
-                    <span id="btnCopyShareLinkText">Sao Chép Link</span>
+                    <span id="btnCopyShareLinkText">{{ __('Sao Chép Link') }}</span>
                 </button>
             </div>
         </div>
@@ -730,18 +730,18 @@
         <!-- Khu vực chuyển đổi quyền riêng tư -->
         <div id="shareModalOwnerActions" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between gap-3">
             <div class="space-y-0.5">
-                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Quyền riêng tư đề thi</span>
-                <p id="shareModalVisDesc" class="text-[11px] text-slate-500">Đang ở chế độ Công Khai (Bất kỳ ai có mã đều xem được).</p>
+                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ __('Quyền riêng tư đề thi') }}</span>
+                <p id="shareModalVisDesc" class="text-[11px] text-slate-500">{{ __('Đang ở chế độ Công Khai (Bất kỳ ai có mã đều xem được).') }}</p>
             </div>
             <button type="button" onclick="toggleCurrentQuizVisibility()" id="btnToggleVisInModal" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1.5 flex-shrink-0">
                 <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                <span id="btnToggleVisText">Đổi sang Riêng Tư</span>
+                <span id="btnToggleVisText">{{ __('Đổi sang Riêng Tư') }}</span>
             </button>
         </div>
 
         <div class="flex justify-end pt-2">
             <button type="button" onclick="closeShareModal()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition">
-                Đóng
+                {{ __('Đóng') }}
             </button>
         </div>
     </div>
@@ -756,8 +756,8 @@
                     <i data-lucide="folder-kanban" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Bộ Đề Của Tôi (Lưu Trên Server)</h3>
-                    <p class="text-xs text-slate-500">Được đồng bộ với tài khoản, lưu vĩnh viễn và không bị mất</p>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ __('Bộ Đề Của Tôi (Lưu Trên Server)') }}</h3>
+                    <p class="text-xs text-slate-500">{{ __('Được đồng bộ với tài khoản, lưu vĩnh viễn và không bị mất') }}</p>
                 </div>
             </div>
             <button type="button" onclick="closeMyQuizzesModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
@@ -771,14 +771,14 @@
                 <div class="inline-block animate-spin text-violet-600 mb-2">
                     <i data-lucide="loader-2" class="w-6 h-6"></i>
                 </div>
-                <p>Đang tải danh sách đề thi...</p>
+                <p>{{ __('Đang tải danh sách đề thi...') }}</p>
             </div>
         </div>
 
         <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800 flex-shrink-0">
-            <span id="myQuizzesCountBadge" class="text-xs text-slate-500 font-medium">0 đề thi</span>
+            <span id="myQuizzesCountBadge" class="text-xs text-slate-500 font-medium">{{ __('0 đề') }}</span>
             <button type="button" onclick="closeMyQuizzesModal()" class="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition">
-                Đóng
+                {{ __('Đóng') }}
             </button>
         </div>
     </div>
@@ -799,12 +799,115 @@
     const DELETE_QUIZ_URL = @json(route('tool.quiz.delete'));
     const CSRF_TOKEN = '{{ csrf_token() }}';
 
+    // Internationalization dictionary
+    const I18N = {
+        locale: '{{ app()->getLocale() }}',
+        defaultExamTitle: @json(__('Bài Thi Trắc Nghiệm')),
+        btnPracticeStart: @json(__('Bắt Đầu Ôn Tập')),
+        btnExamStart: @json(__('Bắt Đầu Thi Thử')),
+        btnPracticeSubmit: @json(__('Kết Thúc Ôn Tập')),
+        btnExamSubmit: @json(__('Nộp Bài')),
+        palettePracticeSubmit: @json(__('Xem Bảng Điểm')),
+        paletteExamSubmit: @json(__('Nộp Bài & Xem Điểm')),
+        visPublic: @json(__('Công Khai')),
+        visPrivate: @json(__('Riêng Tư')),
+        visPublicDesc: @json(__('Đang ở chế độ Công Khai (Bất kỳ ai có mã đều xem được).')),
+        visPrivateDesc: @json(__('Đang ở chế độ Riêng Tư (Chỉ bạn mới có quyền xem).')),
+        btnSwitchToPrivate: @json(__('Đổi sang Riêng Tư')),
+        btnSwitchToPublic: @json(__('Đổi sang Công Khai')),
+        copied: @json(__('Đã chép!')),
+        copyLink: @json(__('Sao Chép Link')),
+        loadingQuizzesServer: @json(__('Đang tải danh sách đề thi trên Server...')),
+        loadingParsing: @json(__('Đang đọc tài liệu và phân tích câu hỏi...')),
+        noQuizzesOnServer: @json(__('Chưa có đề thi nào trên Server')),
+        noQuizzesOnServerDesc: @json(__('Khi bạn tải file hoặc làm bài, đề thi sẽ tự động được lưu trữ và hiển thị tại đây.')),
+        noSavedExams: @json(__('Chưa có đề thi nào được lưu')),
+        noSavedExamsDesc: @json(__('Khi bạn tải file hoặc thử đề mẫu, đề thi sẽ tự động được lưu tại đây để lần sau mở làm lại ngay mà không cần tải lại file.')),
+        questionsCount: @json(__(':count câu')),
+        attemptsCount: @json(__(':count lượt làm')),
+        openQuiz: @json(__('Mở Đề')),
+        viewShareCodeLink: @json(__('Xem mã & link chia sẻ')),
+        deleteQuizFromServer: @json(__('Xóa đề này khỏi server')),
+        deleteExamFromList: @json(__('Xóa đề này khỏi danh sách')),
+        retakeThisExam: @json(__('Làm Lại Đề Này')),
+        settings: @json(__('Cài đặt')),
+        notTakenYet: @json(__('Chưa làm bài')),
+        scoreLabel: @json(__('Điểm:')),
+        questionsInDoc: @json(__('(Tài liệu có :count câu)')),
+        questionsFromCode: @json(__('(Đã nạp :count câu từ mã :code)')),
+        questionsFromSaved: @json(__('(Đã nạp :count câu từ đề đã lưu)')),
+        onlyPdfSupported: @json(__('Hệ thống chỉ hỗ trợ tải lên file PDF. Nếu bạn có file Word (.docx), vui lòng lưu sang định dạng PDF (chọn File > Save as > PDF trong Word) hoặc chuyển sang tab "Dán Văn Bản" để dán trực tiếp nội dung đề thi.')),
+        selectedPdf: @json(__('Đã chọn file PDF:')),
+        fileSizeReady: @json(__('Dung lượng: :size MB • Sẵn sàng tạo đề thi')),
+        pleaseSelectFileOrText: @json(__('Vui lòng chọn 1 file PDF đề thi hoặc dán văn bản câu hỏi vào tab "Dán Văn Bản", hoặc bấm "Thử Đề Mẫu Ngay".')),
+        fileSizeTooLarge: @json(__('Dung lượng file tải lên quá lớn, vui lòng chọn file nhỏ hơn.')),
+        sessionExpired: @json(__('Phiên làm việc đã hết hạn. Vui lòng làm mới trang (F5) và thử lại.')),
+        serverError: @json(__('Máy chủ phản hồi mã :status. Vui lòng thử lại.')),
+        cannotExtract: @json(__('Không thể trích xuất câu hỏi từ tài liệu này.')),
+        completedProgress: @json(__('Đã làm: :answered/:total câu (:percent%)')),
+        timeUpAlert: @json(__('Hết giờ làm bài! Hệ thống sẽ tự động nộp bài và chấm điểm.')),
+        confirmSubmitPracticeTitle: @json(__('Kết thúc ôn tập & xem bảng điểm?')),
+        confirmSubmitPracticeBtn: @json(__('Xem bảng điểm ngay')),
+        confirmSubmitExamTitle: @json(__('Bạn có chắc muốn nộp bài?')),
+        confirmSubmitExamBtn: @json(__('Nộp bài ngay')),
+        completedQuestionsWarning: @json(__('Bạn đã hoàn thành :answered/:total câu hỏi.')),
+        unansweredQuestionsWarning: @json(__(' Còn :count câu chưa chọn đáp án!')),
+        rankExcellent: @json(__('XUẤT SẮC 🏆')),
+        rankVeryGood: @json(__('GIỎI 🎉')),
+        rankGood: @json(__('KHÁ 👍')),
+        rankNeedsImprovement: @json(__('CẦN CỐ GẮNG')),
+        correctBadge: @json(__('Chính xác')),
+        userChoiceBadge: @json(__('Bạn chọn')),
+        correctAnswerBadge: @json(__('Đáp án đúng')),
+        userSelectedThis: @json(__('Lựa chọn của bạn')),
+        correctAnswerPrompt: @json(__('Bạn đã trả lời chính xác!')),
+        wrongAnswerPrompt: @json(__('Chưa chính xác! Đáp án đúng là: :correct')),
+        explanationLabel: @json(__('💡 Giải thích:')),
+        explanationTitle: @json(__('Giải thích:')),
+        correctStat: @json(__('Đúng')),
+        wrongStat: @json(__('Sai (Bạn chọn: :choice)')),
+        emptyChoice: @json(__('Bỏ trống')),
+        noWrongQuestionsAlert: @json(__('Tuyệt vời! Bạn không có câu nào làm sai trong bài kiểm tra này.')),
+        retakeWrongTitle: @json(__('[Ôn Luyện Lại] Các Câu Làm Sai (:count Câu)')),
+        promptEnterQuizCode: @json(__('Vui lòng nhập Mã Đề Thi (Ví dụ: ZT-A1B2C3).')),
+        loadingCodeText: @json(__('Đang nạp...')),
+        openQuizBtnText: @json(__('Mở Đề Thi')),
+        openQuizSuccess: @json(__('🎉 Mở đề thi thành công: ":title" (:count câu)!\nBạn có thể tùy chỉnh số câu & thời gian rồi bấm Bắt Đầu.')),
+        errorLoadingQuiz: @json(__('Lỗi kết nối khi tải đề thi:')),
+        pleaseUploadBeforeShare: @json(__('Vui lòng tải file hoặc chọn đề thi trước khi lấy mã chia sẻ.')),
+        copiedCode: @json(__('Đã sao chép mã đề: :code')),
+        promptCopyCode: @json(__('Sao chép mã đề:')),
+        promptCopyLink: @json(__('Sao chép liên kết:')),
+        mustLoginForPrivate: @json(__('Bạn cần đăng nhập để lưu đề ở chế độ Riêng Tư.')),
+        mustLoginToChangeVis: @json(__('Vui lòng đăng nhập để thay đổi quyền riêng tư của đề thi.')),
+        confirmDeleteQuizServer: @json(__('Bạn có chắc chắn muốn xóa vĩnh viễn đề thi ":code" khỏi Server?')),
+        quizDeletedSuccess: @json(__('Đã xóa đề thi thành công.')),
+        cannotDeleteQuiz: @json(__('Không thể xóa đề thi.')),
+        confirmDeleteSavedExam: @json(__('Bạn có chắc chắn muốn xóa đề thi này khỏi danh sách đã lưu?')),
+        confirmClearAllSaved: @json(__('Bạn có chắc chắn muốn xóa toàn bộ danh sách đề thi đã lưu?')),
+        privateModeLoginConfirm: @json(__('Chế độ Riêng Tư (Private) yêu cầu tài khoản để bảo mật và chỉ mình bạn mở được.\nBạn có muốn chuyển sang trang Đăng nhập ngay bây giờ?')),
+        errorPrefix: @json(__('Lỗi: ')),
+        practiceBadge: @json(__('Ôn Tập')),
+        examBadge: @json(__('Thi Thử')),
+        flagQuestionTitle: @json(__('Đánh dấu câu này để xem lại')),
+        savedQuizzesCount: @json(__(':count đề thi đã lưu')),
+        confirmGoLogin: @json(__('Bạn có muốn chuyển sang trang Đăng nhập ngay bây giờ?')),
+        quizNotFound: @json(__('Không tìm thấy đề thi với mã: :code')),
+        cannotLoadQuizList: @json(__('Không thể tải danh sách đề thi.')),
+        connErrorPrefix: @json(__('Lỗi kết nối: ')),
+        cannotChangeVis: @json(__('Không thể thay đổi quyền riêng tư.')),
+        sampleExamDefaultTitle: @json(__('300 Câu Trắc Nghiệm Tư Tưởng Hồ Chí Minh')),
+        sampleExamLoading: @json(__('Đang nạp đề mẫu 40 câu Tư tưởng Hồ Chí Minh...')),
+        sampleExamError: @json(__('Lỗi nạp đề mẫu: ')),
+        quizzesSuffix: @json(__('đề')),
+    };
+
     // State management
     let rawQuestions = [];
     let currentQuestions = [];
     let userAnswers = {}; // { questionId: 'A' }
     let flaggedQuestions = new Set();
-    let currentExamTitle = 'Bài Thi Trắc Nghiệm';
+    let currentExamTitle = I18N.defaultExamTitle;
     let currentQuizCode = null;
     let currentQuizIsPublic = true;
     let currentQuizIsOwner = false;
@@ -842,7 +945,7 @@
             if (examTitle) examTitle.className = 'text-xs font-bold text-slate-700 dark:text-slate-300';
             if (examCheck) examCheck.classList.add('hidden');
 
-            if (startBtnText) startBtnText.innerText = 'Bắt Đầu Ôn Tập';
+            if (startBtnText) startBtnText.innerText = I18N.btnPracticeStart;
             if (examDuration && (examDuration.value === '30' || examDuration.value === '45')) {
                 examDuration.value = '0';
             }
@@ -857,7 +960,7 @@
             if (practiceTitle) practiceTitle.className = 'text-xs font-bold text-slate-700 dark:text-slate-300';
             if (practiceCheck) practiceCheck.classList.add('hidden');
 
-            if (startBtnText) startBtnText.innerText = 'Bắt Đầu Thi Thử';
+            if (startBtnText) startBtnText.innerText = I18N.btnExamStart;
             if (examDuration && examDuration.value === '0') {
                 examDuration.value = '30';
             }
@@ -870,7 +973,7 @@
         if (!isPublic && !IS_LOGGED_IN) {
             const guestNotice = document.getElementById('visGuestNotice');
             if (guestNotice) guestNotice.classList.remove('hidden');
-            if (confirm('Chế độ Riêng Tư (Private) yêu cầu tài khoản để bảo mật và chỉ mình bạn mở được.\nBạn có muốn chuyển sang trang Đăng nhập ngay bây giờ?')) {
+            if (confirm(I18N.privateModeLoginConfirm)) {
                 window.location.href = LOGIN_URL;
             }
             return;
@@ -892,7 +995,7 @@
             if (privBtn) privBtn.className = 'p-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-left hover:border-slate-300 dark:hover:border-slate-700 transition relative';
             if (privCheck) privCheck.classList.add('hidden');
             if (statusBadge) {
-                statusBadge.innerText = 'Công Khai';
+                statusBadge.innerText = I18N.visPublic;
                 statusBadge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 font-bold';
             }
         } else {
@@ -901,7 +1004,7 @@
             if (pubBtn) pubBtn.className = 'p-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-left hover:border-slate-300 dark:hover:border-slate-700 transition relative';
             if (pubCheck) pubCheck.classList.add('hidden');
             if (statusBadge) {
-                statusBadge.innerText = 'Riêng Tư';
+                statusBadge.innerText = I18N.visPrivate;
                 statusBadge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-bold';
             }
         }
@@ -914,7 +1017,7 @@
 
         const visibility = (isPublic !== null) ? isPublic : currentQuizIsPublic;
         if (!visibility && !IS_LOGGED_IN) {
-            alert('Bạn cần đăng nhập để lưu đề ở chế độ Riêng Tư.');
+            alert(I18N.mustLoginForPrivate);
             return null;
         }
 
@@ -952,11 +1055,11 @@
                 return data;
             } else {
                 if (data.require_login) {
-                    if (confirm(data.error + '\nBạn có muốn chuyển sang trang Đăng nhập ngay bây giờ?')) {
+                    if (confirm((data.error || '') + '\n' + I18N.confirmGoLogin)) {
                         window.location.href = LOGIN_URL;
                     }
                 } else {
-                    console.warn('Lỗi lưu đề:', data.error);
+                    console.warn(I18N.errorPrefix, data.error);
                 }
                 return null;
             }
@@ -994,13 +1097,13 @@
         code = code.toUpperCase();
 
         if (!code) {
-            alert('Vui lòng nhập Mã Đề Thi (Ví dụ: ZT-A1B2C3).');
+            alert(I18N.promptEnterQuizCode);
             return;
         }
 
         const btn = document.getElementById('btnQuickLoadCode');
         const btnText = document.getElementById('btnQuickLoadCodeText');
-        if (btnText) btnText.innerText = 'Đang nạp...';
+        if (btnText) btnText.innerText = I18N.loadingCodeText;
         if (btn) btn.disabled = true;
 
         try {
@@ -1011,11 +1114,11 @@
 
             if (!resp.ok || !data.success) {
                 if (data.require_login) {
-                    if (confirm(data.error + '\nBạn có muốn chuyển sang trang Đăng nhập ngay bây giờ?')) {
+                    if (confirm((data.error || '') + '\n' + I18N.confirmGoLogin)) {
                         window.location.href = LOGIN_URL;
                     }
                 } else {
-                    alert(data.error || 'Không tìm thấy đề thi với mã: ' + code);
+                    alert(data.error || I18N.quizNotFound.replace(':code', code));
                 }
                 return;
             }
@@ -1032,7 +1135,7 @@
 
             const badge = document.getElementById('detectedQuestionsBadge');
             if (badge) {
-                badge.innerText = `(Đã nạp ${rawQuestions.length} câu từ mã ${currentQuizCode})`;
+                badge.innerText = I18N.questionsFromCode.replace(':count', rawQuestions.length).replace(':code', currentQuizCode);
                 badge.classList.remove('hidden');
             }
 
@@ -1042,12 +1145,12 @@
                 settingsCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
-            alert(`🎉 Mở đề thi thành công: "${currentExamTitle}" (${rawQuestions.length} câu)!\nBạn có thể tùy chỉnh số câu & thời gian rồi bấm Bắt Đầu.`);
+            alert(I18N.openQuizSuccess.replace(':title', currentExamTitle).replace(':count', rawQuestions.length));
 
         } catch (err) {
-            alert('Lỗi kết nối khi tải đề thi: ' + err.message);
+            alert(I18N.errorLoadingQuiz + ' ' + err.message);
         } finally {
-            if (btnText) btnText.innerText = 'Mở Đề Thi';
+            if (btnText) btnText.innerText = I18N.openQuizBtnText;
             if (btn) btn.disabled = false;
         }
     }
@@ -1067,7 +1170,7 @@
         }
 
         if (!code) {
-            alert('Vui lòng tải file hoặc chọn đề thi trước khi lấy mã chia sẻ.');
+            alert(I18N.pleaseUploadBeforeShare);
             return;
         }
 
@@ -1081,26 +1184,24 @@
         const ownerActions = document.getElementById('shareModalOwnerActions');
 
         if (codeDisplay) codeDisplay.innerText = code;
-        if (titleDisplay) titleDisplay.innerText = title || 'Đề Thi Trắc Nghiệm';
+        if (titleDisplay) titleDisplay.innerText = title || I18N.defaultExamTitle;
         if (urlInput) {
             urlInput.value = `${window.location.origin}${window.location.pathname}?code=${code}`;
         }
 
         if (visBadge) {
-            visBadge.innerText = isPublic ? 'Công Khai' : 'Riêng Tư';
+            visBadge.innerText = isPublic ? I18N.visPublic : I18N.visPrivate;
             visBadge.className = isPublic 
                 ? 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex-shrink-0'
                 : 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 flex-shrink-0';
         }
 
         if (visDesc) {
-            visDesc.innerText = isPublic
-                ? 'Đang ở chế độ Công Khai (Bất kỳ ai có mã đều xem được).'
-                : 'Đang ở chế độ Riêng Tư (Chỉ bạn mới có quyền xem).';
+            visDesc.innerText = isPublic ? I18N.visPublicDesc : I18N.visPrivateDesc;
         }
 
         if (btnToggleVis) {
-            btnToggleVis.innerText = isPublic ? 'Đổi sang Riêng Tư' : 'Đổi sang Công Khai';
+            btnToggleVis.innerText = isPublic ? I18N.btnSwitchToPrivate : I18N.btnSwitchToPublic;
         }
 
         if (ownerActions) {
@@ -1122,9 +1223,9 @@
         const code = document.getElementById('shareModalCodeDisplay')?.innerText;
         if (!code) return;
         navigator.clipboard.writeText(code).then(() => {
-            alert(`Đã sao chép mã đề: ${code}`);
+            alert(I18N.copiedCode.replace(':code', code));
         }).catch(() => {
-            prompt('Sao chép mã đề:', code);
+            prompt(I18N.promptCopyCode, code);
         });
     }
 
@@ -1134,18 +1235,18 @@
         navigator.clipboard.writeText(input.value).then(() => {
             const btnText = document.getElementById('btnCopyShareLinkText');
             if (btnText) {
-                btnText.innerText = 'Đã chép!';
-                setTimeout(() => { btnText.innerText = 'Sao Chép Link'; }, 2000);
+                btnText.innerText = I18N.copied;
+                setTimeout(() => { btnText.innerText = I18N.copyLink; }, 2000);
             }
         }).catch(() => {
-            prompt('Sao chép liên kết:', input.value);
+            prompt(I18N.promptCopyLink, input.value);
         });
     }
 
     async function toggleCurrentQuizVisibility() {
         if (!currentQuizCode) return;
         if (!IS_LOGGED_IN) {
-            alert('Vui lòng đăng nhập để thay đổi quyền riêng tư của đề thi.');
+            alert(I18N.mustLoginToChangeVis);
             window.location.href = LOGIN_URL;
             return;
         }
@@ -1172,10 +1273,10 @@
                 openShareModal(currentQuizCode, currentExamTitle, currentQuizIsPublic);
                 alert(data.message);
             } else {
-                alert(data.error || 'Không thể thay đổi quyền riêng tư.');
+                alert(data.error || I18N.cannotChangeVis);
             }
         } catch (e) {
-            alert('Lỗi: ' + e.message);
+            alert(I18N.errorPrefix + e.message);
         }
     }
 
@@ -1197,7 +1298,7 @@
                     <div class="inline-block animate-spin text-violet-600 mb-2">
                         <i data-lucide="loader-2" class="w-6 h-6"></i>
                     </div>
-                    <p>Đang tải danh sách đề thi trên Server...</p>
+                    <p>${I18N.loadingQuizzesServer}</p>
                 </div>
             `;
             lucide.createIcons();
@@ -1209,12 +1310,12 @@
 
             if (data.success && data.quizzes) {
                 renderMyQuizzesList(data.quizzes);
-                if (badge) badge.innerText = `${data.quizzes.length} đề thi đã lưu`;
+                if (badge) badge.innerText = I18N.savedQuizzesCount.replace(':count', data.quizzes.length);
             } else {
-                if (container) container.innerHTML = `<p class="text-center py-6 text-rose-500 text-xs">Không thể tải danh sách đề thi.</p>`;
+                if (container) container.innerHTML = `<p class="text-center py-6 text-rose-500 text-xs">${I18N.cannotLoadQuizList}</p>`;
             }
         } catch (e) {
-            if (container) container.innerHTML = `<p class="text-center py-6 text-rose-500 text-xs">Lỗi kết nối: ${escapeHtml(e.message)}</p>`;
+            if (container) container.innerHTML = `<p class="text-center py-6 text-rose-500 text-xs">${I18N.connErrorPrefix}${escapeHtml(e.message)}</p>`;
         }
     }
 
@@ -1231,8 +1332,8 @@
             container.innerHTML = `
                 <div class="text-center py-10 px-4 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-400 text-xs space-y-2">
                     <i data-lucide="folder-open" class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600"></i>
-                    <p class="font-bold text-slate-700 dark:text-slate-300 text-sm">Chưa có đề thi nào trên Server</p>
-                    <p class="text-[11px] text-slate-400">Khi bạn tải file hoặc làm bài, đề thi sẽ tự động được lưu trữ và hiển thị tại đây.</p>
+                    <p class="font-bold text-slate-700 dark:text-slate-300 text-sm">${I18N.noQuizzesOnServer}</p>
+                    <p class="text-[11px] text-slate-400">${I18N.noQuizzesOnServerDesc}</p>
                 </div>
             `;
             lucide.createIcons();
@@ -1250,25 +1351,25 @@
                         <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate" title="${escapeHtml(q.title)}">${escapeHtml(q.title)}</h4>
                     </div>
                     <div class="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 flex-wrap">
-                        <span>${q.total_questions} câu</span>
+                        <span>${I18N.questionsCount.replace(':count', q.total_questions)}</span>
                         <span>•</span>
-                        <span>${q.attempts_count} lượt làm</span>
+                        <span>${I18N.attemptsCount.replace(':count', q.attempts_count)}</span>
                         <span>•</span>
                         <span>${q.created_at}</span>
                         <span>•</span>
                         <span class="font-semibold ${q.is_public ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}">
-                            ${q.is_public ? '🌐 Công Khai' : '🔒 Riêng Tư'}
+                            ${q.is_public ? '🌐 ' + I18N.visPublic : '🔒 ' + I18N.visPrivate}
                         </span>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
                     <button type="button" onclick="loadMyQuiz('${q.code}')" class="px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition flex items-center gap-1">
-                        <i data-lucide="play" class="w-3.5 h-3.5"></i> Mở Đề
+                        <i data-lucide="play" class="w-3.5 h-3.5"></i> ${I18N.openQuiz}
                     </button>
-                    <button type="button" onclick="openShareModal('${q.code}', '${escapeHtml(q.title)}', ${q.is_public})" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-semibold transition" title="Xem mã & link chia sẻ">
+                    <button type="button" onclick="openShareModal('${q.code}', '${escapeHtml(q.title)}', ${q.is_public})" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-semibold transition" title="${I18N.viewShareCodeLink}">
                         <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
                     </button>
-                    <button type="button" onclick="deleteMyQuiz('${q.code}')" class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition" title="Xóa đề này khỏi server">
+                    <button type="button" onclick="deleteMyQuiz('${q.code}')" class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition" title="${I18N.deleteQuizFromServer}">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -1285,7 +1386,7 @@
     }
 
     async function deleteMyQuiz(code) {
-        if (!confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn đề thi "${code}" khỏi Server?`)) return;
+        if (!confirm(I18N.confirmDeleteQuizServer.replace(':code', code))) return;
 
         try {
             const resp = await fetch(DELETE_QUIZ_URL, {
@@ -1300,13 +1401,13 @@
 
             const data = await resp.json();
             if (data.success) {
-                alert('Đã xóa đề thi thành công.');
+                alert(I18N.quizDeletedSuccess);
                 openMyQuizzesModal();
             } else {
-                alert(data.error || 'Không thể xóa đề thi.');
+                alert(data.error || I18N.cannotDeleteQuiz);
             }
         } catch (e) {
-            alert('Lỗi: ' + e.message);
+            alert(I18N.errorPrefix + e.message);
         }
     }
 
@@ -1327,12 +1428,13 @@
             const saved = getSavedExams();
             const existingIdx = saved.findIndex(item => (quizCode && item.code === quizCode) || (item.title === title && item.total_questions === questions.length));
             const now = new Date();
-            const dateStr = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            const dateLocale = (I18N.locale === 'en' ? 'en-US' : 'vi-VN');
+            const dateStr = now.toLocaleDateString(dateLocale) + ' ' + now.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' });
 
             const examItem = {
                 id: existingIdx >= 0 ? saved[existingIdx].id : 'quiz_' + Date.now(),
                 code: quizCode || (existingIdx >= 0 ? saved[existingIdx].code : currentQuizCode),
-                title: title || 'Đề Thi Trắc Nghiệm',
+                title: title || I18N.defaultExamTitle,
                 total_questions: questions.length,
                 created_at: existingIdx >= 0 ? saved[existingIdx].created_at : dateStr,
                 updated_at: dateStr,
@@ -1368,7 +1470,8 @@
                 item.last_score = `${scoreTen}/10`;
                 item.last_rank = rank;
                 const now = new Date();
-                item.updated_at = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                const dateLocale = (I18N.locale === 'en' ? 'en-US' : 'vi-VN');
+                item.updated_at = now.toLocaleDateString(dateLocale) + ' ' + now.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' });
                 localStorage.setItem('ziitool_saved_quizzes', JSON.stringify(saved));
                 renderSavedExamsList();
             }
@@ -1379,7 +1482,7 @@
 
     function deleteSavedExam(id, e) {
         if (e) e.stopPropagation();
-        if (!confirm('Bạn có chắc chắn muốn xóa đề thi này khỏi danh sách đã lưu?')) return;
+        if (!confirm(I18N.confirmDeleteSavedExam)) return;
         try {
             let saved = getSavedExams();
             saved = saved.filter(item => item.id !== id);
@@ -1394,7 +1497,7 @@
     }
 
     function clearAllSavedExams() {
-        if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách đề thi đã lưu?')) return;
+        if (!confirm(I18N.confirmClearAllSaved)) return;
         try {
             localStorage.removeItem('ziitool_saved_quizzes');
             currentActiveQuizId = null;
@@ -1418,7 +1521,7 @@
 
         const badge = document.getElementById('detectedQuestionsBadge');
         if (badge) {
-            badge.innerText = `(Đã nạp ${rawQuestions.length} câu từ đề đã lưu)`;
+            badge.innerText = I18N.questionsFromSaved.replace(':count', rawQuestions.length);
             badge.classList.remove('hidden');
         }
 
@@ -1441,15 +1544,15 @@
         if (!container) return;
 
         const saved = getSavedExams();
-        if (badge) badge.innerText = `${saved.length} đề`;
+        if (badge) badge.innerText = `${saved.length} ${I18N.quizzesSuffix}`;
 
         if (saved.length === 0) {
             if (clearBtn) clearBtn.classList.add('hidden');
             container.innerHTML = `
                 <div class="text-center py-6 px-4 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-400 text-xs space-y-1">
                     <i data-lucide="inbox" class="w-6 h-6 mx-auto mb-1 text-slate-300 dark:text-slate-600"></i>
-                    <p class="font-medium text-slate-600 dark:text-slate-400">Chưa có đề thi nào được lưu</p>
-                    <p class="text-[11px] text-slate-400">Khi bạn tải file hoặc thử đề mẫu, đề thi sẽ tự động được lưu tại đây để lần sau mở làm lại ngay mà không cần tải lại file.</p>
+                    <p class="font-medium text-slate-600 dark:text-slate-400">${I18N.noSavedExams}</p>
+                    <p class="text-[11px] text-slate-400">${I18N.noSavedExamsDesc}</p>
                 </div>
             `;
             lucide.createIcons();
@@ -1472,7 +1575,7 @@
                             ${escapeHtml(quiz.title)}
                         </h4>
                         <span class="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-md bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 flex-shrink-0">
-                            ${quiz.total_questions} câu
+                            ${I18N.questionsCount.replace(':count', quiz.total_questions)}
                         </span>
                     </div>
                     <div class="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 flex-wrap">
@@ -1481,24 +1584,24 @@
                         </span>
                         ${quiz.last_score ? `
                             <span class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
-                                <i data-lucide="award" class="w-3 h-3"></i> Điểm: ${quiz.last_score} ${quiz.last_rank ? '(' + quiz.last_rank + ')' : ''}
+                                <i data-lucide="award" class="w-3 h-3"></i> ${I18N.scoreLabel} ${quiz.last_score} ${quiz.last_rank ? '(' + quiz.last_rank + ')' : ''}
                             </span>
-                        ` : '<span class="text-slate-400 italic">Chưa làm bài</span>'}
+                        ` : `<span class="text-slate-400 italic">${I18N.notTakenYet}</span>`}
                     </div>
                 </div>
                 <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
                     <button type="button" onclick="loadSavedExam('${quiz.id}', true)" class="px-3.5 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                        <i data-lucide="play" class="w-3.5 h-3.5"></i> Làm Lại Đề Này
+                        <i data-lucide="play" class="w-3.5 h-3.5"></i> ${I18N.retakeThisExam}
                     </button>
                     ${quiz.code ? `
-                        <button type="button" onclick="openShareModal('${quiz.code}', '${escapeHtml(quiz.title)}', true)" class="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 transition" title="Xem mã & link chia sẻ">
+                        <button type="button" onclick="openShareModal('${quiz.code}', '${escapeHtml(quiz.title)}', true)" class="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 transition" title="${I18N.viewShareCodeLink}">
                             <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
                         </button>
                     ` : ''}
-                    <button type="button" onclick="loadSavedExam('${quiz.id}', false)" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition" title="Nạp vào cài đặt để tùy chỉnh số câu & thời gian">
-                        Cài đặt
+                    <button type="button" onclick="loadSavedExam('${quiz.id}', false)" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition" title="${I18N.settings}">
+                        ${I18N.settings}
                     </button>
-                    <button type="button" onclick="deleteSavedExam('${quiz.id}', event)" class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition" title="Xóa đề này khỏi danh sách">
+                    <button type="button" onclick="deleteSavedExam('${quiz.id}', event)" class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition" title="${I18N.deleteExamFromList}">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -1555,30 +1658,30 @@
         const file = files[0];
         const ext = file.name.split('.').pop().toLowerCase();
         if (ext !== 'pdf') {
-            alert('Hệ thống chỉ hỗ trợ tải lên file PDF. Nếu bạn có file Word (.docx), vui lòng lưu sang định dạng PDF (chọn File > Save as > PDF trong Word) hoặc chuyển sang tab "Dán Văn Bản" để dán trực tiếp nội dung đề thi.');
+            alert(I18N.onlyPdfSupported);
             const input = document.getElementById('fileInput');
             if (input) input.value = '';
             selectedUploadFile = null;
             return;
         }
         selectedUploadFile = file;
-        document.getElementById('fileLabelTitle').innerHTML = `Đã chọn file PDF: <span class="text-violet-600 font-bold">${selectedUploadFile.name}</span>`;
-        document.getElementById('fileLabelDesc').innerText = `Dung lượng: ${(selectedUploadFile.size / 1024 / 1024).toFixed(2)} MB • Sẵn sàng tạo đề thi`;
+        document.getElementById('fileLabelTitle').innerHTML = `${I18N.selectedPdf} <span class="text-violet-600 font-bold">${escapeHtml(selectedUploadFile.name)}</span>`;
+        document.getElementById('fileLabelDesc').innerText = I18N.fileSizeReady.replace(':size', (selectedUploadFile.size / 1024 / 1024).toFixed(2));
     }
 
     // Load sample exam
     async function loadSampleExam() {
-        setParseLoading(true, 'Đang nạp đề mẫu 40 câu Tư tưởng Hồ Chí Minh...');
+        setParseLoading(true, I18N.sampleExamLoading);
         try {
             const resp = await fetch('{{ route("tool.quiz.sample") }}');
             const data = await resp.json();
             if (data.success && data.questions && data.questions.length > 0) {
                 rawQuestions = data.questions;
-                currentExamTitle = data.title || '300 Câu Trắc Nghiệm Tư Tưởng Hồ Chí Minh';
+                currentExamTitle = data.title || I18N.sampleExamDefaultTitle;
                 currentActiveQuizId = saveExamToHistory(currentExamTitle, rawQuestions);
                 const badge = document.getElementById('detectedQuestionsBadge');
                 if (badge) {
-                    badge.innerText = `(Tài liệu có ${rawQuestions.length} câu)`;
+                    badge.innerText = I18N.questionsInDoc.replace(':count', rawQuestions.length);
                     badge.classList.remove('hidden');
                 }
                 setParseLoading(false);
@@ -1589,7 +1692,7 @@
             }
         } catch (err) {
             setParseLoading(false);
-            alert('Lỗi nạp đề mẫu: ' + err.message);
+            alert(I18N.sampleExamError + err.message);
         }
     }
 
@@ -1600,7 +1703,7 @@
         const mode = 'auto';
 
         if (!selectedUploadFile && !textContent) {
-            alert('Vui lòng chọn 1 file PDF đề thi hoặc dán văn bản câu hỏi vào tab "Dán Văn Bản", hoặc bấm "Thử Đề Mẫu Ngay".');
+            alert(I18N.pleaseSelectFileOrText);
             return;
         }
 
@@ -1614,7 +1717,7 @@
         formData.append('model', model);
         formData.append('mode', mode);
 
-        setParseLoading(true, 'AI đang đọc tài liệu và phân tích câu hỏi...');
+        setParseLoading(true, I18N.loadingParsing);
 
         try {
             const resp = await fetch('{{ route("tool.quiz.parse") }}', {
@@ -1631,19 +1734,19 @@
             if (contentType.includes('application/json')) {
                 data = await resp.json();
             } else {
-                throw new Error(resp.status === 413 ? 'Dung lượng file tải lên quá lớn, vui lòng chọn file nhỏ hơn.' : (resp.status === 419 ? 'Phiên làm việc đã hết hạn. Vui lòng làm mới trang (F5) và thử lại.' : `Máy chủ phản hồi mã ${resp.status}. Vui lòng thử lại.`));
+                throw new Error(resp.status === 413 ? I18N.fileSizeTooLarge : (resp.status === 419 ? I18N.sessionExpired : I18N.serverError.replace(':status', resp.status)));
             }
 
             if (!resp.ok || !data.success) {
-                throw new Error(data.error || 'Không thể trích xuất câu hỏi từ tài liệu này.');
+                throw new Error(data.error || I18N.cannotExtract);
             }
 
             rawQuestions = data.questions;
-            currentExamTitle = data.title || (selectedUploadFile ? selectedUploadFile.name : 'Bài Thi Trắc Nghiệm');
+            currentExamTitle = data.title || (selectedUploadFile ? selectedUploadFile.name : I18N.defaultExamTitle);
             currentActiveQuizId = saveExamToHistory(currentExamTitle, rawQuestions);
             const badge = document.getElementById('detectedQuestionsBadge');
             if (badge) {
-                badge.innerText = `(Tài liệu có ${rawQuestions.length} câu)`;
+                badge.innerText = I18N.questionsInDoc.replace(':count', rawQuestions.length);
                 badge.classList.remove('hidden');
             }
             setParseLoading(false);
@@ -1652,7 +1755,7 @@
 
         } catch (err) {
             setParseLoading(false);
-            alert('Lỗi: ' + err.message);
+            alert(I18N.errorPrefix + err.message);
         }
 
     }
@@ -1785,19 +1888,19 @@
         if (currentQuizMode === 'practice') {
             if (modeBadge) {
                 modeBadge.className = 'text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center gap-1';
-                modeBadge.innerHTML = '<i data-lucide="book-open" class="w-3 h-3"></i> Ôn Tập';
+                modeBadge.innerHTML = `<i data-lucide="book-open" class="w-3 h-3"></i> ${I18N.practiceBadge}`;
             }
-            if (submitBtnText) submitBtnText.innerText = 'Kết Thúc Ôn Tập';
-            if (paletteSubmitText) paletteSubmitText.innerText = 'Xem Bảng Điểm';
+            if (submitBtnText) submitBtnText.innerText = I18N.btnPracticeSubmit;
+            if (paletteSubmitText) paletteSubmitText.innerText = I18N.palettePracticeSubmit;
             if (legendPractice) legendPractice.classList.remove('hidden');
             if (legendExam) legendExam.classList.add('hidden');
         } else {
             if (modeBadge) {
                 modeBadge.className = 'text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 flex items-center gap-1';
-                modeBadge.innerHTML = '<i data-lucide="timer" class="w-3 h-3"></i> Thi Thử';
+                modeBadge.innerHTML = `<i data-lucide="timer" class="w-3 h-3"></i> ${I18N.examBadge}`;
             }
-            if (submitBtnText) submitBtnText.innerText = 'Nộp Bài';
-            if (paletteSubmitText) paletteSubmitText.innerText = 'Nộp Bài & Xem Điểm';
+            if (submitBtnText) submitBtnText.innerText = I18N.btnExamSubmit;
+            if (paletteSubmitText) paletteSubmitText.innerText = I18N.paletteExamSubmit;
             if (legendPractice) legendPractice.classList.add('hidden');
             if (legendExam) legendExam.classList.remove('hidden');
         }
@@ -1844,7 +1947,7 @@
                         ${escapeHtml(q.question)}
                     </h3>
                 </div>
-                <button type="button" onclick="toggleFlagQuestion(${q.id})" id="flagBtn_${q.id}" class="text-slate-400 hover:text-amber-500 transition p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800" title="Đánh dấu câu này để xem lại">
+                <button type="button" onclick="toggleFlagQuestion(${q.id})" id="flagBtn_${q.id}" class="text-slate-400 hover:text-amber-500 transition p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800" title="${I18N.flagQuestionTitle}">
                     <i data-lucide="flag" class="w-4 h-4"></i>
                 </button>
             `;
@@ -1929,21 +2032,21 @@
                     el.className = 'flex items-center justify-between gap-3.5 p-3.5 sm:p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 cursor-pointer transition';
                     circle.className = 'w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center flex-shrink-0';
                     if (badgeContainer) {
-                        badgeContainer.innerHTML = '<span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><i data-lucide="check" class="w-4 h-4"></i> Chính xác</span>';
+                        badgeContainer.innerHTML = `<span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><i data-lucide="check" class="w-4 h-4"></i> ${I18N.correctBadge}</span>`;
                     }
                 } else if (isThisOptSelected && !isUserCorrect) {
                     // Selected and Wrong!
                     el.className = 'flex items-center justify-between gap-3.5 p-3.5 sm:p-4 rounded-2xl border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/40 cursor-pointer transition';
                     circle.className = 'w-7 h-7 rounded-lg bg-rose-600 text-white font-bold text-xs flex items-center justify-center flex-shrink-0';
                     if (badgeContainer) {
-                        badgeContainer.innerHTML = '<span class="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1"><i data-lucide="x" class="w-4 h-4"></i> Bạn chọn</span>';
+                        badgeContainer.innerHTML = `<span class="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1"><i data-lucide="x" class="w-4 h-4"></i> ${I18N.userChoiceBadge}</span>`;
                     }
                 } else if (isThisOptOfficialCorrect) {
                     // Not selected by user, but this IS the official correct answer! Reveal it!
                     el.className = 'flex items-center justify-between gap-3.5 p-3.5 sm:p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 cursor-pointer transition';
                     circle.className = 'w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center flex-shrink-0';
                     if (badgeContainer) {
-                        badgeContainer.innerHTML = '<span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4"></i> Đáp án đúng</span>';
+                        badgeContainer.innerHTML = `<span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4"></i> ${I18N.correctAnswerBadge}</span>`;
                     }
                 } else {
                     // Other options
@@ -1960,11 +2063,11 @@
                 explainBox.innerHTML = `
                     <div class="flex items-center gap-2 font-bold text-xs sm:text-sm ${isUserCorrect ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'}">
                         <i data-lucide="${isUserCorrect ? 'check-circle' : 'alert-circle'}" class="w-4 h-4"></i>
-                        <span>${isUserCorrect ? 'Bạn đã trả lời chính xác!' : `Chưa chính xác! Đáp án đúng là: ${q.correct}`}</span>
+                        <span>${isUserCorrect ? I18N.correctAnswerPrompt : I18N.wrongAnswerPrompt.replace(':correct', q.correct)}</span>
                     </div>
                     <div class="text-slate-700 dark:text-slate-300 pt-1">
-                        <p><strong class="text-slate-900 dark:text-white">Đáp án đúng:</strong> <strong>${q.correct}.</strong> ${escapeHtml(q.options[q.correct] || '')}</p>
-                        ${q.explanation ? `<p class="mt-1 text-slate-600 dark:text-slate-400 italic"><strong class="not-italic text-slate-800 dark:text-slate-200">💡 Giải thích:</strong> ${escapeHtml(q.explanation)}</p>` : ''}
+                        <p><strong class="text-slate-900 dark:text-white">${I18N.correctAnswerBadge}:</strong> <strong>${q.correct}.</strong> ${escapeHtml(q.options[q.correct] || '')}</p>
+                        ${q.explanation ? `<p class="mt-1 text-slate-600 dark:text-slate-400 italic"><strong class="not-italic text-slate-800 dark:text-slate-200">${I18N.explanationLabel}</strong> ${escapeHtml(q.explanation)}</p>` : ''}
                     </div>
                 `;
             }
@@ -2054,7 +2157,7 @@
         const answered = Object.keys(userAnswers).length;
         const percent = total > 0 ? Math.round((answered / total) * 100) : 0;
 
-        document.getElementById('progressText').innerText = `Đã làm: ${answered}/${total} câu (${percent}%)`;
+        document.getElementById('progressText').innerText = I18N.completedProgress.replace(':answered', answered).replace(':total', total).replace(':percent', percent);
         document.getElementById('gridProgressRatio').innerText = `${answered}/${total}`;
     }
 
@@ -2095,7 +2198,7 @@
 
                 if (remainingSeconds <= 0) {
                     clearInterval(timerInterval);
-                    alert('Hết giờ làm bài! Hệ thống sẽ tự động nộp bài và chấm điểm.');
+                    alert(I18N.timeUpAlert);
                     submitExamFinal();
                 }
             }, 1000);
@@ -2112,16 +2215,16 @@
         const modalBtn = document.getElementById('submitModalBtn');
 
         if (isPractice) {
-            if (modalTitle) modalTitle.innerText = 'Kết thúc ôn tập & xem bảng điểm?';
-            if (modalBtn) modalBtn.innerText = 'Xem bảng điểm ngay';
+            if (modalTitle) modalTitle.innerText = I18N.confirmSubmitPracticeTitle;
+            if (modalBtn) modalBtn.innerText = I18N.confirmSubmitPracticeBtn;
         } else {
-            if (modalTitle) modalTitle.innerText = 'Bạn có chắc muốn nộp bài?';
-            if (modalBtn) modalBtn.innerText = 'Nộp bài ngay';
+            if (modalTitle) modalTitle.innerText = I18N.confirmSubmitExamTitle;
+            if (modalBtn) modalBtn.innerText = I18N.confirmSubmitExamBtn;
         }
 
-        let warning = `Bạn đã hoàn thành ${answered}/${total} câu hỏi.`;
+        let warning = I18N.completedQuestionsWarning.replace(':answered', answered).replace(':total', total);
         if (unanswered > 0) {
-            warning += ` Còn ${unanswered} câu chưa chọn đáp án!`;
+            warning += I18N.unansweredQuestionsWarning.replace(':count', unanswered);
         }
 
         document.getElementById('unansweredWarningText').innerText = warning;
@@ -2159,16 +2262,16 @@
         const scorePercent = total > 0 ? Math.round((correctCount / total) * 100) : 0;
 
         // Rank determination
-        let rank = 'CẦN CỐ GẮNG';
+        let rank = I18N.rankNeedsImprovement;
         let rankColor = 'bg-rose-500/20 text-rose-300';
         if (scorePercent >= 90) {
-            rank = 'XUẤT SẮC 🏆';
+            rank = I18N.rankExcellent;
             rankColor = 'bg-emerald-500/20 text-emerald-300';
         } else if (scorePercent >= 80) {
-            rank = 'GIỎI 🎉';
+            rank = I18N.rankVeryGood;
             rankColor = 'bg-indigo-500/20 text-indigo-300';
         } else if (scorePercent >= 65) {
-            rank = 'KHÁ 👍';
+            rank = I18N.rankGood;
             rankColor = 'bg-amber-500/20 text-amber-300';
         }
 
@@ -2227,10 +2330,10 @@
             // Question Header
             const statusBadge = isCorrect
                 ? `<span class="px-2.5 py-1 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-1">
-                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Đúng
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i> ${I18N.correctStat}
                    </span>`
                 : `<span class="px-2.5 py-1 rounded-xl bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center gap-1">
-                    <i data-lucide="x" class="w-3.5 h-3.5"></i> Sai (Bạn chọn: ${userChoice || 'Bỏ trống'})
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i> ${I18N.wrongStat.replace(':choice', userChoice || I18N.emptyChoice)}
                    </span>`;
 
             card.innerHTML = `
@@ -2261,10 +2364,10 @@
 
                 if (isOfficialCorrect) {
                     optStyle = 'border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200 font-semibold';
-                    indicator = `<span class="ml-auto text-xs font-bold text-emerald-600 flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4"></i> Đáp án đúng</span>`;
+                    indicator = `<span class="ml-auto text-xs font-bold text-emerald-600 flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4"></i> ${I18N.correctAnswerBadge}</span>`;
                 } else if (isSelectedByUser && !isOfficialCorrect) {
                     optStyle = 'border-2 border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-950 dark:text-rose-200 font-semibold';
-                    indicator = `<span class="ml-auto text-xs font-bold text-rose-600 flex items-center gap-1"><i data-lucide="x-circle" class="w-4 h-4"></i> Lựa chọn của bạn</span>`;
+                    indicator = `<span class="ml-auto text-xs font-bold text-rose-600 flex items-center gap-1"><i data-lucide="x-circle" class="w-4 h-4"></i> ${I18N.userSelectedThis}</span>`;
                 }
 
                 const optItem = document.createElement('div');
@@ -2290,7 +2393,7 @@
                 expBox.innerHTML = `
                     <i data-lucide="info" class="w-4 h-4 text-violet-600 dark:text-violet-400 flex-shrink-0 mt-0.5"></i>
                     <div>
-                        <span class="font-bold">Giải thích:</span> ${escapeHtml(q.explanation)}
+                        <span class="font-bold">${I18N.explanationTitle}</span> ${escapeHtml(q.explanation)}
                     </div>
                 `;
                 card.appendChild(expBox);
@@ -2355,11 +2458,11 @@
         });
 
         if (wrongIds.length === 0) {
-            alert('Tuyệt vời! Bạn không có câu nào làm sai trong bài kiểm tra này.');
+            alert(I18N.noWrongQuestionsAlert);
             return;
         }
 
-        currentExamTitle = `[Ôn Luyện Lại] Các Câu Làm Sai (${wrongIds.length} Câu)`;
+        currentExamTitle = I18N.retakeWrongTitle.replace(':count', wrongIds.length);
         setQuizMode('practice');
         startExamSession(wrongIds);
     }
@@ -2388,6 +2491,29 @@
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
     }
+
+    // Boot initial state on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        if (INITIAL_QUIZ && INITIAL_QUIZ.questions && INITIAL_QUIZ.questions.length > 0) {
+            rawQuestions = INITIAL_QUIZ.questions;
+            currentExamTitle = INITIAL_QUIZ.title;
+            currentQuizCode = INITIAL_QUIZ.code;
+            currentQuizIsPublic = INITIAL_QUIZ.is_public;
+            currentQuizIsOwner = INITIAL_QUIZ.is_owner;
+            currentActiveQuizId = saveExamToHistory(currentExamTitle, rawQuestions, currentQuizCode);
+
+            updateQuizCodeUI(currentQuizCode);
+            setQuizVisibility(currentQuizIsPublic);
+
+            const badge = document.getElementById('detectedQuestionsBadge');
+            if (badge) {
+                badge.innerText = I18N.questionsFromCode.replace(':count', rawQuestions.length).replace(':code', currentQuizCode);
+                badge.classList.remove('hidden');
+            }
+        } else {
+            renderSavedExamsList();
+        }
+    });
 </script>
 @endpush
 @endsection

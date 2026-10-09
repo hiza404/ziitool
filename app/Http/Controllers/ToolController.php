@@ -172,10 +172,10 @@ class ToolController extends Controller
                         'questions' => $foundQuiz->questions,
                     ];
                 } else {
-                    session()->flash('quiz_error', 'Đề thi này được đặt ở chế độ Riêng tư (Chỉ chủ sở hữu tài khoản mới có quyền mở).');
+                    session()->flash('quiz_error', __('Đề thi này được đặt ở chế độ Riêng tư (Chỉ chủ sở hữu tài khoản mới có quyền mở).'));
                 }
             } else {
-                session()->flash('quiz_error', 'Không tìm thấy đề thi với mã: '.$quizCode);
+                session()->flash('quiz_error', __('Không tìm thấy đề thi với mã: :code', ['code' => $quizCode]));
             }
         }
 
@@ -723,13 +723,13 @@ class ToolController extends Controller
             'model' => 'nullable|string',
             'mode' => 'nullable|string',
         ], [
-            'file.mimes' => 'Hệ thống chỉ hỗ trợ tải lên định dạng file PDF. Nếu bạn có file Word (.docx), vui lòng lưu sang file PDF (Save as PDF trong Word) hoặc dán trực tiếp nội dung đề thi vào ô văn bản.',
+            'file.mimes' => __('Hệ thống chỉ hỗ trợ tải lên định dạng file PDF. Nếu bạn có file Word (.docx), vui lòng lưu sang file PDF (Save as PDF trong Word) hoặc dán trực tiếp nội dung đề thi vào ô văn bản.'),
         ]);
 
         if (! $request->hasFile('file') && empty(trim((string) $request->input('text', '')))) {
             return response()->json([
                 'success' => false,
-                'error' => 'Vui lòng tải lên file tài liệu PDF hoặc dán nội dung đề thi.',
+                'error' => __('Vui lòng tải lên file tài liệu PDF hoặc dán nội dung đề thi.'),
             ], 422);
         }
 
@@ -772,7 +772,7 @@ class ToolController extends Controller
             return response()->json([
                 'success' => false,
                 'require_login' => true,
-                'error' => 'Bạn cần đăng nhập tài khoản để đặt đề thi ở chế độ Riêng Tư (Private).',
+                'error' => __('Bạn cần đăng nhập tài khoản để đặt đề thi ở chế độ Riêng Tư (Private).'),
             ], 401);
         }
 
@@ -808,8 +808,8 @@ class ToolController extends Controller
             'is_owner' => Auth::check() && Auth::id() === $quiz->user_id,
             'share_url' => $shareUrl,
             'message' => $quiz->is_public
-                ? 'Đã lưu đề thi thành công! Bất kỳ ai có mã hoặc link đều có thể mở làm đề này.'
-                : 'Đã lưu đề thi Riêng Tư thành công! Chỉ tài khoản của bạn mới có thể mở đề này.',
+                ? __('Đã lưu đề thi thành công! Bất kỳ ai có mã hoặc link đều có thể mở làm đề này.')
+                : __('Đã lưu đề thi Riêng Tư thành công! Chỉ tài khoản của bạn mới có thể mở đề này.'),
         ]);
     }
 
@@ -824,7 +824,7 @@ class ToolController extends Controller
         if (! $quiz) {
             return response()->json([
                 'success' => false,
-                'error' => 'Không tìm thấy đề thi với mã: '.$code,
+                'error' => __('Không tìm thấy đề thi với mã: :code', ['code' => $code]),
             ], 404);
         }
 
@@ -833,14 +833,14 @@ class ToolController extends Controller
                 return response()->json([
                     'success' => false,
                     'require_login' => true,
-                    'error' => 'Đề thi này được đặt ở chế độ Riêng Tư. Vui lòng đăng nhập tài khoản chủ sở hữu để truy cập.',
+                    'error' => __('Đề thi này được đặt ở chế độ Riêng Tư. Vui lòng đăng nhập tài khoản chủ sở hữu để truy cập.'),
                 ], 403);
             }
 
             if (Auth::id() !== $quiz->user_id) {
                 return response()->json([
                     'success' => false,
-                    'error' => 'Đề thi này được đặt ở chế độ Riêng Tư. Bạn không có quyền truy cập đề thi của người khác.',
+                    'error' => __('Đề thi này được đặt ở chế độ Riêng Tư. Bạn không có quyền truy cập đề thi của người khác.'),
                 ], 403);
             }
         }
@@ -872,17 +872,17 @@ class ToolController extends Controller
             return response()->json([
                 'success' => false,
                 'require_login' => true,
-                'error' => 'Vui lòng đăng nhập để thay đổi quyền riêng tư của đề thi.',
+                'error' => __('Vui lòng đăng nhập để thay đổi quyền riêng tư của đề thi.'),
             ], 401);
         }
 
         $quiz = Quiz::where('code', $request->input('code'))->first();
         if (! $quiz) {
-            return response()->json(['success' => false, 'error' => 'Không tìm thấy đề thi.'], 404);
+            return response()->json(['success' => false, 'error' => __('Không tìm thấy đề thi.')], 404);
         }
 
         if ($quiz->user_id !== Auth::id()) {
-            return response()->json(['success' => false, 'error' => 'Bạn không phải chủ sở hữu đề thi này.'], 403);
+            return response()->json(['success' => false, 'error' => __('Bạn không phải chủ sở hữu đề thi này.')], 403);
         }
 
         $quiz->is_public = $request->boolean('is_public');
@@ -891,7 +891,7 @@ class ToolController extends Controller
         return response()->json([
             'success' => true,
             'is_public' => $quiz->is_public,
-            'message' => $quiz->is_public ? 'Đã chuyển sang chế độ Công Khai (Public).' : 'Đã chuyển sang chế độ Riêng Tư (Private).',
+            'message' => $quiz->is_public ? __('Đã chuyển sang chế độ Công Khai (Public).') : __('Đã chuyển sang chế độ Riêng Tư (Private).'),
         ]);
     }
 
@@ -937,24 +937,24 @@ class ToolController extends Controller
             return response()->json([
                 'success' => false,
                 'require_login' => true,
-                'error' => 'Vui lòng đăng nhập để xóa đề thi.',
+                'error' => __('Vui lòng đăng nhập để xóa đề thi.'),
             ], 401);
         }
 
         $quiz = Quiz::where('code', $request->input('code'))->first();
         if (! $quiz) {
-            return response()->json(['success' => false, 'error' => 'Không tìm thấy đề thi.'], 404);
+            return response()->json(['success' => false, 'error' => __('Không tìm thấy đề thi.')], 404);
         }
 
         if ($quiz->user_id !== Auth::id()) {
-            return response()->json(['success' => false, 'error' => 'Bạn không có quyền xóa đề thi của người khác.'], 403);
+            return response()->json(['success' => false, 'error' => __('Bạn không có quyền xóa đề thi của người khác.')], 403);
         }
 
         $quiz->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Đã xóa đề thi thành công.',
+            'message' => __('Đã xóa đề thi thành công.'),
         ]);
     }
 }

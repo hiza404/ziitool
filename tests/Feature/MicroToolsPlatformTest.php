@@ -307,12 +307,20 @@ class MicroToolsPlatformTest extends TestCase
         $response = $this->get('/tool/tao-de-trac-nghiem-tu-file');
         $response->assertStatus(200);
         $response->assertSee('Tạo Đề Trắc Nghiệm Từ File');
-        $response->assertSee('Gemini');
+        $response->assertSee('Trích Xuất Thông Minh');
+        $response->assertDontSee('Gemini Pro');
         $response->assertSee('Bắt Đầu Làm Bài Thi');
 
         // Test alias redirect
         $aliasResponse = $this->get('/tool/trac-nghiem-online');
         $aliasResponse->assertRedirect('/tool/tao-de-trac-nghiem-tu-file');
+
+        // Test English locale render
+        $enResponse = $this->withSession(['locale' => 'en'])->get('/tool/tao-de-trac-nghiem-tu-file');
+        $enResponse->assertStatus(200);
+        $enResponse->assertSee('Multiple-Choice Quiz');
+        $enResponse->assertSee('Practice');
+        $enResponse->assertSee('Mock Exam');
     }
 
     /**
