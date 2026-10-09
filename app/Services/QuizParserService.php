@@ -19,7 +19,7 @@ class QuizParserService
     public function parse(UploadedFile|string $input, array $options = []): array
     {
         $apiKey = ! empty($options['api_key']) ? $options['api_key'] : config('services.gemini.key');
-        $model = ! empty($options['model']) ? $options['model'] : config('services.gemini.model', 'gemini-2.0-flash');
+        $model = ! empty($options['model']) ? $options['model'] : config('services.gemini.model', 'gemini-3.8-flash');
         $mode = $options['mode'] ?? 'auto';
 
         if ($input instanceof UploadedFile) {
@@ -35,6 +35,7 @@ class QuizParserService
         // 1. Try Gemini AI if requested or available
         $canUseAi = ! empty($apiKey) && ($mode === 'ai' || $mode === 'auto');
 
+        $lastAiError = null;
         if ($canUseAi) {
             try {
                 $aiResult = $this->parseWithGemini($input, $apiKey, $model);
@@ -49,25 +50,26 @@ class QuizParserService
                     ];
                 }
             } catch (\Throwable $e) {
+                $lastAiError = $e->getMessage();
                 Log::warning('Gemini parsing with '.$model.' failed, trying fallback: '.$e->getMessage());
 
-                // Fallback attempt with gemini-1.5-flash if primary model was 2.0
-                if ($model !== 'gemini-1.5-flash') {
-                    try {
-                        $aiResult = $this->parseWithGemini($input, $apiKey, 'gemini-1.5-flash');
-                        if (! empty($aiResult['questions'])) {
-                            return [
-                                'success' => true,
-                                'source' => 'gemini',
-                                'model' => 'gemini-1.5-flash',
-                                'total_questions' => count($aiResult['questions']),
-                                'title' => $aiResult['title'] ?? 'Bài Thi Trắc Nghiệm',
-                                'questions' => $aiResult['questions'],
-                            ];
-                        }
-                    } catch (\Throwable $fallbackEx) {
-                        Log::warning('Gemini 1.5 Flash fallback also failed: '.$fallbackEx->getMessage());
+                // Fallback attempt with alternative model if primary model failed
+                $fallbackModel = $model !== 'gemini-3.8-flash' ? 'gemini-3.8-flash' : 'gemini-flash-latest';
+                try {
+                    $aiResult = $this->parseWithGemini($input, $apiKey, $fallbackModel);
+                    if (! empty($aiResult['questions'])) {
+                        return [
+                            'success' => true,
+                            'source' => 'gemini',
+                            'model' => $fallbackModel,
+                            'total_questions' => count($aiResult['questions']),
+                            'title' => $aiResult['title'] ?? 'Bài Thi Trắc Nghiệm',
+                            'questions' => $aiResult['questions'],
+                        ];
                     }
+                } catch (\Throwable $fallbackEx) {
+                    $lastAiError = $fallbackEx->getMessage();
+                    Log::warning('Gemini fallback to '.$fallbackModel.' also failed: '.$fallbackEx->getMessage());
                 }
 
                 if ($mode === 'ai') {
@@ -92,9 +94,35 @@ class QuizParserService
             ];
         }
 
+        if (! empty($lastAiError)) {
+            $msg = 'Lỗi xử lý tài liệu: '.$lastAiError;
+            if (auth()->check()) {
+                $msg .= ' (Gợi ý Quản trị viên: Vui lòng kiểm tra lại GEMINI_API_KEY hoặc quota trong file .env trên server)';
+            }
+
+            return [
+                'success' => false,
+                'error' => $msg,
+            ];
+        }
+
+        if (empty($apiKey) && $input instanceof UploadedFile) {
+            $msg = 'Không tìm thấy câu hỏi trắc nghiệm hợp lệ trong tài liệu.';
+            if (auth()->check()) {
+                $msg .= ' (Lưu ý Quản trị viên: File PDF cần cấu hình GEMINI_API_KEY trong file .env trên server để hệ thống tự động đọc và phân tích file).';
+            } else {
+                $msg .= ' Vui lòng kiểm tra file có định dạng câu hỏi rõ ràng (Câu 1, A, B, C, D) hoặc thử copy nội dung đề dán trực tiếp vào tab "Nhập / Dán văn bản".';
+            }
+
+            return [
+                'success' => false,
+                'error' => $msg,
+            ];
+        }
+
         return [
             'success' => false,
-            'error' => 'Không tìm thấy câu hỏi trắc nghiệm hợp lệ trong tài liệu. Vui lòng kiểm tra file có định dạng câu hỏi rõ ràng (Câu 1, A, B, C, D).',
+            'error' => 'Không tìm thấy câu hỏi trắc nghiệm hợp lệ trong tài liệu. Vui lòng kiểm tra file có định dạng câu hỏi rõ ràng (Câu 1, A, B, C, D) hoặc copy dán vào tab "Nhập / Dán văn bản".',
         ];
     }
 
@@ -479,6 +507,12 @@ PROMPT;
             if ($code2 === 0 && ! empty($output2)) {
                 return $this->cleanDocumentWatermarks(implode("\n", $output2));
             }
+
+            // Fallback pure PHP stream extraction
+            $streamText = $this->extractPdfStreams($path);
+            if (! empty(trim($streamText))) {
+                return $this->cleanDocumentWatermarks($streamText);
+            }
         }
 
         if ($ext === 'docx') {
@@ -708,6 +742,65 @@ PY;
         }
 
         return $normalized;
+    }
+
+    /**
+     * Fallback pure PHP extractor for text in PDF streams.
+     */
+    protected function extractPdfStreams(string $path): string
+    {
+        $content = @file_get_contents($path);
+        if (empty($content)) {
+            return '';
+        }
+
+        $text = '';
+        $pos = 0;
+        while (($pos = strpos($content, 'stream', $pos)) !== false) {
+            $pos += 6;
+            if (substr($content, $pos, 2) === "\r\n") {
+                $pos += 2;
+            } elseif (substr($content, $pos, 1) === "\n" || substr($content, $pos, 1) === "\r") {
+                $pos += 1;
+            }
+
+            $endPos = strpos($content, 'endstream', $pos);
+            if ($endPos === false) {
+                break;
+            }
+
+            $streamData = substr($content, $pos, $endPos - $pos);
+            $uncompressed = @gzuncompress($streamData);
+            if ($uncompressed === false) {
+                $uncompressed = $streamData;
+            }
+
+            if (strpos($uncompressed, 'Tj') !== false || strpos($uncompressed, 'TJ') !== false) {
+                if (preg_match_all('/\((.*?)\)\s*Tj/s', $uncompressed, $tjMatches)) {
+                    $text .= implode(' ', array_map([$this, 'decodePdfString'], $tjMatches[1]))."\n";
+                }
+                if (preg_match_all('/\[(.*?)\]\s*TJ/s', $uncompressed, $tjMatches)) {
+                    foreach ($tjMatches[1] as $arrayStr) {
+                        if (preg_match_all('/\((.*?)\)/s', $arrayStr, $inner)) {
+                            $text .= implode('', array_map([$this, 'decodePdfString'], $inner[1])).' ';
+                        }
+                    }
+                    $text .= "\n";
+                }
+            }
+
+            $pos = $endPos + 9;
+        }
+
+        return $text;
+    }
+
+    /**
+     * Decode escaped characters in PDF string literals.
+     */
+    protected function decodePdfString(string $str): string
+    {
+        return str_replace(['\\n', '\\r', '\\t', '\\(', '\\)', '\\\\'], ["\n", "\r", "\t", '(', ')', '\\'], $str);
     }
 
     /**
