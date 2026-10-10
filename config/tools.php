@@ -29,7 +29,7 @@ return [
         'education' => [
             'name' => 'Giáo dục & Ôn thi',
             'desc' => 'Tạo đề thi trắc nghiệm từ file tài liệu, làm bài kiểm tra và chấm điểm tự động',
-            'icon' => 'academic-cap',
+            'icon' => 'graduation-cap',
             'color' => 'violet',
         ],
     ],
@@ -412,7 +412,7 @@ return [
             'category' => 'education',
             'badge' => 'Mới Hot',
             'short_desc' => 'Chuyển đổi file PDF hoặc văn bản thành bài thi trắc nghiệm online. Tự động nhận diện câu hỏi và đáp án, hỗ trợ chế độ ôn tập tức thì hoặc thi thử bấm giờ, chấm điểm tự động và xem lại toàn bộ câu sai.',
-            'icon' => 'academic-cap',
+            'icon' => 'graduation-cap',
             'seo_title' => 'Tạo Đề Trắc Nghiệm Từ File PDF & Chấm Điểm Online',
             'seo_desc' => 'Công cụ đọc file PDF trích xuất đề thi trắc nghiệm online miễn phí. Tự động nhận diện đáp án, làm bài thi có hẹn giờ hoặc ôn tập, chấm điểm tức thì và lọc xem lại câu sai.',
             'keywords' => 'tạo đề trắc nghiệm từ file, đọc file trắc nghiệm online, làm bài kiểm tra trắc nghiệm, chấm điểm trắc nghiệm online, xem lại câu sai, thi trắc nghiệm online, ôn tập trắc nghiệm',

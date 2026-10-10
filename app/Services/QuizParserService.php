@@ -305,6 +305,11 @@ PROMPT;
             return ['questions' => []];
         }
 
+        $highlights = [];
+        if ($input instanceof UploadedFile && strtolower($input->getClientOriginalExtension()) === 'pdf') {
+            $highlights = $this->extractPdfHighlights($input->getRealPath());
+        }
+
         // Global answer map and explanations from answer table or solutions
         $answersMap = $this->extractAnswerTable($text);
         $explanationsMap = $this->extractExplanations($text);
@@ -329,6 +334,10 @@ PROMPT;
             }
 
             if (! empty($allQuestions)) {
+                if (! empty($highlights)) {
+                    $this->applyPdfHighlightsToQuestions($allQuestions, $highlights);
+                }
+
                 return [
                     'title' => $title,
                     'questions' => $this->normalizeQuestions($allQuestions),
@@ -346,6 +355,10 @@ PROMPT;
         }
 
         $questions = $this->parseTextSection($qText, null, 1, $answersMap, $explanationsMap);
+
+        if (! empty($highlights)) {
+            $this->applyPdfHighlightsToQuestions($questions, $highlights);
+        }
 
         return [
             'title' => $title,
@@ -388,18 +401,12 @@ PROMPT;
                 $qNumber = ! empty($match[1]) ? (int) $match[1] : (! empty($match[2]) ? (int) $match[2] : $currentId);
                 $content = trim($match[3]);
 
-                // Extract options A, B, C, D (and E)
+                // Extract options A, B, C, D (and E, plus Vietnamese Đ)
                 // Note: negative lookbehind ensures mathematical constants like '+ C.' or '= C.' are not matched as option C
-                $optPattern = '/(?:^|(?<![\+\-\=\/\*\(\^])[\s\t]+)(?:\[bold\]\s*)?([A-E])[\.\)]\s*([\s\S]*?)(?=(?<![\+\-\=\/\*\(\^])[\s\t]+(?:\[bold\]\s*)?[A-E][\.\)]|\n\s*(?:Đáp\s*án|Key|Đ\/a)\s*[:\.]|\Z)/u';
+                $optPattern = '/(?:^|(?<![\+\-\=\/\*\(\^])[\s\t]+)(?:\[bold\]\s*)?([A-Ea-eĐđ])[\.\)]\s*([\s\S]*?)(?=(?<![\+\-\=\/\*\(\^])[\s\t]+(?:\[bold\]\s*)?[A-Ea-eĐđ][\.\)]|\n\s*(?:Đáp\s*án|Key|Đ\/a)\s*[:\.]|\Z)/u';
 
                 $optMatches = [];
                 preg_match_all($optPattern, $content, $optMatches, PREG_SET_ORDER);
-
-                // Fallback for lowercase a), b), c), d) if fewer than 2 uppercase options found
-                if (count($optMatches) < 2) {
-                    $lowerOptPattern = '/(?:^|(?<![\+\-\=\/\*\(\^])[\s\t]+)(?:\[bold\]\s*)?([a-e])[\.\)]\s*([\s\S]*?)(?=(?<![\+\-\=\/\*\(\^])[\s\t]+(?:\[bold\]\s*)?[a-e][\.\)]|\n\s*(?:Đáp\s*án|Key|Đ\/a)\s*[:\.]|\Z)/u';
-                    preg_match_all($lowerOptPattern, $content, $optMatches, PREG_SET_ORDER);
-                }
 
                 if (count($optMatches) >= 2) {
                     $firstOptPos = mb_strpos($content, $optMatches[0][0]);
@@ -411,7 +418,21 @@ PROMPT;
                     $boldOrMarkedCorrect = null;
 
                     foreach ($optMatches as $opt) {
-                        $key = strtoupper(trim($opt[1]));
+                        $key = mb_strtoupper(trim($opt[1]));
+                        if ($key === 'Đ') {
+                            $key = 'D';
+                        }
+
+                        // If option letter was already used (document typo repeating letters), assign next unused key
+                        if (isset($options[$key])) {
+                            foreach (['A', 'B', 'C', 'D', 'E'] as $nextKey) {
+                                if (! isset($options[$nextKey])) {
+                                    $key = $nextKey;
+                                    break;
+                                }
+                            }
+                        }
+
                         $optText = trim($opt[2]);
 
                         if (str_starts_with($optText, '*') || str_contains($optText, '✓') || str_contains($optText, '[x]')) {
@@ -542,6 +563,16 @@ PROMPT;
         $path = $file->getRealPath();
 
         if ($ext === 'pdf') {
+            // 1. Try pdftotext CLI (Poppler) - preserves true physical reading order and multi-column layout
+            $pdftotextBin = $this->getPdftotextBinary();
+            if ($pdftotextBin) {
+                $cmd = escapeshellarg($pdftotextBin).' -enc UTF-8 '.escapeshellarg($path).' -';
+                $output = @shell_exec($cmd);
+                if (! empty($output) && ! empty(trim($output))) {
+                    return $this->cleanDocumentWatermarks($output);
+                }
+            }
+
             // Ensure Smalot\PdfParser classes can be loaded even if composer autoloader hasn't dumped
             if (! class_exists(Parser::class)) {
                 $bundledPath = app_path('Support/PdfParser');
@@ -565,7 +596,7 @@ PROMPT;
                 });
             }
 
-            // 1. Try Smalot\PdfParser (Pure PHP, works everywhere including cPanel, super fast 0.5s)
+            // 2. Fallback to Smalot\PdfParser (Pure PHP)
             try {
                 if (class_exists(Parser::class)) {
                     $pdfParser = new Parser;
@@ -585,21 +616,7 @@ PROMPT;
                 Log::warning('Smalot PdfParser failed, falling back: '.$pdfEx->getMessage());
             }
 
-            // 2. Try pdftotext with layout preserving
-            $output = null;
-            $code = 0;
-            exec('pdftotext -layout '.escapeshellarg($path).' - 2>/dev/null', $output, $code);
-            if ($code === 0 && ! empty($output)) {
-                return $this->cleanDocumentWatermarks(implode("\n", $output));
-            }
-
-            // 3. Fallback plain pdftotext
-            exec('pdftotext '.escapeshellarg($path).' - 2>/dev/null', $output2, $code2);
-            if ($code2 === 0 && ! empty($output2)) {
-                return $this->cleanDocumentWatermarks(implode("\n", $output2));
-            }
-
-            // 4. Fallback pure PHP stream extraction
+            // 3. Fallback pure PHP stream extraction
             $streamText = $this->extractPdfStreams($path);
             if (! empty(trim($streamText))) {
                 return $this->cleanDocumentWatermarks($streamText);
@@ -909,6 +926,176 @@ PY;
     protected function decodePdfString(string $str): string
     {
         return str_replace(['\\n', '\\r', '\\t', '\\(', '\\)', '\\\\'], ["\n", "\r", "\t", '(', ')', '\\'], $str);
+    }
+
+    /**
+     * Locate pdftotext executable binary on host environment.
+     */
+    protected function getPdftotextBinary(): ?string
+    {
+        $checkCmd = PHP_OS_FAMILY === 'Windows' ? 'where pdftotext 2>NUL' : 'which pdftotext 2>/dev/null';
+        $bin = trim((string) @shell_exec($checkCmd));
+        if (! empty($bin)) {
+            $lines = preg_split('/\r?\n/', $bin);
+            if (! empty($lines[0]) && file_exists(trim($lines[0]))) {
+                return trim($lines[0]);
+            }
+        }
+
+        $candidates = [
+            'C:\\laragon\\bin\\git\\mingw64\\bin\\pdftotext.exe',
+            'C:\\Program Files\\Git\\mingw64\\bin\\pdftotext.exe',
+            'C:\\Program Files (x86)\\Git\\mingw64\\bin\\pdftotext.exe',
+            '/usr/bin/pdftotext',
+            '/usr/local/bin/pdftotext',
+        ];
+
+        foreach ($candidates as $cand) {
+            if (file_exists($cand)) {
+                return $cand;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract yellow highlighted snippets from PDF streams.
+     *
+     * @return array<int, array{letter: string, text: string, words: array<string>}>
+     */
+    protected function extractPdfHighlights(string $pdfPath): array
+    {
+        if (! file_exists($pdfPath)) {
+            return [];
+        }
+
+        $data = @file_get_contents($pdfPath);
+        if ($data === false || empty($data)) {
+            return [];
+        }
+
+        if (! preg_match_all('/stream[\r\n]+([\s\S]*?)[\r\n]+endstream/m', $data, $matches)) {
+            return [];
+        }
+
+        $highlights = [];
+
+        foreach ($matches[1] as $stream) {
+            $dec = @gzuncompress($stream);
+            if ($dec === false) {
+                continue;
+            }
+
+            if (! preg_match('/(?:0\.996\s+0\.996\s+0\.2\s+rg|1\s+1\s+0\s+rg|[0-9\.]+\s+[0-9\.]+\s+[0-9\.]+\s+rg)/m', $dec)) {
+                continue;
+            }
+
+            if (preg_match_all('/([0-9\.]+)\s+([0-9\.]+)\s+([0-9\.]+)\s+rg[\s\S]*?([0-9\.]+)\s+([0-9\.]+)\s+([0-9\.]+)\s+([0-9\.]+)\s+re\s+f/m', $dec, $boxMatches, PREG_SET_ORDER)) {
+                preg_match_all('/BT([\s\S]*?)ET/m', $dec, $tbMatches);
+                $linesByY = [];
+                foreach ($tbMatches[1] as $tb) {
+                    if (preg_match('/1\s+0\s+0\s+1\s+([0-9\.]+)\s+([0-9\.]+)\s+Tm/', $tb, $tm)) {
+                        $tx = (float) $tm[1];
+                        $ty = round((float) $tm[2], 1);
+                        preg_match_all('/\((.*?)\)/', $tb, $chars);
+                        $textStr = implode('', $chars[1] ?? []);
+                        $linesByY[(string) $ty][] = ['x' => $tx, 'text' => $textStr];
+                    }
+                }
+
+                foreach ($boxMatches as $box) {
+                    $r = (float) $box[1];
+                    $g = (float) $box[2];
+                    $b = (float) $box[3];
+                    if (! ($r >= 0.8 && $g >= 0.8 && $b <= 0.5)) {
+                        continue;
+                    }
+
+                    $bx = (float) $box[4];
+                    $by = (float) $box[5];
+                    $bw = (float) $box[6];
+
+                    $bestY = null;
+                    foreach ($linesByY as $tyStr => $items) {
+                        $ty = (float) $tyStr;
+                        if (abs($ty - ($by + 2.4)) < 4.5) {
+                            $bestY = $tyStr;
+                            break;
+                        }
+                    }
+
+                    if ($bestY !== null) {
+                        $items = $linesByY[$bestY];
+                        usort($items, fn ($a, $b) => $a['x'] <=> $b['x']);
+                        $boxWords = [];
+                        foreach ($items as $it) {
+                            if ($it['x'] >= $bx - 15 && $it['x'] <= $bx + $bw + 15) {
+                                $boxWords[] = trim($it['text']);
+                            }
+                        }
+                        $snippet = trim(implode(' ', array_filter($boxWords)));
+                        if (preg_match('/^\s*([a-e])[\.\)]\s*(.*)/i', $snippet, $sm)) {
+                            $letter = strtoupper($sm[1]);
+                            $text = trim($sm[2]);
+                            preg_match_all('/[a-zA-Z0-9\/\-]{2,}/', $text, $wm);
+                            $words = $wm[0] ?? [];
+                            if (! empty($words)) {
+                                $highlights[] = [
+                                    'letter' => $letter,
+                                    'text' => $text,
+                                    'words' => $words,
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $highlights;
+    }
+
+    /**
+     * Match extracted PDF highlight snippets against parsed questions to assign correct answers.
+     *
+     * @param  array<int, array<string, mixed>>  $questions
+     * @param  array<int, array{letter: string, text: string, words: array<string>}>  $highlights
+     */
+    protected function applyPdfHighlightsToQuestions(array &$questions, array $highlights): void
+    {
+        if (empty($questions) || empty($highlights)) {
+            return;
+        }
+
+        foreach ($highlights as $h) {
+            $bestQKey = null;
+            $bestScore = 0;
+
+            foreach ($questions as $k => $q) {
+                $hKey = $h['letter'];
+                if (! isset($q['options'][$hKey])) {
+                    continue;
+                }
+
+                $optVal = $q['options'][$hKey];
+                $score = 0;
+                foreach ($h['words'] as $w) {
+                    if (mb_stripos($optVal, $w) !== false) {
+                        $score += strlen($w);
+                    }
+                }
+                if ($score > $bestScore) {
+                    $bestScore = $score;
+                    $bestQKey = $k;
+                }
+            }
+
+            if ($bestQKey !== null && $bestScore >= 3) {
+                $questions[$bestQKey]['correct'] = $h['letter'];
+                $questions[$bestQKey]['explanation'] = "Đáp án chính xác là {$h['letter']} (theo đánh dấu highlight trong tài liệu).";
+            }
+        }
     }
 
     /**
