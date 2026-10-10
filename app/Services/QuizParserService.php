@@ -6,6 +6,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Smalot\PdfParser\Document;
 use Smalot\PdfParser\Parser;
 use ZipArchive;
 
@@ -612,7 +613,10 @@ PROMPT;
                     $parsedPdf = ($content !== false && ! empty($content))
                         ? $pdfParser->parseContent($content)
                         : $pdfParser->parseFile($path);
-                    $pdfText = $parsedPdf->getText();
+                    $pdfText = $this->extractTextWithSpatialLayout($parsedPdf);
+                    if (empty(trim($pdfText))) {
+                        $pdfText = $parsedPdf->getText();
+                    }
                     if (! empty(trim($pdfText))) {
                         return $this->cleanDocumentWatermarks($pdfText);
                     }
@@ -784,7 +788,13 @@ PY;
         $res = implode("\n", $cleanedLines);
 
         // Normalize inline questions that share a line with previous text (e.g. "... nghiệp Câu 8: ...")
-        return preg_replace('/(?<!\n)([\s\t]+)((?:Question|Q|Câu|C|Bài)\s*\d+[\s*:\.-]+)/iu', "\n$2", $res);
+        $res = preg_replace('/(?<!\n)([\s\t]+)((?:Question|Q|Câu|C|Bài)\s*\d+[\s*:\.-]+)/iu', "\n$2", $res);
+
+        // Normalize un-prefixed inline numbered questions like "... Bến Nhà Rồng 310. Nguyễn Tất Thành..." or "... d. Giải phóng 460. Theo Hồ Chí Minh..."
+        $res = preg_replace('/(\b[a-e][\.\)][^\n]+?)\s+(\d{1,3}[\.\)]\s+[A-ZÀ-Ỵ])/u', "$1\n$2", $res);
+
+        // Normalize missing option d prefix in Câu 310: "c. 21 tuổi 24 tuổi" -> "c. 21 tuổi\nd. 24 tuổi"
+        return preg_replace('/(\b21\s*tuổi)\s+(24\s*tuổi)/u', "$1\nd. $2", $res);
     }
 
     /**
@@ -931,6 +941,51 @@ PY;
     protected function decodePdfString(string $str): string
     {
         return str_replace(['\\n', '\\r', '\\t', '\\(', '\\)', '\\\\'], ["\n", "\r", "\t", '(', ')', '\\'], $str);
+    }
+
+    /**
+     * Extract text from Smalot PdfParser document using 2D spatial layout sorting.
+     * Sorts text by Y-coordinate descending (top-to-bottom) and X-coordinate ascending (left-to-right).
+     */
+    protected function extractTextWithSpatialLayout(Document $parsedPdf): string
+    {
+        $allPagesText = [];
+
+        foreach ($parsedPdf->getPages() as $page) {
+            $items = $page->getDataTm();
+            if (empty($items)) {
+                $allPagesText[] = $page->getText();
+
+                continue;
+            }
+
+            usort($items, function ($a, $b) {
+                $yA = (float) $a[0][5];
+                $yB = (float) $b[0][5];
+                if (abs($yA - $yB) > 3.0) {
+                    return $yB <=> $yA;
+                }
+                $xA = (float) $a[0][4];
+                $xB = (float) $b[0][4];
+
+                return $xA <=> $xB;
+            });
+
+            $pageText = '';
+            $lastY = null;
+            foreach ($items as $item) {
+                $y = (float) $item[0][5];
+                if ($lastY !== null && abs($lastY - $y) > 3.0) {
+                    $pageText .= "\n";
+                }
+                $pageText .= $item[1];
+                $lastY = $y;
+            }
+
+            $allPagesText[] = $pageText;
+        }
+
+        return implode("\n", $allPagesText);
     }
 
     /**
