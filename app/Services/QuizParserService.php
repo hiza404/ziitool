@@ -35,6 +35,7 @@ class QuizParserService
 
         @ini_set('max_execution_time', '300');
         @set_time_limit(300);
+        @ini_set('memory_limit', '512M');
 
         // 1. FAST PATH: Instant local parsing (0.05s) if document has clear questions
         $localResult = null;
@@ -566,11 +567,15 @@ PROMPT;
             // 1. Try pdftotext CLI (Poppler) - preserves true physical reading order and multi-column layout
             $pdftotextBin = $this->getPdftotextBinary();
             if ($pdftotextBin) {
+                Log::info('QuizParser: Using pdftotext binary at '.$pdftotextBin);
                 $cmd = escapeshellarg($pdftotextBin).' -enc UTF-8 '.escapeshellarg($path).' -';
                 $output = @shell_exec($cmd);
                 if (! empty($output) && ! empty(trim($output))) {
                     return $this->cleanDocumentWatermarks($output);
                 }
+                Log::warning('QuizParser: pdftotext returned empty output, falling back to Smalot.');
+            } else {
+                Log::warning('QuizParser: pdftotext binary not found on system. Falling back to pure PHP Smalot PdfParser. For best multi-column PDF results, install poppler-utils on server.');
             }
 
             // Ensure Smalot\PdfParser classes can be loaded even if composer autoloader hasn't dumped
